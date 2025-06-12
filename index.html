@@ -11,7 +11,26 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f5f5f5;
-            margin: 0;
+        }
+        th, td {
+            padding: 4px 8px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+        }
+        th {
+            background-color: #fafafa;
+            font-weight: 500;
+            color: #4b5563;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+            cursor: pointer;
         }
         .navbar {
             width: 220px;
@@ -28,36 +47,24 @@
         .navbar.hidden {
             transform: translateX(-100%);
         }
-        .menu-toggle {
-            display: none;
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 50;
-        }
-        .main-content {
-            margin-left: 220px;
-            padding: 20px;
-            transition: margin-left 0.3s ease-in-out;
-        }
-        th, td {
+        .branch-button {
             padding: 4px 8px;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb;
-            font-size: 13px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        th {
-            background-color: #fafafa;
-            font-weight: 500;
-            color: #4b5563;
-            border-bottom: 2px solid #e5e7eb;
-        }
-        tr:hover {
-            background-color: #f5f5f5;
+            margin: 2px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
             cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .branch-button.active {
+            border-color: #4b5563;
+            color: #fff;
+        }
+        .tag {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
         }
         .modal {
             display: none;
@@ -80,73 +87,43 @@
             max-height: 90vh;
             overflow-y: auto;
         }
-        .branch-button {
-            padding: 4px 8px;
-            margin: 2px;
-            border: 1px solid #d1d5db;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        .branch-button.active {
-            border-color: #4b5563;
-            color: #fff;
-        }
-        .tag {
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-        }
         @media (max-width: 768px) {
             .navbar {
-                transform: translateX(-100%);
-            }
-            .navbar.visible {
-                transform: translateX(0);
+                width: 200px;
             }
             .main-content {
-                margin-left: 0;
-            }
-            .menu-toggle {
-                display: block;
-            }
-            th, td {
-                font-size: 12px;
-                padding: 3px 6px;
-            }
-            .modal-content {
-                width: 95%;
-                padding: 15px;
-            }
-            .modal-content .grid {
-                grid-template-columns: 1fr;
-            }
-            .branch-button {
-                font-size: 11px;
-                padding: 3px 6px;
+                margin-left: 0 !important;
+                padding: 16px;
             }
             .table-container {
                 overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
             }
-            table {
-                min-width: 800px;
+            th, td {
+                font-size: 12px;
+                max-width: 100px;
+            }
+            .modal-content {
+                width: 95%;
+                max-height: 85vh;
+            }
+            .modal-content .grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body class="bg-[#f5f5f5]">
-    <!-- Menu Toggle for Mobile -->
-    <button class="menu-toggle" onclick="toggleNavbar()">
-        <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-    </button>
+    <!-- Hamburger Menu for Mobile -->
+    <div class="md:hidden fixed top-4 left-4 z-50">
+        <button id="menuToggle" class="p-2 bg-gray-200 rounded-lg">
+            <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+    </div>
 
     <!-- Left Navbar -->
-    <div class="navbar" id="navbar">
+    <div id="navbar" class="navbar">
         <div class="flex items-center mb-6">
             <h2 class="text-xl font-bold text-gray-800">NSUTGod</h2>
         </div>
@@ -171,12 +148,12 @@
         </ul>
     </div>
 
-    <div class="main-content" id="mainContent">
+    <div id="mainContent" class="md:ml-56 p-8 main-content">
         <div class="max-w-6xl mx-auto">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                <h1 class="text-xl sm:text-2xl font-bold text-gray-800">Student Data - <span class="text-green-600" id="totalRecords"></span></h1>
-                <div class="flex gap-2 w-full sm:w-auto">
-                    <input type="text" id="searchInput" placeholder="Search" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 flex-1 sm:flex-none" />
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <h1 class="text-2xl font-bold text-gray-800">Student Data - <span class="text-green-600" id="totalRecords"></span></h1>
+                <div class="flex gap-2">
+                    <input type="text" id="searchInput" placeholder="Search" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 w-full md:w-auto" />
                     <button class="p-2 bg-gray-100 rounded-lg">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -186,14 +163,14 @@
             </div>
 
             <!-- Branch Filter Buttons -->
-            <div class="flex flex-wrap gap-1 mb-4" id="branchFilterButtons"></div>
+            <div class="flex flex-wrap gap-1 mb-4 overflow-x-auto" id="branchFilterButtons"></div>
 
             <!-- Other Filters -->
-            <div class="flex flex-col sm:flex-row gap-4 mb-6">
-                <select id="batchFilter" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 flex-1 sm:flex-none">
-                    <option value="">Filter by Batch</option>
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                <select id="batchFilter" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 w-full md:w-auto">
+                    <option value="">Batch Year</option>
                 </select>
-                <select id="genderFilter" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 flex-1 sm:flex-none">
+                <select id="genderFilter" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 w-full md:w-auto">
                     <option value="">Filter by Gender</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
@@ -202,7 +179,7 @@
             </div>
 
             <!-- Table -->
-            <div class="table-container bg-white rounded-lg shadow-sm">
+            <div class="bg-white rounded-lg shadow-sm table-container">
                 <table class="min-w-full">
                     <thead>
                         <tr>
@@ -217,6 +194,7 @@
                             <th>Present Address</th>
                             <th>Category</th>
                             <th>Campus</th>
+                            <th>View Profile</th>
                         </tr>
                     </thead>
                     <tbody id="studentTableBody"></tbody>
@@ -224,13 +202,14 @@
             </div>
 
             <!-- Pagination -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-4 text-gray-600 gap-4">
+            <div class="flex flex-col md:flex-row justify-between items-center mt-4 text-gray-600 gap-4">
                 <div>
                     Rows per page: 
                     <select id="rowsPerPageSelect" class="p-1 rounded-lg border border-gray-300">
                         <option value="150" selected>150</option>
                         <option value="300">300</option>
                         <option value="500">500</option>
+                        <option value="all">All</option>
                     </select>
                 </div>
                 <div id="pageInfo"></div>
@@ -307,6 +286,7 @@
         const rowsPerPageSelect = document.getElementById('rowsPerPageSelect');
         const detailsModal = document.getElementById('detailsModal');
         const closeModalBtn = document.getElementById('closeModal');
+        const menuToggle = document.getElementById('menuToggle');
         const navbar = document.getElementById('navbar');
         const mainContent = document.getElementById('mainContent');
 
@@ -323,33 +303,26 @@
             'CSE': '#93c5fd',
             'CSDS': '#60a5fa',
             'CIOT': '#93c5fd',
-            'IT': '#60a5fa',
-            'ITNS': '#bfdbfe',
+            'IT': '#bfdbfe',
+            'ITNS': '#dbeafe',
             'MAC': '#fef9c3',
             'ECIOT': '#fef9c3',
             'ECE': '#fef3c7',
-            'ECAM': '#fef9c3',
-            'EE': '#fed7aa',
-            'ICE': '#fed7aa',
-            'ME': '#fed7aa',
-            'MEEV': '#fed7aa',
-            'WEST': '#fee2e2',
+            'ECAM': '#fde68a',
+            'EE': '#fce7a3',
+            'ICE': '#fef9c3',
+            'ME': '#fef3c7',
+            'MEEV': '#fef9c3',
+            'WEST': '#fef2f2',
             'CE': '#fee2e2',
-            'BT': '#fee2e2',
-            'GI': '#fee2e2'
+            'BT': '#ffedd5',
+            'GI': '#fed7aa'
         };
         const genderColors = {
             'Male': '#bfdbfe',
-            'Female': '#f9a8d4', // Distinct pink for Female
+            'Female': '#f9a8d4', // More distinct pink
             'Other': '#d1fae5'
         };
-
-        // Toggle navbar on mobile
-        function toggleNavbar() {
-            navbar.classList.toggle('visible');
-            navbar.classList.toggle('hidden');
-            mainContent.style.marginLeft = navbar.classList.contains('visible') ? '220px' : '0';
-        }
 
         // Fetch and parse CSV
         Papa.parse('https://raw.githubusercontent.com/avashx/nsutgod/main/students.csv', {
@@ -367,7 +340,7 @@
             },
             error: function(error) {
                 console.error('Error fetching CSV:', error);
-                studentTableBody.innerHTML = '<tr><td colspan="11">Error loading data. Please try again later.</td></tr>';
+                studentTableBody.innerHTML = '<tr><td colspan="12">Error loading data. Please try again later.</td></tr>';
             }
         });
 
@@ -412,7 +385,7 @@
         // Display students in the table
         function displayStudents() {
             const start = (currentPage - 1) * rowsPerPage;
-            const end = start + rowsPerPage;
+            const end = rowsPerPage === 'all' ? filteredStudents.length : start + rowsPerPage;
             const paginatedStudents = filteredStudents.slice(start, end);
 
             studentTableBody.innerHTML = '';
@@ -431,20 +404,28 @@
                     <td>${student.present_address || '-'}</td>
                     <td>${student.category || '-'}</td>
                     <td>${student.campus || '-'}</td>
+                    <td>
+                        <button class="view-profile-btn p-1 bg-blue-100 text-blue-600 rounded text-xs" data-student='${JSON.stringify(student)}'>View Profile</button>
+                    </td>
                 `;
-                row.addEventListener('click', () => {
-                    showDetails(student);
-                });
                 studentTableBody.appendChild(row);
             });
 
+            // Add event listeners to View Profile buttons
+            document.querySelectorAll('.view-profile-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const student = JSON.parse(button.getAttribute('data-student'));
+                    showDetails(student);
+                });
+            });
+
             // Update pagination info
-            const totalPages = Math.ceil(filteredStudents.length / rowsPerPage);
+            const totalPages = rowsPerPage === 'all' ? 1 : Math.ceil(filteredStudents.length / rowsPerPage);
             const startRecord = start + 1;
             const endRecord = Math.min(end, filteredStudents.length);
-            pageInfo.textContent = `${startRecord}-${endRecord} of ${filteredStudents.length}`;
-            prevPageBtn.disabled = currentPage === 1;
-            nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+            pageInfo.textContent = rowsPerPage === 'all' ? `1-${filteredStudents.length} of ${filteredStudents.length}` : `${startRecord}-${endRecord} of ${filteredStudents.length}`;
+            prevPageBtn.disabled = currentPage === 1 || rowsPerPage === 'all';
+            nextPageBtn.disabled = (currentPage === totalPages || totalPages === 0 || rowsPerPage === 'all');
         }
 
         // Show student profile in modal
@@ -512,6 +493,18 @@
             detailsModal.style.display = 'none';
         });
 
+        // Toggle navbar on mobile
+        menuToggle.addEventListener('click', () => {
+            navbar.classList.toggle('hidden');
+        });
+
+        // Close navbar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth < 768 && !navbar.contains(e.target) && !menuToggle.contains(e.target)) {
+                navbar.classList.add('hidden');
+            }
+        });
+
         // Filter and search logic
         function filterStudents() {
             const searchTerm = searchInput.value.toLowerCase();
@@ -548,7 +541,7 @@
         });
 
         nextPageBtn.addEventListener('click', () => {
-            const totalPages = Math.ceil(filteredStudents.length / rowsPerPage);
+            const totalPages = rowsPerPage === 'all' ? 1 : Math.ceil(filteredStudents.length / rowsPerPage);
             if (currentPage < totalPages) {
                 currentPage++;
                 displayStudents();
@@ -556,16 +549,9 @@
         });
 
         rowsPerPageSelect.addEventListener('change', () => {
-            rowsPerPage = parseInt(rowsPerPageSelect.value);
+            rowsPerPage = rowsPerPageSelect.value === 'all' ? 'all' : parseInt(rowsPerPageSelect.value);
             currentPage = 1;
             displayStudents();
-        });
-
-        // Close navbar when clicking outside on mobile
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768 && !navbar.contains(e.target) && !e.target.closest('.menu-toggle') && navbar.classList.contains('visible')) {
-                toggleNavbar();
-            }
         });
     </script>
 </body>
