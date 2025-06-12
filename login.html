@@ -47,15 +47,25 @@
 
     <script src="session.js"></script>
     <script>
+        let expectedOtp = '';
+
+        // Fetch the password from pass.txt
+        fetch('https://raw.githubusercontent.com/avashx/nsutgod/main/src/pass.txt')
+            .then(response => response.text())
+            .then(data => {
+                expectedOtp = data.trim();
+            })
+            .catch(error => {
+                console.error('Error fetching password:', error);
+                document.getElementById('errorMessage').textContent = 'Error loading password. Please try again later.';
+                document.getElementById('errorMessage').style.display = 'block';
+            });
+
         const loginBtn = document.getElementById('loginBtn');
         const otpInput = document.getElementById('otp');
         const errorMessage = document.getElementById('errorMessage');
 
         loginBtn.addEventListener('click', () => {
-            const now = new Date();
-            const hour = now.getHours() % 12 || 12; // Convert to 12-hour format
-            const date = now.getDate();
-            const expectedOtp = `${hour.toString().padStart(2, '0')}${date.toString().padStart(2, '0')}`;
             const enteredOtp = otpInput.value;
 
             if (enteredOtp === expectedOtp) {
