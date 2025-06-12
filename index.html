@@ -1,258 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/babel-standalone@7.22.5/babel.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body>
-  <div id="root"></div>
-  <script type="text/babel">
-    const { useState, useEffect } = React;
-
-    const App = () => {
-      const [password, setPassword] = useState('');
-      const [isAuthenticated, setIsAuthenticated] = useState(false);
-      const [students, setStudents] = useState([]);
-      const [filteredStudents, setFilteredStudents] = useState([]);
-      const [searchTerm, setSearchTerm] = useState('');
-      const [branchFilter, setBranchFilter] = useState('ALL');
-      const [batchFilter, setBatchFilter] = useState('ALL');
-      const [selectedStudents, setSelectedStudents] = useState([]);
-      const [currentPage, setCurrentPage] = useState(1);
-      const studentsPerPage = 10;
-
-      // Generate password based on current hour (12-hour format) and date
-      const generatePassword = () => {
-        const now = new Date();
-        const hour = now.getHours() % 12 || 12; // Convert to 12-hour format
-        const date = now.getDate().toString().padStart(2, '0');
-        return `${hour.toString().padStart(2, '0')}${date}`;
-      };
-
-      // Check password
-      const handlePasswordSubmit = (e) => {
-        e.preventDefault();
-        const correctPassword = generatePassword();
-        if (password === correctPassword) {
-          setIsAuthenticated(true);
-        } else {
-          alert('Incorrect password! Format: [HHdd] (e.g., 0312 for 3 PM on 12th)');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Data Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
         }
-      };
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th {
+            background-color: #f9fafb;
+            font-weight: 600;
+        }
+        tr:hover {
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold mb-6 text-gray-800">Student Data Dashboard</h1>
 
-      // Fetch CSV data from GitHub
-      useEffect(() => {
-        if (isAuthenticated) {
-          Papa.parse('https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/students.csv', {
+        <!-- Search and Filter -->
+        <div class="flex flex-col md:flex-row gap-4 mb-6">
+            <input type="text" id="searchInput" placeholder="Search by name, roll number, email..." class="w-full md:w-1/3 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <select id="branchFilter" class="p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Filter by Branch</option>
+            </select>
+            <select id="batchFilter" class="p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Filter by Batch</option>
+            </select>
+            <select id="genderFilter" class="p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Filter by Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto bg-white rounded-lg shadow">
+            <table class="min-w-full">
+                <thead>
+                    <tr>
+                        <th>Roll Number</th>
+                        <th>Name</th>
+                        <th>DOB</th>
+                        <th>Batch</th>
+                        <th>Branch</th>
+                        <th>Email</th>
+                        <th>Personal Email</th>
+                        <th>Degree</th>
+                        <th>Campus</th>
+                        <th>Gender</th>
+                        <th>Contact Number</th>
+                        <th>CGPA</th>
+                        <th>Graduation GPA</th>
+                    </tr>
+                </thead>
+                <tbody id="studentTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex justify-between items-center mt-4">
+            <button id="prevPage" class="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-300">Previous</button>
+            <span id="pageInfo" class="text-gray-600"></span>
+            <button id="nextPage" class="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-300">Next</button>
+        </div>
+    </div>
+
+    <script>
+        const studentTableBody = document.getElementById('studentTableBody');
+        const searchInput = document.getElementById('searchInput');
+        const branchFilter = document.getElementById('branchFilter');
+        const batchFilter = document.getElementById('batchFilter');
+        const genderFilter = document.getElementById('genderFilter');
+        const prevPageBtn = document.getElementById('prevPage');
+        const nextPageBtn = document.getElementById('nextPage');
+        const pageInfo = document.getElementById('pageInfo');
+
+        let students = [];
+        let filteredStudents = [];
+        let currentPage = 1;
+        const rowsPerPage = 20;
+
+        // Fetch and parse CSV
+        Papa.parse('https://raw.githubusercontent.com/avashx/nsutgod/main/students.csv', {
             download: true,
             header: true,
-            complete: (result) => {
-              setStudents(result.data);
-              setFilteredStudents(result.data);
+            complete: function(results) {
+                students = results.data;
+                filteredStudents = [...students];
+
+                // Populate filter options
+                populateFilters();
+                displayStudents();
             },
-            error: (err) => {
-              console.error('Error fetching CSV:', err);
+            error: function(error) {
+                console.error('Error fetching CSV:', error);
+                studentTableBody.innerHTML = '<tr><td colspan="13">Error loading data. Please try again later.</td></tr>';
             }
-          });
+        });
+
+        // Populate filter dropdowns
+        function populateFilters() {
+            const branches = [...new Set(students.map(student => student.branch))].filter(Boolean);
+            const batches = [...new Set(students.map(student => student.batch))].filter(Boolean);
+
+            branches.forEach(branch => {
+                const option = document.createElement('option');
+                option.value = branch;
+                option.textContent = branch;
+                branchFilter.appendChild(option);
+            });
+
+            batches.forEach(batch => {
+                const option = document.createElement('option');
+                option.value = batch;
+                option.textContent = batch;
+                batchFilter.appendChild(option);
+            });
         }
-      }, [isAuthenticated]);
 
-      // Handle search and filter
-      useEffect(() => {
-        let filtered = students;
-        if (searchTerm) {
-          filtered = filtered.filter(student =>
-            Object.values(student).some(val =>
-              val && val.toString().toLowerCase().includes(searchTerm.toLowerCase())
-            )
-          );
+        // Display students in the table
+        function displayStudents() {
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const paginatedStudents = filteredStudents.slice(start, end);
+
+            studentTableBody.innerHTML = '';
+            paginatedStudents.forEach(student => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.rollNumber || '-'}</td>
+                    <td>${student.Name || '-'}</td>
+                    <td>${student.dob || '-'}</td>
+                    <td>${student.batch || '-'}</td>
+                    <td>${student.branch || '-'}</td>
+                    <td>${student.email || '-'}</td>
+                    <td>${student.personal_email || '-'}</td>
+                    <td>${student.degree || '-'}</td>
+                    <td>${student.campus || '-'}</td>
+                    <td>${student.gender || '-'}</td>
+                    <td>${student.contact_number || '-'}</td>
+                    <td>${student.cgpa || '-'}</td>
+                    <td>${student.graduation_gpa || '-'}</td>
+                `;
+                studentTableBody.appendChild(row);
+            });
+
+            // Update pagination info
+            const totalPages = Math.ceil(filteredStudents.length / rowsPerPage);
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
         }
-        if (branchFilter !== 'ALL') {
-          filtered = filtered.filter(student => student.branch === branchFilter);
+
+        // Filter and search logic
+        function filterStudents() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const branchValue = branchFilter.value;
+            const batchValue = batchFilter.value;
+            const genderValue = genderFilter.value;
+
+            filteredStudents = students.filter(student => {
+                const matchesSearch = (
+                    (student.rollNumber || '').toLowerCase().includes(searchTerm) ||
+                    (student.Name || '').toLowerCase().includes(searchTerm) ||
+                    (student.email || '').toLowerCase().includes(searchTerm) ||
+                    (student.personal_email || '').toLowerCase().includes(searchTerm)
+                );
+                const matchesBranch = !branchValue || student.branch === branchValue;
+                const matchesBatch = !batchValue || student.batch === batchValue;
+                const matchesGender = !genderValue || student.gender === genderValue;
+
+                return matchesSearch && matchesBranch && matchesBatch && matchesGender;
+            });
+
+            currentPage = 1;
+            displayStudents();
         }
-        if (batchFilter !== 'ALL') {
-          filtered = filtered.filter(student => student.batch === batchFilter);
-        }
-        setFilteredStudents(filtered);
-        setCurrentPage(1);
-      }, [searchTerm, branchFilter, batchFilter, students]);
 
-      // Handle pagination
-      const indexOfLastStudent = currentPage * studentsPerPage;
-      const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
-      const currentStudents = filteredStudents.slice(indexOfFirstStudent, indexOfLastStudent);
-      const totalPages = Math.ceil(filteredStudents.length / studentsPerPage);
+        // Event listeners
+        searchInput.addEventListener('input', filterStudents);
+        branchFilter.addEventListener('change', filterStudents);
+        batchFilter.addEventListener('change', filterStudents);
+        genderFilter.addEventListener('change', filterStudents);
 
-      // Handle selection
-      const handleSelect = (rollNumber) => {
-        setSelectedStudents(prev =>
-          prev.includes(rollNumber)
-            ? prev.filter(id => id !== rollNumber)
-            : [...prev, rollNumber]
-        );
-      };
+        prevPageBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                displayStudents();
+            }
+        });
 
-      // Get unique branches and batches for filters
-      const branches = ['ALL', ...new Set(students.map(student => student.branch))];
-      const batches = ['ALL', ...new Set(students.map(student => student.batch))];
-
-      if (!isAuthenticated) {
-        return (
-          <div className="flex items-center justify-center h-screen bg-gray-100">
-            <div className="p-6 bg-white rounded-lg shadow-lg">
-              <h2 className="text-2xl font-bold mb-4">Enter Password</h2>
-              <form onSubmit={handlePasswordSubmit}>
-                <input
-                  type="text"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter password (HHdd)"
-                  className="border p-2 rounded w-full mb-4"
-                />
-                <button type="submit" className="bg-blue-600 text-white p-2 rounded w-full">
-                  Submit
-                </button>
-              </form>
-            </div>
-          </div>
-        );
-      }
-
-      return (
-        <div className="flex h-screen">
-          {/* Sidebar */}
-          <div className="w-1/5 bg-blue-800 text-white p-4">
-            <h2 className="text-lg font-bold mb-4">HISTORY</h2>
-            <ul>
-              <li className="mb-2">Orders</li>
-              <li className="mb-2">Invoice</li>
-              <li className="mb-2">Feedback</li>
-              <li className="mb-2">Content</li>
-            </ul>
-          </div>
-
-          {/* Main Content */}
-          <div className="w-4/5 p-6 bg-gray-100">
-            <div className="flex justify-between items-center mb-4">
-              <h1 className="text-2xl font-bold">Dashboards > Students</h1>
-              <div className="flex items-center">
-                <span className="mr-2">Admin</span>
-                <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
-              </div>
-            </div>
-
-            <h2 className="text-xl font-bold mb-4">Students</h2>
-
-            {/* Search and Filters */}
-            <div className="flex items-center mb-4">
-              <input
-                type="text"
-                placeholder="Search for roll number, name, email, etc"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="border p-2 rounded w-1/3 mr-4"
-              />
-              <select
-                value={branchFilter}
-                onChange={(e) => setBranchFilter(e.target.value)}
-                className="border p-2 rounded mr-4"
-              >
-                {branches.map(branch => (
-                  <option key={branch} value={branch}>{branch}</option>
-                ))}
-              </select>
-              <select
-                value={batchFilter}
-                onChange={(e) => setBatchFilter(e.target.value)}
-                className="border p-2 rounded mr-4"
-              >
-                {batches.map(batch => (
-                  <option key={batch} value={batch}>{batch}</option>
-                ))}
-              </select>
-              <button className="bg-blue-600 text-white p-2 rounded">SEARCH</button>
-            </div>
-
-            {/* Table */}
-            <div className="bg-white p-4 rounded-lg shadow">
-              <div className="flex justify-between mb-2">
-                <h3 className="text-lg font-bold">Student Summary</h3>
-                <div>
-                  <select className="border p-1 rounded mr-2">
-                    <option>Show All Columns</option>
-                  </select>
-                  <button className="bg-blue-600 text-white p-2 rounded">
-                    DISPATCH SELECTED
-                  </button>
-                </div>
-              </div>
-
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-gray-200">
-                    <th className="border p-2"></th>
-                    <th className="border p-2">Roll Number</th>
-                    <th className="border p-2">Name</th>
-                    <th className="border p-2">DOB</th>
-                    <th className="border p-2">Batch</th>
-                    <th className="border p-2">Branch</th>
-                    <th className="border p-2">Email</th>
-                    <th className="border p-2">CGPA</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentStudents.map(student => (
-                    <tr key={student.rollNumber} className="border">
-                      <td className="border p-2">
-                        <input
-                          type="checkbox"
-                          checked={selectedStudents.includes(student.rollNumber)}
-                          onChange={() => handleSelect(student.rollNumber)}
-                        />
-                      </td>
-                      <td className="border p-2">{student.rollNumber}</td>
-                      <td className="border p-2">{student.Name}</td>
-                      <td className="border p-2">{student.dob}</td>
-                      <td className="border p-2">{student.batch}</td>
-                      <td className="border p-2">{student.branch}</td>
-                      <td className="border p-2">{student.email}</td>
-                      <td className="border p-2">{student.cgpa}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              {/* Pagination */}
-              <div className="flex justify-between mt-4">
-                <button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                  className="p-2 bg-gray-300 rounded"
-                >
-                  Previous
-                </button>
-                <span>Page {currentPage} of {totalPages}</span>
-                <button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                  className="p-2 bg-gray-300 rounded"
-                >
-                  Next
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    };
-
-    ReactDOM.render(<App />, document.getElementById('root'));
-  </script>
+        nextPageBtn.addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredStudents.length / rowsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                displayStudents();
+            }
+        });
+    </script>
 </body>
 </html>
