@@ -287,31 +287,8 @@
         <p class="error-message" id="errorMessage">Invalid OTP</p>
     </div>
 
+    <script src="session.js"></script>
     <script>
-        // Check session on page load
-        checkSession();
-
-        // Function to check session (1-hour expiry)
-        function checkSession() {
-            const loginTime = localStorage.getItem('loginTime');
-            const isLoggedIn = localStorage.getItem('isLoggedIn');
-
-            if (isLoggedIn === 'true' && loginTime) {
-                const currentTime = new Date().getTime();
-                const loginTimestamp = parseInt(loginTime);
-                const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
-
-                if (currentTime - loginTimestamp < oneHour) {
-                    // Session is still valid, redirect to dashboard
-                    window.location.href = 'index.html';
-                } else {
-                    // Session expired, clear localStorage
-                    localStorage.removeItem('isLoggedIn');
-                    localStorage.removeItem('loginTime');
-                }
-            }
-        }
-
         // Generate dynamic OTP based on current hour and date (HHDD format)
         const now = new Date();
         const hours = String(now.getHours()).padStart(2, '0'); // e.g., "18" for 6 PM
