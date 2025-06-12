@@ -4,78 +4,288 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css?family=Exo:400,700');
+
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f5f5f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+            font-family: 'Exo', sans-serif;
         }
-        .login-container {
-            background-color: #fff;
-            padding: 24px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        .context {
             width: 100%;
-            max-width: 400px;
+            position: absolute;
+            top: 50vh;
         }
+
+        .context h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 50px;
+        }
+
+        .area {
+            background: white;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .circles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .circles li {
+            position: absolute;
+            display: block;
+            list-style: none;
+            top: 90%;
+            width: 40px;
+            height: 40px;
+            background: rgba(232, 232, 232);
+            animation: animate 25s linear infinite;
+            bottom: -150px;
+        }
+
+        .circles li:nth-child(1) {
+            left: 15%;
+            top: 20%;
+            width: 80px;
+            height: 80px;
+            animation-delay: 1s;
+            filter: blur(5px);
+        }
+
+        .circles li:nth-child(2) {
+            left: 30%;
+            top: 70%;
+            width: 60px;
+            height: 60px;
+            animation-delay: 2s;
+            animation-duration: 12s;
+        }
+
+        .circles li:nth-child(3) {
+            top: 80%;
+            left: 55%;
+            width: 70px;
+            height: 70px;
+            animation-delay: 4s;
+        }
+
+        .circles li:nth-child(4) {
+            top: 40%;
+            left: 40%;
+            width: 60px;
+            height: 60px;
+            animation-delay: 0s;
+            animation-duration: 18s;
+            filter: blur(4px);
+        }
+
+        .circles li:nth-child(5) {
+            top: 10%;
+            left: 65%;
+            width: 150px;
+            height: 150px;
+            animation-delay: 0s;
+            filter: blur(8px);
+        }
+
+        .circles li:nth-child(6) {
+            left: 75%;
+            width: 110px;
+            height: 110px;
+            animation-delay: 3s;
+            filter: blur(2px);
+        }
+
+        .circles li:nth-child(7) {
+            left: 5%;
+            top: 45%;
+            width: 55px;
+            height: 55px;
+            animation-delay: 4s;
+            filter: blur(1px);
+        }
+
+        .circles li:nth-child(8) {
+            left: 90%;
+            top: 55%;
+            width: 45px;
+            height: 45px;
+            animation-delay: 3s;
+            animation-duration: 45s;
+            filter: blur(1px);
+        }
+
+        .circles li:nth-child(9) {
+            left: 50%;
+            top: 5%;
+            width: 25px;
+            height: 25px;
+            animation-delay: 2s;
+            animation-duration: 35s;
+            filter: blur(5px);
+        }
+
+        @keyframes animate {
+            0% {
+                transform: translateX(0) rotate(0deg);
+                opacity: 1;
+                border-radius: 0;
+            }
+            50% {
+                transform: translateX(40px) rotate(720deg);
+                opacity: 1;
+                border-radius: 100%;
+            }
+            100% {
+                transform: translateX(0) rotate(720deg);
+                opacity: 1;
+                border-radius: 0%;
+            }
+        }
+
+        .login-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            z-index: 10;
+            width: 350px; /* Increased width */
+        }
+
+        .login-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .login-header img {
+            height: 40px;
+            width: 40px;
+            margin-right: 8px;
+        }
+
+        .login-header h2 {
+            color: #333;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .login-container input {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .login-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4b5563;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .login-container button:hover {
+            background-color: #6b7280;
+        }
+
+        .otp-section {
+            margin-top: 20px;
+        }
+
+        .otp-section p {
+            color: #333;
+            font-size: 16px;
+            text-align: center;
+        }
+
         .error-message {
-            color: #ef4444;
-            font-size: 14px;
-            margin-top: 8px;
+            color: red;
+            margin-top: 10px;
             display: none;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="flex items-center justify-center mb-4">
-            <img src="https://github.com/avashx/nsutgod/blob/main/src/logo.png?raw=true" alt="NSUTGod Logo" class="h-16 w-16">
-        </div>
-        <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">NSUTGod Login</h2>
-        <div class="mb-4">
-            <label for="otp" class="block text-sm font-medium text-gray-700 mb-2">OTP likho</label>
-            <input type="password" id="otp" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400" placeholder="Enter OTP">
-            <p id="errorMessage" class="error-message">Incorrect OTP. Please try again.</p>
-        </div>
-        <button id="loginBtn" class="w-full p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Login</button>
+    <div class="context"></div>
+
+    <marquee behavior="alternate" direction="left" scrollamount="5">
+        <img src="https://pngimg.com/uploads/donkey/donkey_PNG45.png" height="80" alt="Natural" />
+    </marquee>
+    <marquee behavior="alternate" direction="right" scrollamount="5">
+        <img src="https://pngimg.com/uploads/donkey/donkey_PNG45.png" height="100" alt="Natural" />
+    </marquee>
+
+    <div class="area">
+        <ul class="circles">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
     </div>
 
-    <script src="session.js"></script>
+    <div class="login-container">
+        <div class="login-header">
+            <img src="https://github.com/avashx/nsutgod/blob/main/src/logo.png?raw=true" alt="NSUTGod Logo">
+            <h2>NSUTGod</h2>
+        </div>
+        <div class="otp-section">
+            <p>neeche OTP likho</p>
+            <input type="text" id="otp" placeholder="Enter OTP" required>
+            <button onclick="verifyOTP()">Verify OTP</button>
+        </div>
+        <p class="error-message" id="errorMessage">Invalid OTP</p>
+    </div>
+
     <script>
-        let expectedOtp = '';
+        const correctOTP = '1234'; // Hardcoded for demo; in production, this should be sent via email/SMS
 
-        // Fetch the password from pass.txt
-        fetch('https://raw.githubusercontent.com/avashx/nsutgod/main/src/pass.txt')
-            .then(response => response.text())
-            .then(data => {
-                expectedOtp = data.trim();
-            })
-            .catch(error => {
-                console.error('Error fetching password:', error);
-                document.getElementById('errorMessage').textContent = 'Error loading password. Please try again later.';
-                document.getElementById('errorMessage').style.display = 'block';
-            });
+        // Log the OTP to the console for demo purposes
+        console.log('Demo OTP:', correctOTP);
 
-        const loginBtn = document.getElementById('loginBtn');
-        const otpInput = document.getElementById('otp');
-        const errorMessage = document.getElementById('errorMessage');
+        function verifyOTP() {
+            const otp = document.getElementById('otp').value;
+            const errorMessage = document.getElementById('errorMessage');
 
-        loginBtn.addEventListener('click', () => {
-            const enteredOtp = otpInput.value;
-
-            if (enteredOtp === expectedOtp) {
-                setSession('loggedIn', true, 3600); // 1 hour expiry
+            if (otp === correctOTP) {
+                // Store login state in localStorage
+                localStorage.setItem('isLoggedIn', 'true');
+                // Redirect to dashboard
                 window.location.href = 'index.html';
             } else {
                 errorMessage.style.display = 'block';
-                otpInput.value = '';
             }
-        });
+        }
     </script>
 </body>
 </html>
