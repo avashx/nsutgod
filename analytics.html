@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f5;
+        }
+        .navbar {
+            width: 220px;
+            background-color: #fff;
+            border-right: 1px solid #e5e7eb;
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 40;
+            transition: transform 0.3s ease-in-out;
+        }
+        .navbar.hidden {
+            transform: translateX(-100%);
+        }
+        .branch-button {
+            padding: 4px 8px;
+            margin: 2px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .branch-button.active {
+            border-color: #4b5563;
+            color: #fff;
+        }
+        .nav-item.active {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            font-weight: 500;
+        }
+        @media (max-width: 768px) {
+            .navbar {
+                width: 200px;
+            }
+            .main-content {
+                margin-left: 0 !important;
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-[#f5f5f5]">
+    <!-- Hamburger Menu for Mobile -->
+    <div class="md:hidden fixed top-4 left-4 z-50">
+        <button id="menuToggle" class="p-2 bg-gray-200 rounded-lg">
+            <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Left Navbar -->
+    <div id="navbar" class="navbar">
+        <div class="flex items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-800">NSUTGod</h2>
+        </div>
+        <ul class="space-y-2">
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="overview">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                Overview
+            </li>
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="student-profile">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Student Profile
+            </li>
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg active" data-page="analytics">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10"/></svg>
+                Analytics
+            </li>
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="placement">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                Placement
+            </li>
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="notifications">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                Notifications
+                <span class="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded">2</span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="md:ml-56 p-8 main-content">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">Analytics</h1>
+
+            <!-- Branch Filter Buttons -->
+            <div class="flex flex-wrap gap-1 mb-4 overflow-x-auto" id="branchFilterButtons"></div>
+
+            <!-- Graphs Section -->
+            <div id="graphsSection">
+                <h2 class="text-xl font-bold mb-4">Branch Analytics</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">Gender Ratio (Year-wise)</h3>
+                        <canvas id="genderRatioChart"></canvas>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">CGPA Distribution (Year-wise)</h3>
+                        <canvas id="cgpaDistributionChart"></canvas>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">Highest CGPA (Year-wise)</h3>
+                        <canvas id="highestCgpaChart"></canvas>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">Average CGPA (Year-wise)</h3>
+                        <canvas id="averageCgpaChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const branchFilterButtons = document.getElementById('branchFilterButtons');
+        const menuToggle = document.getElementById('menuToggle');
+        const navbar = document.getElementById('navbar');
+
+        let students = [];
+        let selectedBranch = '';
+
+        // Branch and Gender color mapping
+        const branchColors = {
+            'Cumulative': '#f3f4f6',
+            'CSAI': '#bfdbfe',
+            'CSE': '#93c5fd',
+            'CSDS': '#60a5fa',
+            'CIOT': '#93c5fd',
+            'IT': '#bfdbfe',
+            'ITNS': '#dbeafe',
+            'MAC': '#fef9c3',
+            'ECIOT': '#fef9c3',
+            'ECE': '#fef3c7',
+            'ECAM': '#fde68a',
+            'EE': '#fce7a3',
+            'ICE': '#fef9c3',
+            'ME': '#fef3c7',
+            'MEEV': '#fef9c3',
+            'WEST': '#fef2f2',
+            'CE': '#fee2e2',
+            'BT': '#ffedd5',
+            'GI': '#fed7aa'
+        };
+        const genderColors = {
+            'male': '#bfdbfe',
+            'female': '#f9a8d4',
+            'other': '#d1fae5'
+        };
+
+        // Fetch and parse CSV
+        Papa.parse('https://raw.githubusercontent.com/avashx/nsutgod/main/students.csv', {
+            download: true,
+            header: true,
+            complete: function(results) {
+                students = results.data.map(student => ({
+                    ...student,
+                    gender: student.gender ? student.gender.toLowerCase() : ''
+                }));
+                populateBranchButtons();
+            },
+            error: function(error) {
+                console.error('Error fetching CSV:', error);
+            }
+        });
+
+        // Populate branch filter buttons
+        function populateBranchButtons() {
+            const branches = ['Cumulative', ...new Set(students.map(student => student.branch))].filter(Boolean);
+            branches.forEach(branch => {
+                const button = document.createElement('button');
+                button.className = 'branch-button';
+                button.textContent = branch;
+                button.style.backgroundColor = branchColors[branch] || '#f3f4f6';
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.branch-button').forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.style.backgroundColor = branchColors[btn.textContent] || '#f3f4f6';
+                        btn.style.color = '#000';
+                    });
+                    button.classList.add('active');
+                    button.style.color = '#fff';
+                    selectedBranch = branch === 'Cumulative' ? '' : branch;
+                    displayBranchGraphs(selectedBranch);
+                });
+                branchFilterButtons.appendChild(button);
+            });
+            // Set Cumulative as default
+            branchFilterButtons.children[0].classList.add('active');
+            branchFilterButtons.children[0].style.color = '#fff';
+        }
+
+        // Display branch-specific graphs
+        function displayBranchGraphs(branch) {
+            const branchStudents = branch ? students.filter(student => student.branch === branch) : students;
+            const batches = [...new Set(branchStudents.map(student => student.batch))].filter(Boolean).sort();
+
+            // Gender Ratio (Bar Chart per Batch)
+            const genderData = batches.map(batch => {
+                const batchStudents = branchStudents.filter(student => student.batch === batch);
+                const males = batchStudents.filter(student => student.gender === 'male').length;
+                const females = batchStudents.filter(student => student.gender === 'female').length;
+                const others = batchStudents.filter(student => student.gender === 'other').length;
+                return { batch, males, females, others };
+            });
+
+            const genderCtx = document.getElementById('genderRatioChart').getContext('2d');
+            if (window.genderChart) window.genderChart.destroy();
+            window.genderChart = new Chart(genderCtx, {
+                type: 'bar',
+                data: {
+                    labels: batches,
+                    datasets: [
+                        {
+                            label: 'Male',
+                            data: genderData.map(data => data.males),
+                            backgroundColor: genderColors['male']
+                        },
+                        {
+                            label: 'Female',
+                            data: genderData.map(data => data.females),
+                            backgroundColor: genderColors['female']
+                        },
+                        {
+                            label: 'Other',
+                            data: genderData.map(data => data.others),
+                            backgroundColor: genderColors['other']
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        x: { title: { display: true, text: 'Batch Year' } },
+                        y: { title: { display: true, text: 'Count' }, beginAtZero: true }
+                    }
+                }
+            });
+
+            // CGPA Distribution (Bar Chart per Batch)
+            const cgpaData = batches.map(batch => {
+                const batchStudents = branchStudents.filter(student => student.batch === batch);
+                const cgpas = batchStudents.map(student => parseFloat(student.cgpa)).filter(val => !isNaN(val));
+                return { batch, cgpas };
+            });
+
+            const cgpaCtx = document.getElementById('cgpaDistributionChart').getContext('2d');
+            if (window.cgpaChart) window.cgpaChart.destroy();
+            window.cgpaChart = new Chart(cgpaCtx, {
+                type: 'bar',
+                data: {
+                    labels: batches,
+                    datasets: [{
+                        label: 'CGPA (Average)',
+                        data: cgpaData.map(data => {
+                            const avg = data.cgpas.length ? data.cgpas.reduce((a, b) => a + b, 0) / data.cgpas.length : 0;
+                            return avg.toFixed(2);
+                        }),
+                        backgroundColor: '#93c5fd'
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { title: { display: true, text: 'Batch Year' } },
+                        y: { title: { display: true, text: 'CGPA' }, beginAtZero: true, max: 10 }
+                    }
+                }
+            });
+
+            // Highest CGPA (Line Chart per Batch)
+            const highestCgpaData = batches.map(batch => {
+                const batchStudents = branchStudents.filter(student => student.batch === batch);
+                const cgpas = batchStudents.map(student => parseFloat(student.cgpa)).filter(val => !isNaN(val));
+                const highest = cgpas.length ? Math.max(...cgpas) : 0;
+                return highest;
+            });
+
+            const highestCgpaCtx = document.getElementById('highestCgpaChart').getContext('2d');
+            if (window.highestCgpaChart) window.highestCgpaChart.destroy();
+            window.highestCgpaChart = new Chart(highestCgpaCtx, {
+                type: 'line',
+                data: {
+                    labels: batches,
+                    datasets: [{
+                        label: 'Highest CGPA',
+                        data: highestCgpaData,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { title: { display: true, text: 'Batch Year' } },
+                        y: { title: { display: true, text: 'CGPA' }, beginAtZero: true, max: 10 }
+                    }
+                }
+            });
+
+            // Average CGPA (Line Chart per Batch)
+            const averageCgpaData = batches.map(batch => {
+                const batchStudents = branchStudents.filter(student => student.batch === batch);
+                const cgpas = batchStudents.map(student => parseFloat(student.cgpa)).filter(val => !isNaN(val));
+                const avg = cgpas.length ? cgpas.reduce((a, b) => a + b, 0) / cgpas.length : 0;
+                return avg.toFixed(2);
+            });
+
+            const averageCgpaCtx = document.getElementById('averageCgpaChart').getContext('2d');
+            if (window.averageCgpaChart) window.averageCgpaChart.destroy();
+            window.averageCgpaChart = new Chart(averageCgpaCtx, {
+                type: 'line',
+                data: {
+                    labels: batches,
+                    datasets: [{
+                        label: 'Average CGPA',
+                        data: averageCgpaData,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { title: { display: true, text: 'Batch Year' } },
+                        y: { title: { display: true, text: 'CGPA' }, beginAtZero: true, max: 10 }
+                    }
+                }
+            });
+        }
+
+        // Toggle navbar on mobile
+        menuToggle.addEventListener('click', () => {
+            navbar.classList.toggle('hidden');
+        });
+
+        // Close navbar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth < 768 && !navbar.contains(e.target) && !menuToggle.contains(e.target)) {
+                navbar.classList.add('hidden');
+            }
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const page = item.getAttribute('data-page');
+                if (page === 'overview') {
+                    window.location.href = 'index.html';
+                } else if (page === 'placement') {
+                    window.location.href = 'placement.html';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
