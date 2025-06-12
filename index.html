@@ -6,6 +6,7 @@
     <title>Student Data Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -16,6 +17,10 @@
             text-align: left;
             border-bottom: 1px solid #e5e7eb;
             font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
         }
         th {
             background-color: #f9fafb;
@@ -45,20 +50,80 @@
             padding: 20px;
             border-radius: 8px;
             width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
+            max-width: 800px;
+            max-height: 90vh;
             overflow-y: auto;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            color: #6b7280;
+        }
+        .nav-item:hover {
+            background-color: #f3f4f6;
+            color: #111827;
+        }
+        .branch-button {
+            padding: 6px 12px;
+            margin: 2px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            background-color: #f9fafb;
+            cursor: pointer;
+        }
+        .branch-button.active {
+            background-color: #1f2937;
+            color: white;
+            border-color: #1f2937;
         }
     </style>
 </head>
-<body class="bg-[#f5f5f5]">
-    <div class="container mx-auto p-6">
+<body class="bg-[#f5f5f5] flex">
+    <!-- Left Navigation Bar -->
+    <div class="w-64 bg-white shadow-lg h-screen p-6">
+        <div class="flex items-center gap-3 mb-8">
+            <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#34D399"/>
+                <path d="M2 17L12 22L22 17" fill="#A78BFA"/>
+                <path d="M2 12L12 17L22 12" fill="#FBBF24"/>
+            </svg>
+            <span class="text-xl font-bold text-gray-800">EPL</span>
+        </div>
+        <div class="nav-item">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+            </svg>
+            <span>Overview</span>
+        </div>
+        <div class="nav-item">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+            <span>Contact EPL</span>
+            <span class="ml-auto bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">2</span>
+        </div>
+        <div class="nav-item">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+            </svg>
+            <span>Access Reference</span>
+        </div>
+        <div class="nav-item">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+            </svg>
+            <span>Notifications</span>
+            <span class="ml-auto bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">2</span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-6">
         <div class="flex justify-between items-center mb-4">
             <h1 class="text-2xl font-bold text-gray-800">Student Data - <span class="text-green-600" id="totalRecords"></span></h1>
             <div class="flex gap-2">
-                <select id="monthFilter" class="p-2 rounded-lg border border-gray-300 text-gray-600">
-                    <option>2025</option>
-                </select>
                 <input type="text" id="searchInput" placeholder="Search" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500" />
                 <button class="p-2 bg-yellow-100 rounded-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -68,11 +133,14 @@
             </div>
         </div>
 
+        <!-- Branch Filter Buttons -->
+        <div class="flex flex-wrap gap-2 mb-4">
+            <button class="branch-button" data-branch="">All</button>
+            <div id="branchButtons"></div>
+        </div>
+
         <!-- Filters -->
         <div class="flex flex-col md:flex-row gap-4 mb-4">
-            <select id="branchFilter" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500">
-                <option value="">Filter by Branch</option>
-            </select>
             <select id="batchFilter" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500">
                 <option value="">Filter by Batch</option>
             </select>
@@ -94,7 +162,6 @@
                         <th>Name</th>
                         <th>Branch</th>
                         <th>Email</th>
-                        <th>Personal Email</th>
                         <th>Gender</th>
                         <th>DOB</th>
                         <th>Contact Number</th>
@@ -119,17 +186,64 @@
             </div>
             <div id="pageInfo"></div>
             <div class="flex gap-2">
-                <button id="prevPage" class="p-2 bg-gray-200 rounded-lg disabled:opacity-50">&lt;</button>
-                <button id="nextPage" class="p-2 bg-gray-200 rounded-lg disabled:opacity-50">&gt;</button>
+                <button id="prevPage" class="p-2 bg-gray-200 rounded-lg disabled:opacity-50"><</button>
+                <button id="nextPage" class="p-2 bg-gray-200 rounded-lg disabled:opacity-50">></button>
             </div>
         </div>
     </div>
 
-    <!-- Modal for Additional Details -->
+    <!-- Modal for Student Profile -->
     <div id="detailsModal" class="modal">
         <div class="modal-content">
-            <h2 class="text-xl font-bold mb-4">Student Details</h2>
-            <div id="modalContent"></div>
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-16 h-16 bg-gray-200 rounded-full"></div>
+                <div>
+                    <h2 class="text-xl font-bold" id="modalStudentName"></h2>
+                    <p class="text-gray-600" id="modalStudentRoll"></p>
+                </div>
+            </div>
+
+            <!-- Personal Information -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-2">Personal Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <p><strong>Email:</strong> <span id="modalEmail"></span></p>
+                    <p><strong>Personal Email:</strong> <span id="modalPersonalEmail"></span></p>
+                    <p><strong>Contact Number:</strong> <span id="modalContactNumber"></span></p>
+                    <p><strong>Alternate Contact Number:</strong> <span id="modalAltContactNumber"></span></p>
+                    <p><strong>Date of Birth:</strong> <span id="modalDob"></span></p>
+                    <p><strong>Gender:</strong> <span id="modalGender"></span></p>
+                    <p><strong>Present Address:</strong> <span id="modalPresentAddress"></span></p>
+                    <p><strong>Permanent Address:</strong> <span id="modalPermAddress"></span></p>
+                    <p><strong>Blood Group:</strong> <span id="modalBloodGroup"></span></p>
+                </div>
+            </div>
+
+            <!-- Academic Information -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-2">Academic Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <p><strong>Branch:</strong> <span id="modalBranch"></span></p>
+                    <p><strong>Batch:</strong> <span id="modalBatch"></span></p>
+                    <p><strong>Degree:</strong> <span id="modalDegree"></span></p>
+                    <p><strong>Campus:</strong> <span id="modalCampus"></span></p>
+                    <p><strong>Category:</strong> <span id="modalCategory"></span></p>
+                    <p><strong>PWD:</strong> <span id="modalPwd"></span></p>
+                    <p><strong>CGPA 10th:</strong> <span id="modalCgpa10th"></span></p>
+                    <p><strong>CGPA 12th:</strong> <span id="modalCgpa12th"></span></p>
+                    <p><strong>CGPA:</strong> <span id="modalCgpa"></span></p>
+                    <p><strong>CGPA Before Drop:</strong> <span id="modalCgpaBeforeDrop"></span></p>
+                    <p><strong>Graduation GPA:</strong> <span id="modalGraduationGpa"></span></p>
+                    <p><strong>Backlogs:</strong> <span id="modalBacklogs"></span></p>
+                </div>
+            </div>
+
+            <!-- GPA Graph -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-2">Semester GPA Progress</h3>
+                <canvas id="gpaChart" height="100"></canvas>
+            </div>
+
             <button id="closeModal" class="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg">Close</button>
         </div>
     </div>
@@ -137,7 +251,7 @@
     <script>
         const studentTableBody = document.getElementById('studentTableBody');
         const searchInput = document.getElementById('searchInput');
-        const branchFilter = document.getElementById('branchFilter');
+        const branchButtonsContainer = document.getElementById('branchButtons');
         const batchFilter = document.getElementById('batchFilter');
         const genderFilter = document.getElementById('genderFilter');
         const prevPageBtn = document.getElementById('prevPage');
@@ -146,13 +260,13 @@
         const totalRecords = document.getElementById('totalRecords');
         const rowsPerPageSelect = document.getElementById('rowsPerPageSelect');
         const detailsModal = document.getElementById('detailsModal');
-        const modalContent = document.getElementById('modalContent');
         const closeModalBtn = document.getElementById('closeModal');
 
         let students = [];
         let filteredStudents = [];
         let currentPage = 1;
         let rowsPerPage = parseInt(rowsPerPageSelect.value);
+        let selectedBranch = '';
 
         // Fetch and parse CSV
         Papa.parse('https://raw.githubusercontent.com/avashx/nsutgod/main/students.csv', {
@@ -165,31 +279,49 @@
 
                 // Populate filter options
                 populateFilters();
+                populateBranchButtons();
                 displayStudents();
             },
             error: function(error) {
                 console.error('Error fetching CSV:', error);
-                studentTableBody.innerHTML = '<tr><td colspan="12">Error loading data. Please try again later.</td></tr>';
+                studentTableBody.innerHTML = '<tr><td colspan="11">Error loading data. Please try again later.</td></tr>';
             }
         });
 
-        // Populate filter dropdowns
+        // Populate filter dropdowns and branch buttons
         function populateFilters() {
-            const branches = [...new Set(students.map(student => student.branch))].filter(Boolean);
             const batches = [...new Set(students.map(student => student.batch))].filter(Boolean);
-
-            branches.forEach(branch => {
-                const option = document.createElement('option');
-                option.value = branch;
-                option.textContent = branch;
-                branchFilter.appendChild(option);
-            });
 
             batches.forEach(batch => {
                 const option = document.createElement('option');
                 option.value = batch;
                 option.textContent = batch;
                 batchFilter.appendChild(option);
+            });
+        }
+
+        function populateBranchButtons() {
+            const branches = [...new Set(students.map(student => student.branch))].filter(Boolean);
+            branches.forEach(branch => {
+                const button = document.createElement('button');
+                button.className = 'branch-button';
+                button.setAttribute('data-branch', branch);
+                button.textContent = branch;
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.branch-button').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    selectedBranch = branch;
+                    filterStudents();
+                });
+                branchButtonsContainer.appendChild(button);
+            });
+
+            // Add click event for "All" button
+            document.querySelector('.branch-button[data-branch=""]').addEventListener('click', () => {
+                document.querySelectorAll('.branch-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelector('.branch-button[data-branch=""]').classList.add('active');
+                selectedBranch = '';
+                filterStudents();
             });
         }
 
@@ -209,7 +341,6 @@
                     <td>${student.Name || '-'}</td>
                     <td>${student.branch || '-'}</td>
                     <td>${student.email || '-'}</td>
-                    <td>${student.personal_email || '-'}</td>
                     <td>${student.gender || '-'}</td>
                     <td>${student.dob || '-'}</td>
                     <td>${student.contact_number || '-'}</td>
@@ -230,24 +361,65 @@
             nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
         }
 
-        // Show additional details in modal
+        // Show student profile in modal
         function showDetails(student) {
-            modalContent.innerHTML = `
-                <p><strong>Alternate Contact Number:</strong> ${student.alt_contact_number || '-'}</p>
-                <p><strong>Graduation GPA:</strong> ${student.graduation_gpa || '-'}</p>
-                <p><strong>Backlogs:</strong> ${student.backlogs || '-'}</p>
-                <p><strong>Permanent Address:</strong> ${student.perm_address || '-'}</p>
-                <p><strong>CGPA 12th:</strong> ${student.cgpa_12th || '-'}</p>
-                <p><strong>CGPA 10th:</strong> ${student.cgpa_10th || '-'}</p>
-                <p><strong>CGPA:</strong> ${student.cgpa || '-'}</p>
-                <p><strong>CGPA Before Drop:</strong> ${student.cgpa_before_drop || '-'}</p>
-                <p><strong>Sem 1 GPA:</strong> ${student.sem1_gpa || '-'}</p>
-                <p><strong>Sem 2 GPA:</strong> ${student.sem2_gpa || '-'}</p>
-                <p><strong>Sem 3 GPA:</strong> ${student.sem3_gpa || '-'}</p>
-                <p><strong>Sem 4 GPA:</strong> ${student.sem4_gpa || '-'}</p>
-                <p><strong>Sem 5 GPA:</strong> ${student.sem5_gpa || '-'}</p>
-                <p><strong>Sem 6 GPA:</strong> ${student.sem6_gpa || '-'}</p>
-            `;
+            document.getElementById('modalStudentName').textContent = student.Name || '-';
+            document.getElementById('modalStudentRoll').textContent = student.rollNumber || '-';
+            document.getElementById('modalEmail').textContent = student.email || '-';
+            document.getElementById('modalPersonalEmail').textContent = student.personal_email || '-';
+            document.getElementById('modalContactNumber').textContent = student.contact_number || '-';
+            document.getElementById('modalAltContactNumber').textContent = student.alt_contact_number || '-';
+            document.getElementById('modalDob').textContent = student.dob || '-';
+            document.getElementById('modalGender').textContent = student.gender || '-';
+            document.getElementById('modalPresentAddress').textContent = student.present_address || '-';
+            document.getElementById('modalPermAddress').textContent = student.perm_address || '-';
+            document.getElementById('modalBloodGroup').textContent = student.blood_group || '-';
+            document.getElementById('modalBranch').textContent = student.branch || '-';
+            document.getElementById('modalBatch').textContent = student.batch || '-';
+            document.getElementById('modalDegree').textContent = student.degree || '-';
+            document.getElementById('modalCampus').textContent = student.campus || '-';
+            document.getElementById('modalCategory').textContent = student.category || '-';
+            document.getElementById('modalPwd').textContent = student.pwd || '-';
+            document.getElementById('modalCgpa10th').textContent = student.cgpa_10th || '-';
+            document.getElementById('modalCgpa12th').textContent = student.cgpa_12th || '-';
+            document.getElementById('modalCgpa').textContent = student.cgpa || '-';
+            document.getElementById('modalCgpaBeforeDrop').textContent = student.cgpa_before_drop || '-';
+            document.getElementById('modalGraduationGpa').textContent = student.graduation_gpa || '-';
+            document.getElementById('modalBacklogs').textContent = student.backlogs || '-';
+
+            // GPA Graph
+            const ctx = document.getElementById('gpaChart').getContext('2d');
+            if (window.gpaChart) window.gpaChart.destroy(); // Destroy previous chart if exists
+            window.gpaChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6'],
+                    datasets: [{
+                        label: 'GPA',
+                        data: [
+                            parseFloat(student.sem1_gpa) || 0,
+                            parseFloat(student.sem2_gpa) || 0,
+                            parseFloat(student.sem3_gpa) || 0,
+                            parseFloat(student.sem4_gpa) || 0,
+                            parseFloat(student.sem5_gpa) || 0,
+                            parseFloat(student.sem6_gpa) || 0
+                        ],
+                        borderColor: '#34D399',
+                        backgroundColor: 'rgba(52, 211, 153, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10
+                        }
+                    }
+                }
+            });
+
             detailsModal.style.display = 'flex';
         }
 
@@ -259,7 +431,6 @@
         // Filter and search logic
         function filterStudents() {
             const searchTerm = searchInput.value.toLowerCase();
-            const branchValue = branchFilter.value;
             const batchValue = batchFilter.value;
             const genderValue = genderFilter.value;
 
@@ -267,46 +438,4 @@
                 const matchesSearch = (
                     (student.rollNumber || '').toLowerCase().includes(searchTerm) ||
                     (student.Name || '').toLowerCase().includes(searchTerm) ||
-                    (student.email || '').toLowerCase().includes(searchTerm) ||
-                    (student.personal_email || '').toLowerCase().includes(searchTerm)
-                );
-                const matchesBranch = !branchValue || student.branch === branchValue;
-                const matchesBatch = !batchValue || student.batch === batchValue;
-                const matchesGender = !genderValue || student.gender === genderValue;
-
-                return matchesSearch && matchesBranch && matchesBatch && matchesGender;
-            });
-
-            currentPage = 1;
-            displayStudents();
-        }
-
-        // Event listeners
-        searchInput.addEventListener('input', filterStudents);
-        branchFilter.addEventListener('change', filterStudents);
-        batchFilter.addEventListener('change', filterStudents);
-        genderFilter.addEventListener('change', filterStudents);
-
-        prevPageBtn.addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                displayStudents();
-            }
-        });
-
-        nextPageBtn.addEventListener('click', () => {
-            const totalPages = Math.ceil(filteredStudents.length / rowsPerPage);
-            if (currentPage < totalPages) {
-                currentPage++;
-                displayStudents();
-            }
-        });
-
-        rowsPerPageSelect.addEventListener('change', () => {
-            rowsPerPage = parseInt(rowsPerPageSelect.value);
-            currentPage = 1;
-            displayStudents();
-        });
-    </script>
-</body>
-</html>
+                    (student.email || '').toLowerCase().includes
