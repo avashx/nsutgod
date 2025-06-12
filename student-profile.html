@@ -67,6 +67,25 @@
             .info-grid {
                 grid-template-columns: 1fr;
             }
+            table th, table td {
+                font-size: 12px;
+                padding: 6px 8px;
+            }
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 12px;
+            }
+            .info-grid p {
+                font-size: 12px;
+            }
+            table th, table td {
+                font-size: 11px;
+                padding: 4px 6px;
+            }
+            #gpaChart {
+                height: 120px !important;
+            }
         }
     </style>
 </head>
@@ -142,7 +161,11 @@
         </div>
     </div>
 
+    <script src="session.js"></script>
     <script>
+        // Check session on page load
+        checkSession();
+
         // Get student data from URL
         const params = new URLSearchParams(window.location.search);
         const student = JSON.parse(decodeURIComponent(params.get('data')));
@@ -179,27 +202,49 @@
         document.getElementById('sem5Gpa').textContent = student.sem5_gpa || '-';
         document.getElementById('sem6Gpa').textContent = student.sem6_gpa || '-';
 
-        // GPA Graph
+        // GPA Graph with CGPA and CGPA Before Drop lines
         const ctx = document.getElementById('gpaChart').getContext('2d');
+        const cgpa = parseFloat(student.cgpa) || 0;
+        const cgpaBeforeDrop = parseFloat(student.cgpa_before_drop) || 0;
+        const gpaData = [
+            parseFloat(student.sem1_gpa) || 0,
+            parseFloat(student.sem2_gpa) || 0,
+            parseFloat(student.sem3_gpa) || 0,
+            parseFloat(student.sem4_gpa) || 0,
+            parseFloat(student.sem5_gpa) || 0,
+            parseFloat(student.sem6_gpa) || 0
+        ];
+
         new Chart(ctx, {
             type: 'line',
             data: {
                 labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6'],
-                datasets: [{
-                    label: 'GPA',
-                    data: [
-                        parseFloat(student.sem1_gpa) || 0,
-                        parseFloat(student.sem2_gpa) || 0,
-                        parseFloat(student.sem3_gpa) || 0,
-                        parseFloat(student.sem4_gpa) || 0,
-                        parseFloat(student.sem5_gpa) || 0,
-                        parseFloat(student.sem6_gpa) || 0
-                    ],
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                    fill: true,
-                    tension: 0.3
-                }]
+                datasets: [
+                    {
+                        label: 'GPA',
+                        data: gpaData,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'CGPA',
+                        data: Array(6).fill(cgpa),
+                        borderColor: '#ef4444',
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        fill: false
+                    },
+                    {
+                        label: 'CGPA Before Drop',
+                        data: Array(6).fill(cgpaBeforeDrop),
+                        borderColor: '#10b981',
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        fill: false
+                    }
+                ]
             },
             options: {
                 scales: {
