@@ -11,6 +11,34 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f5f5f5;
+            margin: 0;
+        }
+        .navbar {
+            width: 220px;
+            background-color: #fff;
+            border-right: 1px solid #e5e7eb;
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 40;
+            transition: transform 0.3s ease-in-out;
+        }
+        .navbar.hidden {
+            transform: translateX(-100%);
+        }
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 50;
+        }
+        .main-content {
+            margin-left: 220px;
+            padding: 20px;
+            transition: margin-left 0.3s ease-in-out;
         }
         th, td {
             padding: 4px 8px;
@@ -20,7 +48,6 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 150px;
         }
         th {
             background-color: #fafafa;
@@ -53,17 +80,6 @@
             max-height: 90vh;
             overflow-y: auto;
         }
-        .navbar {
-            width: 220px;
-            background-color: #fff;
-            border-right: 1px solid #e5e7eb;
-            padding: 20px;
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 40;
-        }
         .branch-button {
             padding: 4px 8px;
             margin: 2px;
@@ -83,11 +99,54 @@
             font-size: 12px;
             font-weight: 500;
         }
+        @media (max-width: 768px) {
+            .navbar {
+                transform: translateX(-100%);
+            }
+            .navbar.visible {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            th, td {
+                font-size: 12px;
+                padding: 3px 6px;
+            }
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+            .modal-content .grid {
+                grid-template-columns: 1fr;
+            }
+            .branch-button {
+                font-size: 11px;
+                padding: 3px 6px;
+            }
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            table {
+                min-width: 800px;
+            }
+        }
     </style>
 </head>
 <body class="bg-[#f5f5f5]">
+    <!-- Menu Toggle for Mobile -->
+    <button class="menu-toggle" onclick="toggleNavbar()">
+        <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+    </button>
+
     <!-- Left Navbar -->
-    <div class="navbar">
+    <div class="navbar" id="navbar">
         <div class="flex items-center mb-6">
             <h2 class="text-xl font-bold text-gray-800">NSUTGod</h2>
         </div>
@@ -112,12 +171,12 @@
         </ul>
     </div>
 
-    <div class="ml-56 p-8">
+    <div class="main-content" id="mainContent">
         <div class="max-w-6xl mx-auto">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold text-gray-800">Student Data - <span class="text-green-600" id="totalRecords"></span></h1>
-                <div class="flex gap-2">
-                    <input type="text" id="searchInput" placeholder="Search" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400" />
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-800">Student Data - <span class="text-green-600" id="totalRecords"></span></h1>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <input type="text" id="searchInput" placeholder="Search" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 flex-1 sm:flex-none" />
                     <button class="p-2 bg-gray-100 rounded-lg">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -130,11 +189,11 @@
             <div class="flex flex-wrap gap-1 mb-4" id="branchFilterButtons"></div>
 
             <!-- Other Filters -->
-            <div class="flex flex-col md:flex-row gap-4 mb-6">
-                <select id="batchFilter" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400">
+            <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                <select id="batchFilter" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 flex-1 sm:flex-none">
                     <option value="">Filter by Batch</option>
                 </select>
-                <select id="genderFilter" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400">
+                <select id="genderFilter" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 flex-1 sm:flex-none">
                     <option value="">Filter by Gender</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
@@ -143,7 +202,7 @@
             </div>
 
             <!-- Table -->
-            <div class="bg-white rounded-lg shadow-sm">
+            <div class="table-container bg-white rounded-lg shadow-sm">
                 <table class="min-w-full">
                     <thead>
                         <tr>
@@ -165,7 +224,7 @@
             </div>
 
             <!-- Pagination -->
-            <div class="flex justify-between items-center mt-4 text-gray-600">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-4 text-gray-600 gap-4">
                 <div>
                     Rows per page: 
                     <select id="rowsPerPageSelect" class="p-1 rounded-lg border border-gray-300">
@@ -248,6 +307,8 @@
         const rowsPerPageSelect = document.getElementById('rowsPerPageSelect');
         const detailsModal = document.getElementById('detailsModal');
         const closeModalBtn = document.getElementById('closeModal');
+        const navbar = document.getElementById('navbar');
+        const mainContent = document.getElementById('mainContent');
 
         let students = [];
         let filteredStudents = [];
@@ -255,33 +316,40 @@
         let rowsPerPage = parseInt(rowsPerPageSelect.value);
         let selectedBranch = '';
 
-        // Branch and Gender color mapping
+        // Branch and Gender color mapping with lighter shades
         const branchColors = {
-            'Cumulative': '#e5e7eb',
-            'CSAI': '#93c5fd',
-            'CSE': '#60a5fa',
-            'CSDS': '#3b82f6',
-            'CIOT': '#2563eb',
-            'IT': '#1d4ed8',
-            'ITNS': '#1e40af',
-            'MAC': '#fef3c7',
-            'ECIOT': '#fde68a',
-            'ECE': '#fcd34d',
-            'ECAM': '#fbbf24',
-            'EE': '#f59e0b',
-            'ICE': '#d97706',
-            'ME': '#b45309',
-            'MEEV': '#92400e',
-            'WEST': '#fef2f2',
+            'Cumulative': '#f3f4f6',
+            'CSAI': '#bfdbfe',
+            'CSE': '#93c5fd',
+            'CSDS': '#60a5fa',
+            'CIOT': '#93c5fd',
+            'IT': '#60a5fa',
+            'ITNS': '#bfdbfe',
+            'MAC': '#fef9c3',
+            'ECIOT': '#fef9c3',
+            'ECE': '#fef3c7',
+            'ECAM': '#fef9c3',
+            'EE': '#fed7aa',
+            'ICE': '#fed7aa',
+            'ME': '#fed7aa',
+            'MEEV': '#fed7aa',
+            'WEST': '#fee2e2',
             'CE': '#fee2e2',
-            'BT': '#fecaca',
-            'GI': '#f87171'
+            'BT': '#fee2e2',
+            'GI': '#fee2e2'
         };
         const genderColors = {
             'Male': '#bfdbfe',
-            'Female': '#e9d5ff',
+            'Female': '#f9a8d4', // Distinct pink for Female
             'Other': '#d1fae5'
         };
+
+        // Toggle navbar on mobile
+        function toggleNavbar() {
+            navbar.classList.toggle('visible');
+            navbar.classList.toggle('hidden');
+            mainContent.style.marginLeft = navbar.classList.contains('visible') ? '220px' : '0';
+        }
 
         // Fetch and parse CSV
         Papa.parse('https://raw.githubusercontent.com/avashx/nsutgod/main/students.csv', {
@@ -322,11 +390,11 @@
                 const button = document.createElement('button');
                 button.className = 'branch-button';
                 button.textContent = branch;
-                button.style.backgroundColor = branchColors[branch] || '#e5e7eb';
+                button.style.backgroundColor = branchColors[branch] || '#f3f4f6';
                 button.addEventListener('click', () => {
                     document.querySelectorAll('.branch-button').forEach(btn => {
                         btn.classList.remove('active');
-                        btn.style.backgroundColor = branchColors[btn.textContent] || '#e5e7eb';
+                        btn.style.backgroundColor = branchColors[btn.textContent] || '#f3f4f6';
                         btn.style.color = '#000';
                     });
                     button.classList.add('active');
@@ -364,7 +432,9 @@
                     <td>${student.category || '-'}</td>
                     <td>${student.campus || '-'}</td>
                 `;
-                row.addEventListener('click', () => showDetails(student));
+                row.addEventListener('click', () => {
+                    showDetails(student);
+                });
                 studentTableBody.appendChild(row);
             });
 
@@ -489,6 +559,13 @@
             rowsPerPage = parseInt(rowsPerPageSelect.value);
             currentPage = 1;
             displayStudents();
+        });
+
+        // Close navbar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && !navbar.contains(e.target) && !e.target.closest('.menu-toggle') && navbar.classList.contains('visible')) {
+                toggleNavbar();
+            }
         });
     </script>
 </body>
