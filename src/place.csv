@@ -1,0 +1,449 @@
+Company,Date of Arrival,Role,CTC (LPA),Intern Stipend (INR/Month),PPO from Intern,FTE Hired 2025,Total Offers,Type,Category,Eligible Branches (B.Tech Only),Cutoff CGPA
+apple,Aug/24,SWE,62.0,137000.0,0.0,7.0,7.0,6m intern with performance  PPO,tech,"cs,it,mac,ece,ee,ice",7.0
+google silicon,July/24,Silicon Eng,62.0,,0.0,1.0,1.0,FTE,core,"cs,ece,ee,ice",8.0
+de shaw,Oct/24,SDE,58.0,200000.0,2.0,1.0,3.0,FTE+intern,tech,"cs,it,mac,ece",8.0
+UBER,July/24,SDE,56.0,177000.0,3.0,2.0,5.0,6m intern with performance PPO,tech,"cs,it,mac,ece,ee",8.5
+zomato,July/24,SDE,56.0,60000.0,0.0,3.0,3.0,FTE+intern,tech,"cs,it,mac,ece,ee",6.5
+Nk securities HFT,Mar/25,full stack dev,54.0,,0.0,,,FTE,tech,"cs,it,mac,ece",7.0
+Meesho,July/24,SDE,46.0,100000.0,0.0,4.0,4.0,FTE+intern,tech,"cs,it,mac,ece,ee,me,ice",6.0
+Amazon,,SDE,45.0,110000.0,0.0,0.0,0.0,6m intern with performance  PPO,tech,"cs,it,mac,ece",7.0
+google,July/24,SWE,44.0,,2.0,11.0,13.0,FTE,tech,all,8.0
+Tower Research,Aug/24,SDE,44.0,180000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,"cs,it,mac,ece",8.0
+microsoft,,SWE,42.0,,12.0,0.0,12.0,FTE,tech,all,7.0
+Hike,Nov/24,SDE,41.0,,0.0,1.0,1.0,FTE+intern,tech,all,4.0
+intuit,,SWE,40.0,,1.0,0.0,1.0,FTE,tech,"cs,it,mac",8.0
+autodesk,Oct/24,SDE,40.0,55000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,"cs,it,mac",7.5
+samsung banglore,,developer,40.0,,5.0,0.0,5.0,FTE,tech,all,7.5
+atlassian,,SWE,38.5,,3.0,0.0,3.0,FTE,tech,"cs,it,mac,ece",8.0
+go daddy,Sep/24,sde,38.0,50000.0,0.0,18.0,18.0,6m intern with performance  PPO,tech,all,4.0
+Texas instrument,July/24,analog/embedded,38.0,75000.0,1.0,2.0,3.0,FTE,core,"cs,mac,ee,ece,ice",7.0
+eightfold ai,Mar/25,product solution expert,37.0,,0.0,0.0,0.0,FTE,tech,cs,8.0
+Paypal,July/24,SWE,34.0,,0.0,0.0,0.0,FTE,Tech,"cs,it,Mac",8.5
+phone pe,July/24,SWE,33.5,80000.0,0.0,6.0,6.0,FTE+intern,tech,"cs,it,mac,ece,ee,ice",6.0
+fast retaling(japan),July/24,SDE,33.0,,2.0,2.0,4.0,FTE+intern,tech,"cs,it,ece,mac",7.0
+VISA,,SWE,32.0,,8.0,0.0,8.0,FTE,tech,"cs,it,mac,ece",7.0
+Gameskraft,August/24,SWE,32.0,75000.0,0.0,7.0,7.0,FTE+intern,tech,cs.it.mac,7.0
+expedia,,SWE,32.0,,5.0,0.0,5.0,FTE,tech,"cs,it,mac,ece,ee,ice",8.5
+flipkart,,SDE,32.0,100000.0,1.0,0.0,0.0,FTE+intern,tech,all,7.0
+Patrnonous Res.,July/24,SDE,32.0,100000.0,0.0,0.0,0.0,6m intern with performance  PPO,tech,all,7.5
+Expedia,April/2025,sde,32.0,,0.0,0.0,0.0,FTE,tech,"cs,it,mac,ece",7.0
+Nvidia,Nov/24,LLVM engineer,32.0,80000.0,0.0,1.0,1.0,6m intern with performance PPO,tech,"cs,it,mac,ece[F]",7.8
+goldman sachs,,analyst,32.0,,3.0,0.0,3.0,FTE,tech,all,7.0
+Nvidia,Nov/24,SWE,31.0,80000.0,0.0,3.0,3.0,6m intern with performance  PPO,tech,"cs,ece,ee",7.8
+sprinklr,,SWE,30.0,,1.0,0.0,1.0,FTE,tech,all,7.0
+Vyapar,July/24,SDE/Tech analyst,30.0,75000.0,0.0,0.0,0.0,FTE,tech,"cs,it,mac",8.0
+cars24,Feb/25,sde ,30.0,45000.0,0.0,0.0,0.0,3m intern with performance  PPO,tech,all,7.5
+Estee advisor,July/24,Tech analyst,29.0,,3.0,1.0,4.0,FTE,tech,"cs,it,mac,ece",8.0
+salesforce,,SWE,29.0,,8.0,0.0,8.0,FTE,tech,all,8.5
+morgan stanely,May/25,analyst,29.0,,0.0,1.0,1.0,FTE,tech,"cs,it,ece,mac",7.0
+morgon stanley,,SWE,28.0,87000.0,4.0,0.0,4.0,FTE,tech,"cs,it,mac",8.0
+Super AGI,April/25,SDE,28.0,40000.0,0.0,2.0,2.0,6m intern with performance  PPO,tech,cs,7.0
+nvidia,Nov/24,hardware,28.0,80000.0,0.0,0.0,0.0,6m intern with performance  PPO,core,"cs,ece,ee,ice[F]",7.8
+samsara,July/24,SWE,27.8,100000.0,0.0,0.0,0.0,FTE,tech,"cs,it,mac,ece",8.5
+razorpay,Feb/25,sde,27.0,50000.0,0.0,0.0,0.0,6m intern with performance  PPO,tech,"cs,it,mac,ece",7.0
+naik Ai,July/24,ML engineer,27.0,40000.0,0.0,0.0,0.0,FTE,tech,all,6.0
+SiTime,Jan/25,System eng,26.0,55000.0,0.0,1.0,1.0,6m intern with performance  PPO,core,"ece,ee",7.0
+wayfair,Oct/24,SDE/data science,25.0,75000.0,0.0,5.0,5.0,FTE+intern,tech,"cs,it,mac",7.0
+armorcode,Oct/24,sde,25.0,45000.0,0.0,2.0,2.0,6m intern with performance  PPO,tech,"cs,it,mac,ece",4.0
+Z scalar,Sep/24,SDE,25.0,75000.0,0.0,2.0,2.0,6m intern with performance  PPO,tech,"cs,it,ece,mac,ee",7.0
+growthZ AI,Sep/24,llm eng,25.0,50000.0,0.0,0.0,0.0,6m intern with performance  PPO,techh,"cs,it,mac,ece",5.0
+CISCO,Sep/2025,SWE,24.0,98000.0,2.0,9.0,11.0,FTE+intern,tech,all,7.0
+twillo,,SWE,24.0,,4.0,0.0,4.0,FTE,tech,"cs,it,mac,ee,ece",7.5
+wells forgo,,SWE,24.0,,13.0,0.0,13.0,FTE,tech,"css,it,mac,ece,ee",8.0
+adobe,,SWE,24.0,,2.0,0.0,2.0,FTE,tech,"cs,it,mac,ece",8.0
+winzo,July/24,SDE/prod/automation/growth,24.0,75000.0,1.0,4.0,5.0,FTE+intern,tech,"cst,it,mac",8.5
+siemens EDA,July/24,SDE,24.0,50000.0,0.0,14.0,14.0,FTE+intern,tech,"cs,it,mac,ece,ee",7.5
+Fiitjee,Oct/24,Faculty,24.0,,0.0,,,FTE,tech,all,6.0
+siemens eda,November/24,Embedded QVIP ENG ,24.0,50000.0,0.0,2.0,2.0,6m intern with performance  PPO,core,"cs,ece,ee",7.0
+workindia,Nov/24,swe,23.0,40000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,"cs,it,mac,ece",7.0
+synopsys,Sep/24,embedded/r&d/design ,23.0,40000.0,0.0,6.0,6.0,FTE+intern,tech/core,"cs,it,mac,ece",7.0
+nxp semiconductor,Sep/24,analog/embedded/dig,23.0,42500.0,0.0,3.0,3.0,FTE+intern,core,"cse,ece,ee",7.5
+Walmart,Aug/24,SDE 2,22.4,,4.0,0.0,4.0,FTE,tech,"cs,it,mac,ece",8.0
+make my trip,Aug/24,SWE,22.0,50000.0,0.0,12.0,12.0,FTE+intern ,tech,"cs,it,mac,ece",7.5
+my karma,,SWE,22.0,,1.0,0.0,1.0,FTE+intern,tech,"cs,it,mac",8.5
+urban company,July/24,SDE,22.0,,0.0,5.0,5.0,FTE,tech,"cs,it,ece",7.0
+mongodb,,data engineer,22.0,,1.0,0.0,1.0,FTE,tech,"cs,it,mac",8.0
+blackrock,Nov/24,Cloud eng,22.0,,0.0,2.0,2.0,FTE,tech,all,5.0
+ukg,Aug/24,SWE,21.0,50000.0,0.0,9.0,9.0,6m intern with performance  PPO,tech,"cs,it,Mac,ece",7.0
+auxia,Aug/24,SWE,21.0,80000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,cs,7.5
+zomato,July/24,Product analyst,21.0,50000.0,0.0,1.0,1.0,FTE+intern,non tech,"cs,it,mac,ece,ee",6.5
+Meesho,July/24,Bussiness analyst,21.0,70000.0,0.0,6.0,6.0,FTE+intern,non-tech,"cs,it,mac,ece,ee,me,ice",6.0
+media.net,Jan/25,buss analyst ,21.0,100000.0,0.0,1.0,1.0,6m intern with performance  PPO,non tech,all,7.0
+shipsy,Aug/24,SWE/product,20.0,50000.0,0.0,4.0,4.0,6m intern with performance  PPO,tech,"cs,it,mac",8.0
+ClearTax,Nov/24,SWE/ML,20.0,50000.0,0.0,4.0,4.0,6m intern with performance  PPO,tech,"cs,it,mac,ece,ee,ice",6.0
+arm,Sep/24,SWE/hardware,20.0,45000.0,0.0,6.0,6.0,6m intern with performance  PPO,tech/core,"cs,ece,ee",7.0
+coinswitch,Nov/24,swe/bussines ass/program,20.0,50000.0,0.0,5.0,5.0,6m intern with performance  PPO,tech,"cs,it,mac,ece,ee,ice",6.0
+magicpin,Aug/24,swe/analyst,20.0,40000.0,0.0,7.0,7.0,6m intern with performance  PPO,tech,"cs,it,mac",7.0
+SLB,,SWE,20.0,,1.0,1.0,1.0,FTE,tech/nontech/core,"cs,it,mac,ece",7.0
+tbo.com,Aug/24,SWE,20.0,,0.0,5.0,5.0,FTE,tech,"cs,it,mac",7.0
+unify apps,Aug/24,SWE,20.0,50000.0,0.0,3.0,3.0,6m intern with performance  PPO,tech,all,7.0
+Kapstan,Sep/24,SWE,20.0,87500.0,0.0,3.0,3.0,FTE+intern,tech,"cs,it,mac,ece,ee",7.5
+humantic ai,Aug/24,sde,20.0,90000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,all,4.0
+Bharat petroleium,April/25,GET,20.0,,0.0,6.0,6.0,FTE,core,"ice,ee",7.0
+DP World,May/25,SDE,20.0,,0.0,1.0,1.0,FTE,tech,all,7.0
+jp morgan,,SWE,19.0,,2.0,0.0,2.0,FTE,tech,all,8.0
+EIL psu,Nov/24,management trainee ,19.0,,0.0,2.0,2.0,fte,core,all,7.0
+IBM,Aug/24,SWE,18.5,,0.0,10.0,10.0,FTE+intern,tech,"[F]cs,it,mac,ece,ee,ice",7.0
+zupee,Nov/24,SWE,18.0,30000.0,0.0,4.0,4.0,6m intern with performance  PPO,tech,"cs,it,mac,ece",7.0
+GoodSpace AI,Feb/25,SDE/bussiness/desing intern,18.0,50000.0,0.0,11.0,11.0,6m intern with performance  PPO,tech,all,7.0
+barco,Sep/24,SDE,18.0,30000.0,0.0,0.0,0.0,6m intern with performance  PPO,tech,cse,7.0
+property group,Jan/25,sde,18.0,40000.0,0.0,0.0,0.0,6m intern with performance  PPO,tech,"cs,it,mac,ece",7.0
+CIFDAQ,Jan/25,managmenet,18.0,,0.0,,,FTE,non tech,cs,7.0
+IDEMITSU,Nov/24,data analyst,18.0,,1.0,0.0,1.0,FTE,non tech,all,4.0
+synaptic,Nov/24,backend/qa,18.0,50000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,"cs,it,mac",7.0
+dezerv,Nov/24,swe,17.0,,0.0,1.0,1.0,FTE,tech,"cs,it,mac,ece",7.0
+ION,July/24,SDE/Tech analyst,17.0,,0.0,7.0,7.0,FTE,tech,"cs,it,mac,ece",7.0
+ION,Mar/25,"sde,tester,data scientist",17.0,,0.0,2.0,2.0,FTE,tech,"cs,it,mac,ece,ee",7.0
+cadence systems,Mar/25,product validation eng,17.0,,0.0,,,FTE,core,"ece,ee",8.0
+american exp,,Product analyst,17.0,,5.0,5.0,5.0,FTE,non-tech,"cs,it,mac,ece",7.0
+FNZ group,Aug/24,JAD/JAT,17.0,40000.0,0.0,11.0,11.0,FTE+intern,tech,all,7.5
+Commerce IQ,Feb/25,data science,17.0,100000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,"cs,it,mac,ece",7.0
+Trinity Life Scinces,Nov/24,Associate,17.0,75000.0,0.0,1.0,1.0,6m intern with performance ppo,non tech,all,6.5
+probo,Nov/24,swe,16.0,30000.0,0.0,2.0,2.0,6m intern with performance  PPO,tech,"cs,it,Mac,ece",7.0
+nucleus,Oct/24,swe,16.0,,0.0,1.0,1.0,FTE,tech,"cs,it,mac,ece",6.0
+Myntra,Apr/25,SWE,16.0,70000.0,0.0,,,6m intern with performance  PPO,tech,"cs,it,mac,ece",
+samsung r&d noida,Nov/24,SRI,16.0,45000.0,0.0,2.0,2.0,6m intern with performance  PPO,tech,all,7.5
+PROCDNA,Aug/24,SDE/Tech analyst,16.0,,0.0,6.0,6.0,FTE,tech/nontech,all,7.0
+TypeFace AI,Sep/24,SDE,16.0,50000.0,0.0,0.0,0.0,6m intern with performance  PPO,tech,"cse,it,mac",7.0
+Tata 1mg,Sep/24,SDE,16.0,30000.0,0.0,2.0,2.0,6m intern with performance  PPO,tech,"cs,it,mac",7.0
+plum benifits,Oct/24,sde,16.0,35000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,"cs,it",7.0
+Sedemac,July/24,R&D eng/embedd,16.0,,0.0,0.0,0.0,FTE+intern,core,"cs,it,ece,ee,ice",6.0
+pharmeasy,Sep/24,Data sci/dev eng/analyst,16.0,,0.0,5.0,5.0,FTE,tech,"cs,it,mac,ece",7.0
+Bain and Comp,Aug/24,analyst,16.0,40000.0,0.0,27.0,27.0,6m intern with performance  PPO,non-tech,all,6.0
+Aidash,May/25,bussiness analyst,16.0,50000.0,0.0,2.0,2.0,6m intern with performance  PPO,non tech,all,6.9
+samsung delhi,Nov/24,SWE,15.5,50000.0,0.0,9.0,9.0,6m intern with performance  PPO,tech,"cs,it,mac,ece",7.0
+Samsung delhi,Nov/24,swe,15.5,,0.0,9.0,9.0,FTE,tech,"cs,it,mac,ece,ee",7.5
+DSP mutual fund,Oct/24,graduate traniee,15.5,50000.0,0.0,3.0,3.0,FTE,tech,"cs,it,Mac,ece",7.0
+Cvent,Sep/24,Data Engineer,15.3,,0.0,9.0,9.0,FTE,tech,"cs,it,mac",7.0
+Markle Tech & Media,Oct/24,SWE/web d/sales,15.0,30000.0,0.0,2.0,2.0,6m intern with performance  PPO,tech,"cs,it",6.0
+battery smart,Nov/24,swe/software tester,15.0,35000.0,0.0,4.0,4.0,6m intern with performance  PPO,tech,all,6.0
+Ciena,Nov/24,SWE/hardware,15.0,37500.0,0.0,0.0,0.0,FTE+intern,tech/core,"cs,it,mac,ece,ee",4.0
+infoedge,Aug/24,SWE,15.0,60000.0,0.0,6.0,6.0,FTE+intern,tech,"cs,it,mac,ece",7.0
+Deutsche telekom,Aug/24,swe,15.0,30000.0,0.0,5.0,5.0,FTE+intern,tech,all,7.0
+SMC GLobal,Aug/24,SWE,15.0,50000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,"cs,it,mac,ece",8.0
+sig Lens,Aug/24,SWE,15.0,80000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,"cs,it,mac",6.0
+Wokelo Ai,Sep/24,SWE,15.0,25000.0,0.0,1.0,1.0,3m intern with performance  PPO,tech,all,6.0
+q3 tech,Jan/25,swe,15.0,,0.0,6.0,6.0,FTE,tech ,all,6.0
+nykaa,Oct/24,SDE,15.0,50000.0,0.0,3.0,3.0,6m intern with performance  PPO,tech,"cs,it,mac,ece,ee,ice",7.5
+park+,Dec/24,sde,15.0,35000.0,0.0,4.0,4.0,FTE,tech,all,8.0
+Motive,Feb/24,junior swe,15.0,50000.0,0.0,2.0,2.0,3m intern with performance  PPO,tech,"cs,it,mac,ece,ee",7.0
+fundwave,Sep/24,full stack/ devops,15.0,65000.0,0.0,0.0,0.0,6m intern with performance  PPO,tech,"cs,it,mac,ece,ee",5.0
+Auro AI,Jan/25,dev/sde/analyst/pm,15.0,,0.0,2.0,2.0,FTE,tech/nontech,all,6.0
+MPL,Jan/25,Data eng,15.0,40000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,all,6.0
+LEK,Nov/24,Analyst,15.0,,0.0,2.0,2.0,FTE,non tech,biotech,6.0
+Airtel,Aug/24,Tech traine,14.8,,0.0,4.0,4.0,FTE,tech,"cst,it,mac",7.0
+thorogood,Aug/24,AI/ML engineer,14.8,25000.0,0.0,1.0,1.0,FTE,tech,"cs,it,mac,ece,ee",7.0
+Airtel  Payment Bank,Sep/24,Trainee,14.75,,0.0,3.0,3.0,FTE,tech,"cs,it,mac",7.0
+Times Internet,Sep/24,SDE/Prodcut intern,14.5,25000.0,0.0,12.0,12.0,6m intern with performance ppo,tech/non tech,"cs,it,mac,ece,ice,ee,me",7.0
+siemens disw,Oct/24,System eng,14.0,40000.0,0.0,0.0,0.0,6m intern with performance  PPO,core,"cs,it,mac,ece",7.0
+Aditya Birla Pivot,Sep/24,SWE/QA,14.0,30000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,all,7.0
+Baazi Games,Nov/24,SWE,14.0,30000.0,0.0,4.0,4.0,6m intern with performance PPO,tech,"cs,mac ",7.0
+advantage club,Sep/24,SDE/QA/PM,14.0,20000.0,0.0,1.0,1.0,FTE+intern,tech,all,7.0
+Macquarie,Oct/24,SDE/data role,14.0,60000.0,0.0,6.0,6.0,12m intern with performance  PPO,tech,"cs,it,mac,ece,ee",6.5
+siemens disw,Oct/24,sde,14.0,40000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,"cs,it,ece",7.0
+Zinnia,Aug/24,SDE,14.0,50000.0,0.0,11.0,11.0,6m intern with performance  PPO,tech,"cs,it,mac,ece,ee",7.5
+HeadLamp,Nov/24,SDE,14.0,80000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,"cs,it,mac,ece,ee,ice",7.5
+limeroad,Jan/25,sde,14.0,25000.0,0.0,10.0,10.0,6m intern with performance  PPO,tech,all,7.0
+IND Money,Jan/25,Product/swe,14.0,35000.0,0.0,1.0,1.0,6m intern with performance  PPO,non tech,all,7.5
+Keventers,Dec/24,marketing,14.0,,0.0,,,FTE,non tech,all,7.0
+lumberfi,Dec/24,full tack,14.0,55000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,"cs,it,mac,ece,ee",7.5
+axxela,Aug/24,Analyst,14.0,,1.0,5.0,6.0,FTE,non tech,all,5.0
+zs associate,Aug/24,Analyst,14.0,,0.0,14.0,14.0,FTE,non-tech,all,6.0
+axis bank,Sep/24,analyst,14.0,,0.0,6.0,6.0,FTE,non tech,all,6.0
+paisa bazar,Apr/25,swe,14.0,,0.0,2.0,2.0,FTE,tech,"cs,it,mac",7.0
+Future First,Aug/24,Market Analyst,13.38,40000.0,0.0,7.0,7.0,6m intern with performance  PPO,non tech,all,7.0
+TCIL,Nov/24,Trainee,13.0,,0.0,2.0,2.0,FTE,tech,"cs,it,mac,ece",7.0
+Xeno,Oct/24,SWE,13.0,30000.0,0.0,0.0,0.0,6m intern with performance  PPO,tech,all,6.0
+zanksar,Oct/24,swe,13.0,65000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,"cs,it,mac",8.0
+Galytix,Dec/24,SWE,13.0,,0.0,1.0,1.0,FTE,tech,"cs,it,mac,ece,ee",7.0
+josh tech grp,Sep/24,sde/frontend,13.0,40000.0,0.0,3.0,3.0,Intern+Fte,tech,all,7.0
+Natwest,Aug/24,SDE,13.0,,7.0,6.0,13.0,FTE,tech,"cs,it,mac,ece",7.0
+athena edu,Sep/24,associate,13.0,15000.0,0.0,1.0,1.0,6m intern with performance  PPO,non tech,all,7.0
+Alvarez and Marsal,Sep/24,analyst,13.0,30000.0,0.0,4.0,4.0,6m intern with performance  PPO,non tech,all,7.0
+dunnhumby,Sep/24,junior eng,12.6,,0.0,4.0,4.0,FTE,tech,"cs,it,mac",4.0
+Kimbal,Nov/24,Jun FIrmware,12.5,40000.0,0.0,6.0,6.0,6m intern with performance  PPO,tech,"cs,it,ece,ee",7.0
+oyo,Sep/24,Associate sde/BA/prod,12.5,50000.0,0.0,19.0,19.0,FTE+intern,tech,all,7.0
+my karmaa,,Tech Engineer,12.0,,0.0,1.0,1.0,FTE,tech,all,4.0
+baaz bikes,Dec/24,swe/mech/electrical eng,12.0,25000.0,0.0,2.0,2.0,6m intern with performance  PPO,tech/core,all,6.0
+Critical Insights,Apr/25,SWE/hardware,12.0,,0.0,5.0,5.0,FTE,core/tech,all,
+NMTRONICS,Sep/24,swe/data eng/mech eng/ai ml,12.0,35000.0,0.0,3.0,3.0,6m intern with performance PPO,tech/core,"cs,it,mac,ece,ee,me,ice",
+HCL Tech,Sep/24,SWE 2,12.0,,0.0,12.0,12.0,FTE,tech,"cs,it,mac",6.0
+policy bazar,Aug/24,SWE,12.0,40000.0,0.0,6.0,6.0,FTE+intern,tech,"ece,mac,it,cs,ee",8.0
+AB InBev GCC,Sep/24,swe,12.0,30000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,all,7.0
+keysight,Feb/25,sde/hardware/ai ml,12.0,55000.0,0.0,8.0,8.0,6m intern with performance  PPO,tech,all,7.3
+paytm,Sep/24,SDE,12.0,25000.0,0.0,0.0,0.0,6m intern with performance  PPO,tech,"cs,it,mac,ece,ee",7.0
+Quantizer Research,Sep/24,SDE,12.0,,0.0,1.0,1.0,FTE,tech,cs,7.5
+Qpi AI,Sep/24,sde,12.0,25000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,all,6.0
+spyne,Jan/25,sde,12.0,25000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,all,7.0
+Neurosensum,Sep/24,prompt engineer,12.0,40000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,all,6.0
+nation with namo,Aug/24,product/sde,12.0,50000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,"cs,it,mac,ece",4.0
+electric pe,Nov/24,product manager,12.0,30000.0,0.0,1.0,1.0,6m intern with performance  PPO,non tech,all,7.0
+astro talk,Oct/24,product analyst ,12.0,30000.0,0.0,2.0,2.0,6m intern with performance  PPO,non tech,all,6.0
+A2G services,Oct/24,jr quant dev,12.0,30000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,all,7.0
+schnider electric,Sep/24,GET,12.0,,0.0,1.0,1.0,FTE,core,all(PWD),6.0
+Sunsire,Dec/24,GET,12.0,,0.0,6.0,6.0,FTE,core,"ece,ee,me,ice",4.0
+restroworks,Sep/24,full stack,12.0,25000.0,0.0,2.0,2.0,FTE+intern,tech,all,4.0
+ge vernova,Sep/24,field service,12.0,40000.0,0.0,16.0,16.0,6m intern with performance  PPO,core,"ice,ee,me",7.0
+univest,Nov/24,data role,12.0,25000.0,0.0,1.0,1.0,Fte,tech,all ,7.0
+Luxasia,Sep/24,data engineer ,12.0,35000.0,0.0,2.0,2.0,6m intern with performance ppo,tech,"cs,it,mac,ece",7.5
+Algo University,Sep/24,Bussinnes/growth/founder,12.0,30000.0,0.0,2.0,2.0,6m intern with performance ppo,non tech,all,4.0
+BCG,Jan/25,business /8 more roles,12.0,40000.0,0.0,3.0,3.0,12m intern+FTE,non tech,all,7.0
+spinny,Nov/24,backend/analyst,12.0,30000.0,0.0,3.0,2.0,6m intern with performance  PPO,tech/non tech,all,6.0
+Leena AI,"sep/24,mar/25",Backend eng/associate sol cons,12.0,40000.0,0.0,5.0,5.0,6m intern with performance  PPO,tech,cs.it.mac,7.0
+E2E Networks,Nov/24,Associate SWE ,12.0,50000.0,0.0,5.0,5.0,6m intern with performance PPO,tech,"cs,it,mac",7.0
+mckinsey,"jan/25,feb/25",analyst,12.0,75000.0,0.0,5.0,5.0,4m intern performance PPO,non tech,all,4.0
+BCN,Nov/24,analyst,12.0,60000.0,0.0,1.0,1.0,6m intern with performance  PPO,non tech,all,6.0
+Samagra,Sep/24,analyst,12.0,,0.0,1.0,1.0,FTE,non tech,all,5.0
+Timble Glance,Sep/24,AI eng,12.0,30000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,"cs,it,mac",7.0
+pwc uk,Sep/24,acturial consultant,12.0,,0.0,0.0,0.0,FTE,non tech,all,4.0
+Nexalis Abu dabhi,Apr/25,Porject engineer,12.0,,0.0,1.0,1.0,6m intern with performance  PPO,core,"ee,ice,me",5.0
+smarsh,Apr/25,junior cloud dev,12.0,35000.0,0.0,,,6m intern with performance  PPO,tech,"cs,it,mac,ece",7.0
+Statco ELectronics,May/25,Embeded/hard/mech/assoc,12.0,25000.0,0.0,,,6m intern with performance  PPO,tech/core/nontech,all,6.0
+Rentickle,May/25,backend/frontend,12.0,25000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,all,6.0
+aye finance,Nov/24,graduate traniee,11.5,,0.0,3.0,3.0,FTE,tech,all,7.0
+bajaj auto,Nov/24,GET,11.24,,0.0,4.0,4.0,FTE,core,"ece,ee",7.0
+oracle,Nov/24,Tech analyst,11.0,,0.0,8.0,8.0,FTE,tech,"cs,it,mac,ece",7.0
+NAB,Dec/24,swe/data eng ,11.0,,0.0,7.0,7.0,FTE,tech,"cs,it,mac,ece",6.0
+shorthills ai,Aug/24,SWE/Bussiness any,11.0,30000.0,0.0,4.0,4.0,6m intern with performance PPO,tech/non tech,all,6.0
+United Airlines,Oct/24,SWE/Analyst/data analytics,11.0,,0.0,6.0,6.0,FTE,tech/non tech,all,6.0
+Accolite,Sep/24,SWE,11.0,,0.0,1.0,1.0,FTE,tech,"cs,it,mac,ece,ice,ee",6.0
+mozark ai,Sep/24,swe,11.0,,0.0,1.0,1.0,FTE,tech,all,7.0
+omy,Nov/24,python dev,11.0,40000.0,0.0,2.0,2.0,6m intern with performance  PPO,tech,all,6.0
+SLB,Sep/24,mech/ee eng,11.0,,0.0,6.0,6.0,FTE,core,all,4.0
+yamaha,Sep/24,GET,11.0,40000.0,0.0,2.0,2.0,FTE+intern,tech,"css,it,mac,ece,ee",8.0
+Ebiz Solution,Sep/24,Frontend/Backend,11.0,45000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,"cs,it,mac,ece,ee,ice",7.0
+GAIL PSU,Dec/24,Executive Trainee,11.0,,0.0,3.0,3.0,FTE,core,"ece,ice,ee ",7.0
+physics wallah,Dec/24,developer /CONTENT /faculty,11.0,35000.0,0.0,2.0,2.0,6m intern with performance  PPO,tech,"cs,it,mac,ece",7.0
+Indigo,Dec/24,Data Scientist/CLoud eng,11.0,,0.0,4.0,4.0,FTE,tech,"cs,it,mac",7.0
+everest group,Sep/24,analyst,11.0,,0.0,6.0,6.0,FTE,non tech,all,6.5
+TATA Communication,Dec/24,AI and Data science,11.0,35000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,"cs,it,mac",7.0
+Gartner,Sep/24,TPA specialist,10.75,,0.0,1.0,1.0,FTE,non tech,all,4.0
+CYRAN IT,Oct/24,SWE/python/researcher,10.0,40000.0,0.0,1.0,1.0,6m intern with performance PPO,tech,"cs,it",4.0
+z1 tech,Sep/24,swe/pm manager,10.0,,0.0,1.0,1.0,FTE,tech/non tech,"cs,it,mac,ece",7.0
+mamaearth,"nov/24,apr/25",swe/ai,10.0,25000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,"cs,it,mac,ece,ee,ice",7.0
+amdocs,Sep/24,SWE,10.0,,0.0,22.0,22.0,FTE,tech,"cs,it,mac,ece,ee",6.0
+RDTS,July/24,SWE,10.0,25000.0,0.0,1.0,1.0,FTE+intern,tech,"cs,it,mac",8.0
+CLoudwick,Sep/24,SWE,10.0,40000.0,0.0,3.0,3.0,FTE+Intern,tech,"cs,it,mac,ece",7.0
+Dot Pe,Sep/24,SWE,10.0,20000.0,0.0,1.0,1.0,6m intern with performance PPO,tech,"cs,it,mac[F]",7.0
+Crio Dio,Sep/24,SWE,10.0,50000.0,0.0,,,3m intern with PPO,tech,all,6.0
+INfollion,Oct/24,SDE/product/growth,10.0,,0.0,2.0,2.0,FTE,tech/nontech,all,7.0
+verzon,Sep/24,SDE,10.0,,0.0,10.0,10.0,FTE,tech,"cs,it,mac",7.0
+redoorz,Dec/24,sde,10.0,25000.0,0.0,5.0,5.0,intern+fte,tech,all,7.0
+Material,Feb/25,SDE,10.0,25000.0,0.0,8.0,8.0,6m intern with performance  PPO,tech,"cs,it",6.0
+tejas network,July/24,R&D eng,10.0,30000.0,0.0,1.0,1.0,FTE+intern,core,"cs,ece,ee,ice",6.0
+Multyfi,Sep/24,quantative researcher,10.0,30000.0,0.0,,,6m intern with performance  PPO,tech,all,7.0
+myHQ,Oct/24,Product manager,10.0,40000.0,0.0,1.0,1.0,6m intern with performance PPO,non tech,all,5.0
+fleet managment,Dec/24,merchant navy,10.0,,0.0,1.0,1.0,FTE,core,me,7.0
+morphe labs,Sep/24,mechanical designer,10.0,40000.0,0.0,1.0,1.0,6m intern with performance  PPO,core,all,6.5
+ncr atleos,Nov/24,it,10.0,25000.0,0.0,5.0,5.0,intern+fte,tech,all,7.0
+Jindal steel,Nov/24,get,10.0,,0.0,6.0,6.0,FTE,core,"ece,ee,me",6.0
+orange grey business,Feb/25,get,10.0,,0.0,1.0,1.0,FTE,tech,all,6.0
+Honda,Sep/24,GET,10.0,,0.0,11.0,11.0,FTE,core,"me,ece,ice",6.0
+avatar skincare,Sep/24,full stack/buss analyst,10.0,25000.0,0.0,15.0,15.0,6m intern with performance  PPO,tech/non tech,all,5.0
+blu smart,Nov/24,engineering intenr,10.0,20000.0,0.0,2.0,2.0,6m intern with performance  PPO,tech,all,7.0
+Kenko.AI,Dec/24,dev/sde/analyst,10.0,30000.0,0.0,2.0,2.0,6m intern with performance  PPO,tech,all,4.0
+Turing,Sep/24,data analyst,10.0,,0.0,2.0,2.0,FTE,non tech,all,6.0
+Indigo Airlines,Sep/24,Cabin Crew,10.0,,0.0,1.0,1.0,FTE,non tech,all[F],4.0
+Career Plan B,Feb/24,bussiness development/sales/video,10.0,15000.0,0.0,6.0,6.0,6m intern with performance  PPO,non tech,all,6.0
+Troovy,Feb/24,bussiness associate,10.0,,0.0,,,FTE,non tech,all,6.0
+battery smart,Nov/24,buss analayst,10.0,25000.0,0.0,4.0,4.0,6m intern with performance  PPO,non tech,all,7.0
+Aaj supply,Sep/24,backend,10.0,25000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,all,7.0
+Neuriphy,Feb/25,Backend,10.0,25000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,"cs,it,mac,ece",7.0
+Zoca ai,April/25,Backend,10.0,,0.0,1.0,1.0,FTE,tech,"cs,it,mac,ece,ee,ice",4.0
+Outbox labs,Sep/24,Associate swe,10.0,30000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,all,7.0
+bharatpe,Jan/25,associate sde,10.0,35000.0,0.0,15.0,15.0,6m intern with performance  PPO,tech,"cs,it,mac,ece",7.0
+KPMG,Mar/25,analyst AI software,10.0,30000.0,0.0,1.0,1.0,3m intern with performance  PPO,tech,"cs,it,mac,ece,ice,ee",6.0
+wtw,Sep/24,analyst ,10.0,,0.0,2.0,2.0,FTE,non tech ,"cs,it",7.0
+mercer mettl,Sep/24,ai/computer vision,10.0,35000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,all,6.0
+philips,Apr/25,get,10.0,,0.0,1.0,1.0,FTE,core,"me,civil,mpae",
+Benori Knowledge,Apr/25,data analyst,10.0,,0.0,,,FTE,tech,"cs,it,mac,ece",6.0
+Interra systems,May/25,sde,10.0,,0.0,1.0,1.0,FTE,tech,all,7.0
+acciojob,Apr/25,sde teacher,10.0,,0.0,,2.0,FTE,tech,all,6.0
+OLX,May/25,tech intern,10.0,30000.0,0.0,4.0,,6m intern with performance  PPO,tech,all,6.5
+GFG,May/25,probolem setter/MTS,10.0,25000.0,0.0,,,6m intern with performance  PPO,tech,all,7.0
+RBL,Sep/24,tech analyst ,9.5,,0.0,4.0,4.0,FTE,tech,all,4.0
+Insurance Dekho,Oct/24,SDE 1,9.5,,0.0,2.0,2.0,FTE,tech,all,6.5
+inofsys,Sep/24,Program specialist,9.5,,0.0,2.0,2.0,FTE,tech,all,4.0
+QuickSell,Jan/25,manager,9.5,,0.0,1.0,1.0,FTE,non tech,all,6.0
+maruti suzuki,Sep/24,GET,9.2,,0.0,16.0,16.0,FTE,core,all,6.5
+Care Health Insurance,Oct/24,SWE/digital buss manager,9.0,25000.0,0.0,7.0,7.0,6m intern with performance  PPO,tech,"cs,it,mac,ece",6.0
+indra sistemas,Sep/24,swe/analyst,9.0,25000.0,0.0,5.0,5.0,6m intern with performance ppo,tech/non tech,all,4.0
+Freecharge,Dec/24,swe,9.0,25000.0,0.0,2.0,2.0,6m intern with performance  PPO,tech,all,6.0
+calfus,Sep/24,swe,9.0,30000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,all,8.0
+intellipaat software,Sep/24,swe,9.0,,0.0,,,FTE,tech,all,7.0
+bhavna software,Mar/25,swe,9.0,,0.0,1.0,1.0,FTE,tech,"cs,it,mac,ece",6.0
+live like sports,Oct/24,sde,9.0,25000.0,0.0,5.0,5.0,6m intern with performance  PPO,tech,"cs,it",7.0
+Vavetik AI,Mar/25,sde,9.0,36000.0,0.0,,,6m intern with performance  PPO,tech,all,6.0
+TCS,Jan/25,Programmer,9.0,,0.0,24.0,24.0,FTE,tech,all,6.0
+rashi technologies,Mar/25,ML engineer/full stack,9.0,50000.0,0.0,4.0,4.0,6m intern with performance  PPO,tech,all,7.0
+grey orange,Feb/25,Intern,9.0,25000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,"it,ece,ee",6.0
+samsung e and a,Sep/24,graduate traniee,9.0,,0.0,7.0,7.0,FTE,core,all,7.0
+ambak,Sep/24,full stack,9.0,25000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,all,6.0
+moody's,Feb/25,cyber secuirty/ai ml ,9.0,250000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,all,7.0
+Green fileds school,Feb/25,cs teacher,9.0,,0.0,,,FTE,tech,cs,6.0
+lumenci,Sep/24,consultant,9.0,,0.0,2.0,2.0,FTE,non tech,"cs,it,mac,ece,ice",7.0
+intellipat,Sep/24,bussniess,9.0,25000.0,0.0,1.0,1.0,6m intern with performance  PPO,non tech,all,6.0
+MAQ,Oct/24,Associate SWE,9.0,25000.0,0.0,13.0,13.0,FTE+intern,tech,"cs,it,mac",6.0
+india mart,Apr/25,associate swe,9.0,,0.0,,,FTE,tech,"cs,it",6.0
+Vetic,May/25,SDE 1,9.0,,0.0,,,FTE,tech,all,7.0
+HCL Tech,Dec/24,Java dec/angular/pml/ml,8.5,,0.0,4.0,4.0,FTE,tech,"cs,it",4.0
+Sunlife,Sep/24,GET,8.5,,0.0,4.0,4.0,FTE,tech,"cs,it,mac,ece,ee",7.0
+1digitalstacks.ai,Sep/24,founder office/business/swe,8.5,25000.0,0.0,4.0,4.0,6m intern with performance  PPO,non tech,all ,6.0
+EY,Nov/24,Associate consultant,8.5,,0.0,6.0,6.0,FTE,non tech,"cs,it,mac,ece,ee,ice",6.5
+Massive mobility,Apr/25,full stack dev/qa/backend,8.5,,0.0,,,FTE,tech,"cs,it,mac",5.0
+wns,Sep/24,anallyst,8.25,,0.0,3.0,3.0,FTE,non tech,all,4.0
+bechtel,Sep/24,control eng,8.2,,0.0,2.0,2.0,FTE,core,ice,7.0
+times internet,Dec/24,ui ux,8.0,25000.0,0.0,,,6m intern with performance  PPO,non tech,all,4.0
+nagarro,Oct/24,swe/ds/da,8.0,,0.0,1.0,1.0,FTE,tech,"cs,it,ece",6.0
+cyfuture,Nov/24,swe/cloud,8.0,,0.0,1.0,1.0,FTE,tech,"cs,it,mac",7.0
+qspider,Sep/24,SWE,8.0,,0.0,2.0,2.0,FTE,tech,all,4.0
+black and green,Aug/24,swe,8.0,25000.0,0.0,2.0,2.0,FTE+intern,tech,all,4.0
+Relx,Aug/24,SWE,8.0,,0.0,,,FTE,tech,"cs,it",7.0
+Tek Uncokred Allo Pvt,Apr/25,sde/hardware,8.0,25000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech/core,all,6.0
+Recruit CRM,Sep/24,sales analyst,8.0,12000.0,0.0,,,6m intern with performance  PPO,non tech,all,5.0
+unicommerece,Dec/24,Product analyst,8.0,30000.0,0.0,1.0,1.0,6m intern with performance  PPO,non tech,"cs,it,mac",8.0
+euler motor,Sep/24,me/ee/emb/sde,8.0,25000.0,0.0,14.0,14.0,6m intern with performance  PPO,core/tech,all,4.0
+jaro education,Sep/24,manegiral/growth,8.0,,0.0,5.0,5.0,FTE,non tech,all,4.0
+scoreme,Mar/25,java/devops,8.0,,0.0,2.0,2.0,FTE,tech,all,6.0
+Everything RF,April/25,GET/technical content,8.0,25000.0,0.0,,,6m intern with performance  PPO,core/tech,all,6.0
+Prefetti Van Melle,Sep/24,GET,8.0,,0.0,2.0,2.0,FTE,core,me,4.0
+Kia,Dec/24,GET,8.0,,0.0,3.0,3.0,FTE,core,me,5.0
+sunstone,Oct/24,GET,8.0,,0.0,1.0,1.0,FTE,core,all,6.0
+STIR,Sep/24,FOunder office,8.0,20000.0,0.0,1.0,1.0,6m intern with performance PPO,non tech,all,7.0
+CirclePe,Jan/25,Flutter dev,8.0,30000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,all,6.0
+Vecmocon Tech,Nov/24,Embeded/hard/mech/assoc,8.0,,0.0,1.0,1.0,FTE,core,"ece,ee,me ",4.0
+FLydocs,Sep/24,dev,8.0,25000.0,0.0,9.0,9.0,6m intern with performance  PPO,tech,all,6.0
+ALgo AI,Sep/24,Data Scientist,8.0,12000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,all,4.0
+codebugged ai,Jan/25,data scientist,8.0,20000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,all,6.0
+trademo,Sep/24,data engineer /backend/design,8.0,25000.0,0.0,7.0,7.0,6m intern with performance  PPO,tech,all,7.0
+transorg,Sep/24,data analyst,8.0,,0.0,1.0,1.0,FTE,non tech,all,6.5
+rolling arrays,Sep/24,consultant ,8.0,25000.0,0.0,1.0,1.0,6m intern with performance  PPO,non tech,all ,6.0
+Future University,marc/25,Community Manager,8.0,15000.0,0.0,2.0,2.0,6m intern with performance  PPO,non tech,all,6.0
+movidu,Jan/25,bussinness dev intern,8.0,,0.0,10.0,10.0,FTE,non tech,all,6.0
+acmegrades,Sep/24,Bussiness analyst,8.0,28000.0,0.0,1.0,1.0,6m intern with performance  PPO,non tech,all,6.0
+khatabook,,business analyst ,8.0,50000.0,0.0,3.0,3.0,6m intern with performance  PPO,non tech,all,4.0
+MEA tech,,aws intern,8.0,20000.0,0.0,,,6m intern with performance  PPO,tech,all,8.0
+Proso Ai,,AI consultant,8.0,25000.0,0.0,4.0,4.0,6m intern with performance  PPO,tech,"cs,it,mac",6.0
+hitachi,Apr/25,field operations,8.0,40000.0,0.0,,,6m intern with performance  PPO,core,"me,mpae",7.0
+Jarvis Consulting,Apr/25,prodcut/full stack/hr/opeartion,8.0,20000.0,0.0,7.0,7.0,3m intern with performance PPO,tech/non tech,all,6.0
+Websphere,Apr/25,sde,8.0,15000.0,0.0,,,FTE+intern,tech,all,6.0
+Blinkit,May/25,bussiness analyst,8.0,25000.0,0.0,1.0,,6m intern with performance  PPO,non tech,all,4.0
+energy infratech,May/25,GET,8.0,35000.0,0.0,,,12m intern with performance  PPO,core,"ice,ee,me",6.0
+engineersmind corp,Apr/25,associate swe/data eng,8.0,50000.0,0.0,,,6m intern with performance  PPO,tech,"cs,it,mac,ece,ice,ee",6.0
+GenBioCa,May/25,swe/ai ml/data science,8.0,15000.0,0.0,,,6m intern with performance  PPO,tech,all,6.0
+Zimero,May/25,Product manager,8.0,,0.0,,,FTE,non tech,all,6.0
+Leggit AI,May/25,prodcut eng,8.0,25000.0,0.0,2.0,2.0,6m intern with performance  PPO,tech,all,7.0
+Housing . com,May/25,INtern,8.0,25000.0,0.0,,,6m intern with performance  PPO,non tech,all[F],6.0
+Tata Hitachi,May/25,Sales GET,8.0,40000.0,0.0,,,6m intern with performance  PPO,core,me,6.0
+Bachatt,May/25,sde,8.0,30000.0,0.0,,,6m intern with performance  PPO,tech,all,6.0
+Sunstone,May/25,SDE,8.0,20000.0,0.0,1.0,1.0,2m intern with performance  PPO,tech,all,6.0
+AAF India,May/25,GET,8.0,25000.0,0.0,,,6m intern with performance  PPO,core,me,7.0
+polestar,Nov/24,sales analyst,7.8,,0.0,2.0,2.0,FTE,non tech,all,4.0
+polestar,Nov/24,analyst,7.8,,0.0,9.0,9.0,FTE,non tech,all,6.0
+Reliance Ltd,Dec/24,GET,7.5,,0.0,1.0,1.0,FTE,core,"ece,ice,ee,me,civil",6.0
+McDermott,Nov/24,Associate eng,7.5,10000.0,0.0,5.0,5.0,FTE+intern,core,"ee,me",4.0
+HEX advisory grp,Nov/24,Associate consultant,7.5,25000.0,0.0,1.0,1.0,6m intern with performance  PPO,non tech,all,6.0
+great learning,May/25,ed tech sales,7.5,,0.0,,,FTE,non tech,all,4.0
+DLF,Sep/24,GET,7.1,,0.0,10.0,10.0,FTE,core,"me,ee,civil",6.5
+thoughtfocus,Sep/24,Trainee,7.0,25000.0,0.0,,,6m intern with performance  PPO,tech,all,6.0
+spectal management,Sep/24,trainee,7.0,,0.0,,,FTE,non tech,all,4.0
+Xebo.ai,Sep/24,technical intren,7.0,20000.0,0.0,,,6m intern with performance  PPO,tech,all,6.0
+COSM,Sep/24,SWE,7.0,,0.0,2.0,2.0,FTE,tech,all,4.0
+NATion with namo,Aug/24,sr associate,7.0,,0.0,,,FTE,non tech,all,4.0
+coding blocks/zenith,Dec/24,SDE/tech content,7.0,15000.0,0.0,5.0,5.0,6m intern with performance  PPO,tech,all,5.0
+DeltaX,Jan/25,SDE,7.0,0.0,0.0,2.0,2.0,FTE+intern,tech,"cs,it,mac",5.0
+strique,Jan/25,sde,7.0,30000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,all,6.0
+cogmac,Sep/24,sales,7.0,30000.0,0.0,,,3m intern with performance  PPO,non tech,all,4.0
+Pay U,Apr/25,qa intern,7.0,30000.0,0.0,1.0,1.0,6m intern with performance  PPO,tech,"cs,it,mac",6.0
+bytes view,Sep/24,python dev,7.0,25000.0,0.0,,,6m intern with performance  PPO,tech,"cs,it,mac,ece",7.0
+Neenopal,Sep/24,product intern,7.0,15000.0,0.0,,,6m intern with performance  PPO,non tech,all,6.0
+gigabyte,,product associate,7.0,25000.0,0.0,1.0,1.0,FTE,non tech,all,6.0
+Sharang Shakti,,mech/embedded/mech,7.0,,0.0,,,FTE,core,all,6.0
+Ericson,,IT,7.0,,0.0,2.0,2.0,FTE,tech,all,6.0
+HFCL,,get/digital/wifi r&d,7.0,25000.0,0.0,2.0,2.0,6m intern with performance  PPO,core/tech,all,6.0
+sgs,,"get , management trainee ",7.0,25000.0,0.0,1.0,1.0,Intern+FTE,"core,non tech",all,6.0
+Larsen and Toubro,,GET,7.0,,0.0,4.0,4.0,FTE,core,all,6.0
+hitachi,,GET,7.0,20000.0,0.0,1.0,1.0,FTE+intern,core,me,6.0
+TATA Power,,GET,7.0,,0.0,2.0,2.0,FTE,core,all,6.0
+Rockwell Autom,,GET,7.0,,0.0,0.0,0.0,FTE,core,ee,6.5
+syrma,,GET,7.0,20000.0,0.0,1.0,1.0,INtern+Fte,CORE,"ece,ee,me",7.0
+Anand group,,get,7.0,,0.0,3.0,3.0,FTE,core,"ece,me,ee",7.0
+adani group,,get,7.0,,0.0,1.0,1.0,FTE,core,"me,civil.ee",5.0
+Hindustan Power,,GET,7.0,,0.0,8.0,8.0,FTE,core,"ece,ee,ice,me",6.0
+Swageazy,,Generalist,7.0,25000.0,0.0,,,6m intern with performance  PPO,non tech,all,4.0
+mynachiketa,,full stack/ai/growth,7.0,25000.0,0.0,1.0,1.0,6m intern with performance ppo,tech/non tech,all,4.0
+Xindus,,FOunder,7.0,,0.0,1.0,1.0,FTE,non tech,all,4.0
+BLACK cat,,CEO OFFICE/get,7.0,20000.0,0.0,,,FTE+intern,tech/non tech,all,4.0
+verisk,,CAT analyst,7.0,,0.0,,,FTE,core,civil,6.0
+we skill,,Bussiness analyst,7.0,25000.0,0.0,,,6m intern with performance PPO,non tech,all,7.0
+gocricit,,AI Eng/gen A1,7.0,20000.0,0.0,1.0,1.0,3m intern with PPO,tech,all,6.0
+Leighton,,GET,7.0,,0.0,,,FTE,core,"ee,me",5.0
+globiva,,customer ,7.0,15000.0,0.0,,,6m intern with performance  PPO,non tech,all,4.0
+Bytical AI,May/25,Full stack dev ,7.0,15000.0,0.0,,,6m intern with performance  PPO,tech,all,6.0
+UnivLabs,May/25,electronic design engineer,7.0,,0.0,,,FTE,core,"ece,ee",6.0
+Entente,May/25,SDE,7.0,,0.0,,,FTE,tech,all,6.0
+Floor Daniel,,GET,6.5,25000.0,0.0,3.0,3.0,6m intern with performance PPO,core,"me,ee,ice",7.5
+Change ENgine,,FOunder office,6.5,20000.0,0.0,1.0,1.0,6m intern with performance  PPO,non tech,all,6.0
+Planet spark,,counseler,6.5,,0.0,2.0,2.0,FTE,non tech,all,4.0
+hike,,Sales,6.43,,0.0,,,FTE,non tech,all,4.0
+sab paisa,,SWE,6.26,25000.0,0.0,3.0,3.0,6m intern with performance  PPO,tech,all,6.0
+amantya tech,,SWE,6.0,,0.0,6.0,6.0,FTE,tech,"cse,it,mac",6.5
+Talk to Angel,,SWE,6.0,25000.0,0.0,3.0,3.0,6m intern with performance  PPO,tech,all,6.0
+climbax,,SWE,6.0,25000.0,0.0,3.0,3.0,6m intern with performance  PPO,tech,all,6.0
+Antino,,SDE trainee,6.0,20000.0,0.0,,,6m intern with performance  PPO,tech,all,4.0
+isourse,,sde,6.0,20000.0,0.0,,,6m intern with performance  PPO,tech,all,6.0
+numerator,,qa eng,6.0,25000.0,0.0,1.0,1.0,6m intern with performance ppo,tech,all,4.0
+Sagacious IP,,Patent analyst,6.0,18000.0,0.0,,,FTE+intern,non tech,all,4.0
+BNP Paribas ISPL,,IT,6.0,50000.0,0.0,,,6m intern with performance PPO,tech,"cs,it,mac,ece,ee",7.0
+evueme,,IT,6.0,15000.0,0.0,,,6m intern with performance  PPO,tech,all,6.0
+TAK technologies,,GET-presales,6.0,,0.0,,,FTE,core,"ece,ee",4.0
+hatch associates,,GET,6.0,,0.0,1.0,1.0,FTE,core,all,7.0
+Voltas,,GET,6.0,,0.0,2.0,2.0,FTE,core,"ee,me,ice",5.0
+Jacobs Solution,,GET,6.0,,0.0,,,FTE,core,me,6.0
+avant garde,,GET,6.0,,0.0,1.0,1.0,FTE,core,"me,ee,ice",7.0
+AtkinsRealis,,GET,6.0,,0.0,,,FTE,core,me,5.0
+Grindwell,,GET,6.0,,0.0,,,FTE,core,me,6.0
+Infinite Locus,,Full stack,6.0,25000.0,0.0,2.0,2.0,6m intern with performance  PPO,tech,all,7.0
+CollegeDuniya,,Frontend/bussines,6.0,15000.0,0.0,4.0,4.0,6m intern with performance ppo,tech non tech,all,6.0
+To The new,,Devops ,6.0,15000.0,0.0,,,FTE+intern,tech,"cs,it,mac",6.0
+Placify,,Bussiness analyst,6.0,27000.0,0.0,12.0,12.0,FTE+intern,non tech,all,4.0
+Synapse Biopharma,,bussiness analyst,6.0,15000.0,0.0,,,6m intern with performance PPO,non tech,biotech,4.0
+smart ed,,buss analayst,6.0,15000.0,0.0,2.0,2.0,6m intern with performance  PPO,non tech,all ,6.0
+PreGrad,,business analyst ,6.0,,0.0,6.0,6.0,FTE,non tech,all,4.0
+academor,,business ,6.0,15000.0,0.0,15.0,15.0,Intern+Fte,non tech,All,4.0
+qikfox,,ass swe,6.0,,0.0,1.0,1.0,FTE,tech,all,7.0
+TATA  IQ,,Analyst,6.0,,0.0,1.0,1.0,FTE,non tech,all,4.0
+DS group,,analyst,6.0,,0.0,2.0,2.0,FTE,non tech,all,5.0
+Chapter Apps,,AI intern,6.0,20000.0,0.0,,,6m intern with performance  PPO,tech,all,6.0
+Contata,Apr/25,software traniee,6.0,15000.0,0.0,,,6m intern with performance  PPO,tech,all,6.0
+Elcom,Apr/25,GET,6.0,30000.0,0.0,,,12m intern with performance  PPO,non tech,all,6.0
+Helios Tech,Apr/25,front end,6.0,25000.0,0.0,,,6m intern with performance  PPO,tech,all,6.0
+SA infrastructure,Apr/25,GET,6.0,25000.0,0.0,,,11m intern with performance  PPO,core,civil,6.0
+quantizer,Apr/25,qa analyst,6.0,,0.0,1.0,1.0,FTE,tech,all,6.0
+Trailytics,May/25,data analyst,6.0,25000.0,,,,6m intern with performance  PPO,tech,"cs,it,mac",7.0
+zingbus,May/25,operations,6.0,15000.0,0.0,,,6m intern with performance  PPO,non tech,all,6.0
+Polycab,May/25,GET,6.0,,0.0,,,FTE,core,all,6.0
+Manglam ELectricals,May/25,Talent Acquisition,6.0,,0.0,5.0,5.0,FTE,non tech,all,5.0
+Argus Infotech,May/25,bussiness/sde,6.0,,0.0,,,FTE,non tech/tech,all,5.0
+Exposys labs,May/25,junior dev,6.0,,0.0,,,FTE,tech,all,6.0
+OORJA,May/25,intern,6.0,15000.0,0.0,,,6m intern with performance  PPO,core,"me,ice",6.0
+worley,,GET,5.8,,0.0,,,FTE,core,me[F],4.0
+TravClan,,Bussiness/growth,5.4,15000.0,0.0,3.0,3.0,6m intern with performance ppo,non tech,all,4.0
+IBM consulting,,system eng,5.0,,0.0,2.0,2.0,FTE,tech,all,4.0
+cre8v,,r&d/prod/video,5.0,10000.0,0.0,,,6m intern with performance  PPO,tech/non tech,all,4.0
+Zeko AI,,prodcut/market/hr,5.0,15000.0,0.0,1.0,1.0,6m intern with performance  PPO,non tech,all,4.0
+Aditya birla jewels,,GET,5.0,25000.0,0.0,1.0,1.0,FTE,core,"ece,me,ee",6.5
+bluestar,,get,5.0,,0.0,1.0,1.0,FTE,core,"me,civil",5.0
+concept dash,,get,5.0,,0.0,,,FTE,core,civil,6.0
+rockman,,GET,5.0,,0.0,12.0,12.0,FTE,core,"ece,ee,ice,me",6.0
+LaunchEd,,bussiness development,5.0,20000.0,0.0,,,6m intern with performance  PPO,non tech,all,6.0
+Al Hifusion,,ass swe,5.0,25000.0,0.0,,,6m intern with performance  PPO,tech,all,4.0
+arvind fasion,,ASMT,5.0,10000.0,0.0,,,FTE+intern,non tech,all,4.0
+p3c,Apr/25,intern,5.0,12000.0,0.0,,,6m intern with performance  PPO,core,"ece,ice,ee,me,civil",6.0
+Act21,Apr/25,sde,5.0,20000.0,0.0,,,6m intern with performance  PPO,tech,"cs,it",7.0
+finvestfx,Apr/25,get,5.0,10000.0,0.0,,,6m intern with performance  PPO,core,all,7.0
+accenture,,Associate,4.5,,0.0,12.0,12.0,FTE,tech,all,4.0
+rockman bd,May/25,buss dev,4.5,,0.0,,,FTE,non tech,"me,ece,ice",7.0
+tractebel,,GET,4.0,,0.0,2.0,2.0,FTE,core,civil,6.0
+alsym,,devops,4.0,15000.0,0.0,,,6m intern with performance  PPO,tech,all,4.0
+Tristar Group,,sales engineer,3.0,10000.0,0.0,,,6m intern with performance  PPO,core,civil,6.0
