@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Placement Statistics</title>
+    <title>Placement Opportunities</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -110,6 +110,18 @@
             font-size: 12px;
             font-weight: 500;
         }
+        .stats-btn {
+            padding: 8px 16px;
+            background-color: #4b5563;
+            color: #fff;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        .stats-btn:hover {
+            background-color: #6b7280;
+        }
         @media (max-width: 768px) {
             .navbar {
                 width: 200px;
@@ -206,7 +218,10 @@
     <!-- Main Content -->
     <div class="md:ml-56 p-8 main-content">
         <div class="max-w-6xl mx-auto">
-            <h1 class="text-2xl font-bold text-gray-800 mb-6">Placement Statistics</h1>
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Placement Opportunities</h1>
+                <button class="stats-btn" onclick="window.location.href='placement-stats.html'">Placement Stats</button>
+            </div>
 
             <!-- Branch Filter Buttons -->
             <div class="flex flex-wrap gap-1 mb-6 overflow-x-auto" id="branchFilterButtons"></div>
@@ -214,8 +229,8 @@
             <!-- Placement Overview -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="chart-container">
-                    <h3 class="text-lg font-semibold mb-4">Placement Rate by Branch</h3>
-                    <canvas id="placementRateChart" height="250"></canvas>
+                    <h3 class="text-lg font-semibold mb-4">Companies with Highest Offers (2025)</h3>
+                    <canvas id="highestOffersChart" height="250"></canvas>
                 </div>
                 <div class="chart-container">
                     <h3 class="text-lg font-semibold mb-4">Average Package by Branch</h3>
@@ -277,7 +292,7 @@
         const companyTableBody = document.getElementById('companyTableBody');
         let students = [];
         let companies = [];
-        let filteredStudents = [];
+        let filteredCompanies = [];
         let selectedBranch = '';
 
         // Branch colors
@@ -324,7 +339,7 @@
             'Internship + FTE': '#a7f3d0'
         };
 
-        // Category colors
+        // Category colors (standardized "tech" and "Tech")
         const categoryColors = {
             'Tech': '#bfdbfe',
             'Core': '#fef9c3',
@@ -332,36 +347,27 @@
             'Finance': '#d1fae5'
         };
 
-        // Mock placement data (since the CSV doesn't have placement info)
+        // Mock placement data for average package by branch (since the CSV doesn't have this info)
         const placementData = {
-            'CSAI': { placed: 90, total: 100, avgPackage: 18 },
-            'CSE': { placed: 85, total: 100, avgPackage: 16 },
-            'CSDS': { placed: 88, total: 100, avgPackage: 17 },
-            'CIOT': { placed: 80, total: 100, avgPackage: 14 },
-            'IT': { placed: 82, total: 100, avgPackage: 15 },
-            'ITNS': { placed: 78, total: 100, avgPackage: 13 },
-            'MAC': { placed: 70, total: 100, avgPackage: 12 },
-            'ECIOT': { placed: 65, total: 100, avgPackage: 11 },
-            'ECE': { placed: 60, total: 100, avgPackage: 10 },
-            'ECAM': { placed: 62, total: 100, avgPackage: 9 },
-            'EE': { placed: 55, total: 100, avgPackage: 8 },
-            'ICE': { placed: 50, total: 100, avgPackage: 7 },
-            'ME': { placed: 48, total: 100, avgPackage: 6 },
-            'MEEV': { placed: 45, total: 100, avgPackage: 5 },
-            'WEST': { placed: 40, total: 100, avgPackage: 4 },
-            'CE': { placed: 38, total: 100, avgPackage: 4 },
-            'BT': { placed: 35, total: 100, avgPackage: 5 },
-            'GI': { placed: 30, total: 100, avgPackage: 3 }
+            'CSAI': { avgPackage: 18 },
+            'CSE': { avgPackage: 16 },
+            'CSDS': { avgPackage: 17 },
+            'CIOT': { avgPackage: 14 },
+            'IT': { avgPackage: 15 },
+            'ITNS': { avgPackage: 13 },
+            'MAC': { avgPackage: 12 },
+            'ECIOT': { avgPackage: 11 },
+            'ECE': { avgPackage: 10 },
+            'ECAM': { avgPackage: 9 },
+            'EE': { avgPackage: 8 },
+            'ICE': { avgPackage: 7 },
+            'ME': { avgPackage: 6 },
+            'MEEV': { avgPackage: 5 },
+            'WEST': { avgPackage: 4 },
+            'CE': { avgPackage: 4 },
+            'BT': { avgPackage: 5 },
+            'GI': { avgPackage: 3 }
         };
-
-        // Mock top companies data
-        const topCompanies = [
-            { name: 'Google', offers: 50, avgPackage: 25 },
-            { name: 'Microsoft', offers: 40, avgPackage: 22 },
-            { name: 'Amazon', offers: 35, avgPackage: 20 },
-            { name: 'Goldman Sachs', offers: 30, avgPackage: 18 },
-            { name: 'TCS', offers: 60, avgPackage: 8 }
-        ];
 
         // Fetch and parse students CSV (for branch filtering)
         Papa.parse('https://raw.githubusercontent.com/avashx/nsutgod/main/students.csv', {
@@ -372,9 +378,7 @@
                     ...student,
                     gender: student.gender ? student.gender.toLowerCase() : ''
                 }));
-                filteredStudents = [...students];
                 populateBranchButtons();
-                renderPlacementStats();
             },
             error: function(error) {
                 console.error('Error fetching students CSV:', error);
@@ -387,8 +391,15 @@
             download: true,
             header: true,
             complete: function(results) {
-                companies = results.data;
+                companies = results.data.map(company => ({
+                    ...company,
+                    'Total Offers': parseInt(company['Total Offers']) || 0,
+                    'FTE Hired 2025': parseInt(company['FTE Hired 2025']) || 0,
+                    'Category': company['Category'] === 'tech' ? 'Tech' : company['Category']
+                }));
+                filteredCompanies = [...companies];
                 displayCompanies();
+                renderPlacementStats();
             },
             error: function(error) {
                 console.error('Error fetching companies CSV:', error);
@@ -413,7 +424,7 @@
                     button.classList.add('active');
                     button.style.color = '#fff';
                     selectedBranch = branch === 'Cumulative' ? '' : branch;
-                    filterStudents();
+                    filterCompanies();
                     renderPlacementStats();
                 });
                 branchFilterButtons.appendChild(button);
@@ -422,17 +433,26 @@
             branchFilterButtons.children[0].style.color = '#fff';
         }
 
-        // Filter students based on selected branch
-        function filterStudents() {
-            filteredStudents = students.filter(student => {
-                return !selectedBranch || student.branch === selectedBranch;
+        // Filter companies based on selected branch
+        function filterCompanies() {
+            filteredCompanies = companies.filter(company => {
+                if (!selectedBranch) return true; // Cumulative: show all companies
+                let eligibleBranches = (company['Eligible Branches (B.Tech Only)'] || '').split(',').map(b => b.trim());
+                // Treat GI as part of CSE
+                if (selectedBranch === 'CSE') {
+                    return eligibleBranches.includes('CSE') || eligibleBranches.includes('GI');
+                } else if (selectedBranch === 'GI') {
+                    return eligibleBranches.includes('CSE') || eligibleBranches.includes('GI');
+                }
+                return eligibleBranches.includes(selectedBranch);
             });
+            displayCompanies();
         }
 
         // Display companies in the table with tags and colors
         function displayCompanies() {
             companyTableBody.innerHTML = '';
-            companies.forEach(company => {
+            filteredCompanies.forEach(company => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${company.Company || '-'}</td>
@@ -441,8 +461,8 @@
                     <td>${company['CTC (LPA)'] || '-'}</td>
                     <td>${company['Intern Stipend (INR/Month)'] || '-'}</td>
                     <td>${company['PPO from Intern'] || '-'}</td>
-                    <td>${company['FTE Hired 2025'] || '-'}</td>
-                    <td>${company['Total Offers'] || '-'}</td>
+                    <td>${company['FTE Hired 2025'] || 0}</td>
+                    <td>${company['Total Offers'] || 0}</td>
                     <td><span class="tag" style="background-color: ${typeColors[company.Type] || '#e5e7eb'}">${company.Type || '-'}</span></td>
                     <td><span class="tag" style="background-color: ${categoryColors[company.Category] || '#e5e7eb'}">${company.Category || '-'}</span></td>
                     <td>${company['Eligible Branches (B.Tech Only)'] || '-'}</td>
@@ -454,28 +474,28 @@
 
         // Render placement statistics
         function renderPlacementStats() {
-            renderPlacementRateChart();
+            renderHighestOffersChart();
             renderAvgPackageChart();
             renderTopCompaniesTable();
         }
 
-        // Placement Rate Chart
-        function renderPlacementRateChart() {
-            const branches = selectedBranch ? [selectedBranch] : Object.keys(placementData);
-            const placementRates = branches.map(branch => {
-                const data = placementData[branch];
-                return (data.placed / data.total) * 100;
-            });
+        // Companies with Highest Offers Chart
+        function renderHighestOffersChart() {
+            const sortedCompanies = [...filteredCompanies]
+                .sort((a, b) => b['Total Offers'] - a['Total Offers'])
+                .slice(0, 5);
+            const labels = sortedCompanies.map(company => company.Company);
+            const offers = sortedCompanies.map(company => company['Total Offers']);
 
-            const ctx = document.getElementById('placementRateChart').getContext('2d');
+            const ctx = document.getElementById('highestOffersChart').getContext('2d');
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: branches,
+                    labels: labels,
                     datasets: [{
-                        label: 'Placement Rate (%)',
-                        data: placementRates,
-                        backgroundColor: branches.map(branch => branchColors[branch] || '#e5e7eb')
+                        label: 'Number of Offers',
+                        data: offers,
+                        backgroundColor: '#60a5fa'
                     }]
                 },
                 options: {
@@ -483,16 +503,15 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            max: 100,
                             title: {
                                 display: true,
-                                text: 'Placement Rate (%)'
+                                text: 'Number of Offers'
                             }
                         },
                         x: {
                             title: {
                                 display: true,
-                                text: 'Branch'
+                                text: 'Company'
                             }
                         }
                     }
@@ -502,7 +521,11 @@
 
         // Average Package Chart
         function renderAvgPackageChart() {
-            const branches = selectedBranch ? [selectedBranch] : Object.keys(placementData);
+            let branches = selectedBranch ? [selectedBranch] : Object.keys(placementData);
+            // If GI is selected, include CSE data as well
+            if (selectedBranch === 'GI') {
+                branches = ['GI', 'CSE'];
+            }
             const avgPackages = branches.map(branch => placementData[branch].avgPackage);
 
             const ctx = document.getElementById('avgPackageChart').getContext('2d');
@@ -537,16 +560,19 @@
             });
         }
 
-        // Top Companies Table
+        // Top Companies Table (using CSV data)
         function renderTopCompaniesTable() {
+            const topCompanies = [...filteredCompanies]
+                .sort((a, b) => b['Total Offers'] - a['Total Offers'])
+                .slice(0, 5);
             const tbody = document.querySelector('#topCompaniesTable tbody');
             tbody.innerHTML = '';
             topCompanies.forEach(company => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${company.name}</td>
-                    <td>${company.offers}</td>
-                    <td>${company.avgPackage}</td>
+                    <td>${company.Company}</td>
+                    <td>${company['Total Offers']}</td>
+                    <td>${company['CTC (LPA)'] || '-'}</td>
                 `;
                 tbody.appendChild(row);
             });
