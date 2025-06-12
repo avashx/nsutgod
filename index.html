@@ -31,9 +31,6 @@
             background-color: #fef3c7;
             cursor: pointer;
         }
-        tr.selected {
-            background-color: #fef3c7;
-        }
         .modal {
             display: none;
             position: fixed;
@@ -44,83 +41,86 @@
             background-color: rgba(0, 0, 0, 0.5);
             justify-content: center;
             align-items: center;
+            z-index: 50;
         }
         .modal-content {
             background-color: white;
             padding: 20px;
             border-radius: 8px;
             width: 90%;
-            max-width: 800px;
+            max-width: 900px;
             max-height: 90vh;
             overflow-y: auto;
         }
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 20px;
-            color: #6b7280;
-        }
-        .nav-item:hover {
-            background-color: #f3f4f6;
-            color: #111827;
+        .navbar {
+            width: 250px;
+            background-color: white;
+            border-right: 1px solid #e5e7eb;
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 40;
         }
         .branch-button {
             padding: 6px 12px;
-            margin: 2px;
+            margin: 4px;
             border: 1px solid #d1d5db;
             border-radius: 4px;
-            background-color: #f9fafb;
+            background-color: #f3f4f6;
             cursor: pointer;
+            font-size: 14px;
         }
         .branch-button.active {
-            background-color: #1f2937;
+            background-color: #4b5563;
             color: white;
-            border-color: #1f2937;
         }
     </style>
 </head>
-<body class="bg-[#f5f5f5] flex">
-    <!-- Left Navigation Bar -->
-    <div class="w-64 bg-white shadow-lg h-screen p-6">
-        <div class="flex items-center gap-3 mb-8">
-            <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#34D399"/>
-                <path d="M2 17L12 22L22 17" fill="#A78BFA"/>
-                <path d="M2 12L12 17L22 12" fill="#FBBF24"/>
-            </svg>
-            <span class="text-xl font-bold text-gray-800">EPL</span>
+<body class="bg-[#f5f5f5]">
+    <!-- Left Navbar -->
+    <div class="navbar">
+        <div class="flex items-center mb-6">
+            <img src="https://via.placeholder.com/40" alt="Logo" class="mr-2">
+            <h2 class="text-xl font-bold text-gray-800">EPL</h2>
         </div>
-        <div class="nav-item">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-            </svg>
-            <span>Overview</span>
-        </div>
-        <div class="nav-item">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-            </svg>
-            <span>Contact EPL</span>
-            <span class="ml-auto bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">2</span>
-        </div>
-        <div class="nav-item">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-            </svg>
-            <span>Access Reference</span>
-        </div>
-        <div class="nav-item">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-            </svg>
-            <span>Notifications</span>
-            <span class="ml-auto bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">2</span>
+        <ul class="space-y-4">
+            <li class="flex items-center text-gray-600">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                Overview
+            </li>
+            <li class="flex items-center text-gray-600">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                Contact EPL
+                <span class="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded">2</span>
+            </li>
+            <li class="flex items-center text-gray-600">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                Access Reference
+            </li>
+            <li class="flex items-center text-gray-600">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                Notifications
+                <span class="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded">2</span>
+            </li>
+        </ul>
+        <div class="absolute bottom-4">
+            <div class="flex items-center mb-4">
+                <img src="https://via.placeholder.com/40" alt="Avatar" class="rounded-full mr-2">
+                <div>
+                    <p class="font-semibold">Jenny Wilson</p>
+                    <p class="text-sm text-gray-600">Agent</p>
+                </div>
+            </div>
+            <button class="flex items-center text-orange-500">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                Log Out
+            </button>
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="flex-1 p-6">
+    <div class="ml-64 p-6">
         <div class="flex justify-between items-center mb-4">
             <h1 class="text-2xl font-bold text-gray-800">Student Data - <span class="text-green-600" id="totalRecords"></span></h1>
             <div class="flex gap-2">
@@ -134,12 +134,9 @@
         </div>
 
         <!-- Branch Filter Buttons -->
-        <div class="flex flex-wrap gap-2 mb-4">
-            <button class="branch-button" data-branch="">All</button>
-            <div id="branchButtons"></div>
-        </div>
+        <div class="flex flex-wrap gap-2 mb-4" id="branchFilterButtons"></div>
 
-        <!-- Filters -->
+        <!-- Other Filters -->
         <div class="flex flex-col md:flex-row gap-4 mb-4">
             <select id="batchFilter" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500">
                 <option value="">Filter by Batch</option>
@@ -195,63 +192,59 @@
     <!-- Modal for Student Profile -->
     <div id="detailsModal" class="modal">
         <div class="modal-content">
-            <div class="flex items-center gap-4 mb-6">
-                <div class="w-16 h-16 bg-gray-200 rounded-full"></div>
-                <div>
-                    <h2 class="text-xl font-bold" id="modalStudentName"></h2>
-                    <p class="text-gray-600" id="modalStudentRoll"></p>
+            <div class="flex justify-between items-start mb-4">
+                <div class="flex items-center">
+                    <img src="https://via.placeholder.com/60" alt="Avatar" class="rounded-full mr-4">
+                    <div>
+                        <h2 class="text-xl font-bold" id="modalStudentName"></h2>
+                        <p class="text-sm text-gray-600" id="modalStudentHandle"></p>
+                    </div>
                 </div>
+                <button id="closeModal" class="text-gray-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
             </div>
-
-            <!-- Personal Information -->
-            <div class="mb-6">
-                <h3 class="text-lg font-semibold mb-2">Personal Information</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Left Column -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Personal Information</h3>
+                    <p><strong>Roll Number:</strong> <span id="modalRollNumber"></span></p>
                     <p><strong>Email:</strong> <span id="modalEmail"></span></p>
                     <p><strong>Personal Email:</strong> <span id="modalPersonalEmail"></span></p>
+                    <p><strong>Gender:</strong> <span id="modalGender"></span></p>
+                    <p><strong>Date of Birth:</strong> <span id="modalDOB"></span></p>
                     <p><strong>Contact Number:</strong> <span id="modalContactNumber"></span></p>
                     <p><strong>Alternate Contact Number:</strong> <span id="modalAltContactNumber"></span></p>
-                    <p><strong>Date of Birth:</strong> <span id="modalDob"></span></p>
-                    <p><strong>Gender:</strong> <span id="modalGender"></span></p>
                     <p><strong>Present Address:</strong> <span id="modalPresentAddress"></span></p>
                     <p><strong>Permanent Address:</strong> <span id="modalPermAddress"></span></p>
+                    <p><strong>Category:</strong> <span id="modalCategory"></span></p>
+                    <p><strong>Campus:</strong> <span id="modalCampus"></span></p>
+                    <p><strong>PWD:</strong> <span id="modalPWD"></span></p>
                     <p><strong>Blood Group:</strong> <span id="modalBloodGroup"></span></p>
                 </div>
-            </div>
-
-            <!-- Academic Information -->
-            <div class="mb-6">
-                <h3 class="text-lg font-semibold mb-2">Academic Information</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Right Column -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Academic Information</h3>
                     <p><strong>Branch:</strong> <span id="modalBranch"></span></p>
                     <p><strong>Batch:</strong> <span id="modalBatch"></span></p>
                     <p><strong>Degree:</strong> <span id="modalDegree"></span></p>
-                    <p><strong>Campus:</strong> <span id="modalCampus"></span></p>
-                    <p><strong>Category:</strong> <span id="modalCategory"></span></p>
-                    <p><strong>PWD:</strong> <span id="modalPwd"></span></p>
-                    <p><strong>CGPA 10th:</strong> <span id="modalCgpa10th"></span></p>
-                    <p><strong>CGPA 12th:</strong> <span id="modalCgpa12th"></span></p>
-                    <p><strong>CGPA:</strong> <span id="modalCgpa"></span></p>
-                    <p><strong>CGPA Before Drop:</strong> <span id="modalCgpaBeforeDrop"></span></p>
-                    <p><strong>Graduation GPA:</strong> <span id="modalGraduationGpa"></span></p>
+                    <p><strong>CGPA 10th:</strong> <span id="modalCGPA10th"></span></p>
+                    <p><strong>CGPA 12th:</strong> <span id="modalCGPA12th"></span></p>
+                    <p><strong>CGPA:</strong> <span id="modalCGPA"></span></p>
+                    <p><strong>CGPA Before Drop:</strong> <span id="modalCGPABeforeDrop"></span></p>
+                    <p><strong>Graduation GPA:</strong> <span id="modalGraduationGPA"></span></p>
                     <p><strong>Backlogs:</strong> <span id="modalBacklogs"></span></p>
+                    <h3 class="text-lg font-semibold mt-4 mb-2">Semester GPA Graph</h3>
+                    <canvas id="gpaChart" height="150"></canvas>
                 </div>
             </div>
-
-            <!-- GPA Graph -->
-            <div class="mb-6">
-                <h3 class="text-lg font-semibold mb-2">Semester GPA Progress</h3>
-                <canvas id="gpaChart" height="100"></canvas>
-            </div>
-
-            <button id="closeModal" class="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg">Close</button>
         </div>
     </div>
 
     <script>
         const studentTableBody = document.getElementById('studentTableBody');
         const searchInput = document.getElementById('searchInput');
-        const branchButtonsContainer = document.getElementById('branchButtons');
+        const branchFilterButtons = document.getElementById('branchFilterButtons');
         const batchFilter = document.getElementById('batchFilter');
         const genderFilter = document.getElementById('genderFilter');
         const prevPageBtn = document.getElementById('prevPage');
@@ -288,7 +281,7 @@
             }
         });
 
-        // Populate filter dropdowns and branch buttons
+        // Populate filter dropdowns
         function populateFilters() {
             const batches = [...new Set(students.map(student => student.batch))].filter(Boolean);
 
@@ -300,29 +293,23 @@
             });
         }
 
+        // Populate branch filter buttons
         function populateBranchButtons() {
-            const branches = [...new Set(students.map(student => student.branch))].filter(Boolean);
+            const branches = ['Cumulative', ...new Set(students.map(student => student.branch))].filter(Boolean);
             branches.forEach(branch => {
                 const button = document.createElement('button');
                 button.className = 'branch-button';
-                button.setAttribute('data-branch', branch);
                 button.textContent = branch;
                 button.addEventListener('click', () => {
                     document.querySelectorAll('.branch-button').forEach(btn => btn.classList.remove('active'));
                     button.classList.add('active');
-                    selectedBranch = branch;
+                    selectedBranch = branch === 'Cumulative' ? '' : branch;
                     filterStudents();
                 });
-                branchButtonsContainer.appendChild(button);
+                branchFilterButtons.appendChild(button);
             });
-
-            // Add click event for "All" button
-            document.querySelector('.branch-button[data-branch=""]').addEventListener('click', () => {
-                document.querySelectorAll('.branch-button').forEach(btn => btn.classList.remove('active'));
-                document.querySelector('.branch-button[data-branch=""]').classList.add('active');
-                selectedBranch = '';
-                filterStudents();
-            });
+            // Set Cumulative as default
+            branchFilterButtons.children[0].classList.add('active');
         }
 
         // Display students in the table
@@ -364,32 +351,33 @@
         // Show student profile in modal
         function showDetails(student) {
             document.getElementById('modalStudentName').textContent = student.Name || '-';
-            document.getElementById('modalStudentRoll').textContent = student.rollNumber || '-';
+            document.getElementById('modalStudentHandle').textContent = `@${student.rollNumber || '-'}`;
+            document.getElementById('modalRollNumber').textContent = student.rollNumber || '-';
             document.getElementById('modalEmail').textContent = student.email || '-';
             document.getElementById('modalPersonalEmail').textContent = student.personal_email || '-';
+            document.getElementById('modalGender').textContent = student.gender || '-';
+            document.getElementById('modalDOB').textContent = student.dob || '-';
             document.getElementById('modalContactNumber').textContent = student.contact_number || '-';
             document.getElementById('modalAltContactNumber').textContent = student.alt_contact_number || '-';
-            document.getElementById('modalDob').textContent = student.dob || '-';
-            document.getElementById('modalGender').textContent = student.gender || '-';
             document.getElementById('modalPresentAddress').textContent = student.present_address || '-';
             document.getElementById('modalPermAddress').textContent = student.perm_address || '-';
+            document.getElementById('modalCategory').textContent = student.category || '-';
+            document.getElementById('modalCampus').textContent = student.campus || '-';
+            document.getElementById('modalPWD').textContent = student.pwd || '-';
             document.getElementById('modalBloodGroup').textContent = student.blood_group || '-';
             document.getElementById('modalBranch').textContent = student.branch || '-';
             document.getElementById('modalBatch').textContent = student.batch || '-';
             document.getElementById('modalDegree').textContent = student.degree || '-';
-            document.getElementById('modalCampus').textContent = student.campus || '-';
-            document.getElementById('modalCategory').textContent = student.category || '-';
-            document.getElementById('modalPwd').textContent = student.pwd || '-';
-            document.getElementById('modalCgpa10th').textContent = student.cgpa_10th || '-';
-            document.getElementById('modalCgpa12th').textContent = student.cgpa_12th || '-';
-            document.getElementById('modalCgpa').textContent = student.cgpa || '-';
-            document.getElementById('modalCgpaBeforeDrop').textContent = student.cgpa_before_drop || '-';
-            document.getElementById('modalGraduationGpa').textContent = student.graduation_gpa || '-';
+            document.getElementById('modalCGPA10th').textContent = student.cgpa_10th || '-';
+            document.getElementById('modalCGPA12th').textContent = student.cgpa_12th || '-';
+            document.getElementById('modalCGPA').textContent = student.cgpa || '-';
+            document.getElementById('modalCGPABeforeDrop').textContent = student.cgpa_before_drop || '-';
+            document.getElementById('modalGraduationGPA').textContent = student.graduation_gpa || '-';
             document.getElementById('modalBacklogs').textContent = student.backlogs || '-';
 
             // GPA Graph
             const ctx = document.getElementById('gpaChart').getContext('2d');
-            if (window.gpaChart) window.gpaChart.destroy(); // Destroy previous chart if exists
+            if (window.gpaChart) window.gpaChart.destroy();
             window.gpaChart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -404,18 +392,15 @@
                             parseFloat(student.sem5_gpa) || 0,
                             parseFloat(student.sem6_gpa) || 0
                         ],
-                        borderColor: '#34D399',
-                        backgroundColor: 'rgba(52, 211, 153, 0.2)',
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
                         fill: true,
-                        tension: 0.4
+                        tension: 0.3
                     }]
                 },
                 options: {
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 10
-                        }
+                        y: { beginAtZero: true, max: 10 }
                     }
                 }
             });
@@ -438,4 +423,44 @@
                 const matchesSearch = (
                     (student.rollNumber || '').toLowerCase().includes(searchTerm) ||
                     (student.Name || '').toLowerCase().includes(searchTerm) ||
-                    (student.email || '').toLowerCase().includes
+                    (student.email || '').toLowerCase().includes(searchTerm)
+                );
+                const matchesBranch = !selectedBranch || student.branch === selectedBranch;
+                const matchesBatch = !batchValue || student.batch === batchValue;
+                const matchesGender = !genderValue || student.gender === genderValue;
+
+                return matchesSearch && matchesBranch && matchesBatch && matchesGender;
+            });
+
+            currentPage = 1;
+            displayStudents();
+        }
+
+        // Event listeners
+        searchInput.addEventListener('input', filterStudents);
+        batchFilter.addEventListener('change', filterStudents);
+        genderFilter.addEventListener('change', filterStudents);
+
+        prevPageBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                displayStudents();
+            }
+        });
+
+        nextPageBtn.addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredStudents.length / rowsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                displayStudents();
+            }
+        });
+
+        rowsPerPageSelect.addEventListener('change', () => {
+            rowsPerPage = parseInt(rowsPerPageSelect.value);
+            currentPage = 1;
+            displayStudents();
+        });
+    </script>
+</body>
+</html>
