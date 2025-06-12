@@ -13,22 +13,23 @@
             background-color: #f5f5f5;
         }
         th, td {
-            padding: 8px;
+            padding: 4px 8px;
             text-align: left;
             border-bottom: 1px solid #e5e7eb;
-            font-size: 14px;
+            font-size: 13px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 150px;
         }
         th {
-            background-color: #f9fafb;
-            font-weight: 600;
+            background-color: #fafafa;
+            font-weight: 500;
             color: #4b5563;
+            border-bottom: 2px solid #e5e7eb;
         }
         tr:hover {
-            background-color: #fef3c7;
+            background-color: #f5f5f5;
             cursor: pointer;
         }
         .modal {
@@ -53,8 +54,8 @@
             overflow-y: auto;
         }
         .navbar {
-            width: 250px;
-            background-color: white;
+            width: 220px;
+            background-color: #fff;
             border-right: 1px solid #e5e7eb;
             padding: 20px;
             position: fixed;
@@ -64,17 +65,23 @@
             z-index: 40;
         }
         .branch-button {
-            padding: 6px 12px;
-            margin: 4px;
+            padding: 4px 8px;
+            margin: 2px;
             border: 1px solid #d1d5db;
             border-radius: 4px;
-            background-color: #f3f4f6;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px;
+            font-weight: 500;
         }
         .branch-button.active {
-            background-color: #4b5563;
-            color: white;
+            border-color: #4b5563;
+            color: #fff;
+        }
+        .tag {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
         }
     </style>
 </head>
@@ -82,109 +89,96 @@
     <!-- Left Navbar -->
     <div class="navbar">
         <div class="flex items-center mb-6">
-            <img src="https://via.placeholder.com/40" alt="Logo" class="mr-2">
-            <h2 class="text-xl font-bold text-gray-800">EPL</h2>
+            <h2 class="text-xl font-bold text-gray-800">NSUTGod</h2>
         </div>
-        <ul class="space-y-4">
+        <ul class="space-y-2">
             <li class="flex items-center text-gray-600">
-                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 Overview
             </li>
             <li class="flex items-center text-gray-600">
-                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                Contact EPL
-                <span class="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded">2</span>
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Student Profile
             </li>
             <li class="flex items-center text-gray-600">
-                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                Access Reference
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10"/></svg>
+                Analytics
             </li>
             <li class="flex items-center text-gray-600">
-                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
                 Notifications
                 <span class="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded">2</span>
             </li>
         </ul>
-        <div class="absolute bottom-4">
-            <div class="flex items-center mb-4">
-                <img src="https://via.placeholder.com/40" alt="Avatar" class="rounded-full mr-2">
-                <div>
-                    <p class="font-semibold">Jenny Wilson</p>
-                    <p class="text-sm text-gray-600">Agent</p>
-                </div>
-            </div>
-            <button class="flex items-center text-orange-500">
-                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                Log Out
-            </button>
-        </div>
     </div>
 
-    <div class="ml-64 p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h1 class="text-2xl font-bold text-gray-800">Student Data - <span class="text-green-600" id="totalRecords"></span></h1>
-            <div class="flex gap-2">
-                <input type="text" id="searchInput" placeholder="Search" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500" />
-                <button class="p-2 bg-yellow-100 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
-                </button>
+    <div class="ml-56 p-8">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Student Data - <span class="text-green-600" id="totalRecords"></span></h1>
+                <div class="flex gap-2">
+                    <input type="text" id="searchInput" placeholder="Search" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400" />
+                    <button class="p-2 bg-gray-100 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                    </button>
+                </div>
             </div>
-        </div>
 
-        <!-- Branch Filter Buttons -->
-        <div class="flex flex-wrap gap-2 mb-4" id="branchFilterButtons"></div>
+            <!-- Branch Filter Buttons -->
+            <div class="flex flex-wrap gap-1 mb-4" id="branchFilterButtons"></div>
 
-        <!-- Other Filters -->
-        <div class="flex flex-col md:flex-row gap-4 mb-4">
-            <select id="batchFilter" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500">
-                <option value="">Filter by Batch</option>
-            </select>
-            <select id="genderFilter" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500">
-                <option value="">Filter by Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-            </select>
-        </div>
-
-        <!-- Table -->
-        <div class="overflow-x-auto bg-white rounded-lg shadow">
-            <table class="min-w-full">
-                <thead>
-                    <tr>
-                        <th>Serial No</th>
-                        <th>Roll Number</th>
-                        <th>Name</th>
-                        <th>Branch</th>
-                        <th>Email</th>
-                        <th>Gender</th>
-                        <th>DOB</th>
-                        <th>Contact Number</th>
-                        <th>Present Address</th>
-                        <th>Category</th>
-                        <th>Campus</th>
-                    </tr>
-                </thead>
-                <tbody id="studentTableBody"></tbody>
-            </table>
-        </div>
-
-        <!-- Pagination -->
-        <div class="flex justify-between items-center mt-4 text-gray-600">
-            <div>
-                Rows per page: 
-                <select id="rowsPerPageSelect" class="p-1 rounded-lg border border-gray-300">
-                    <option value="10">10</option>
-                    <option value="20" selected>20</option>
-                    <option value="50">50</option>
+            <!-- Other Filters -->
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                <select id="batchFilter" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    <option value="">Filter by Batch</option>
+                </select>
+                <select id="genderFilter" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    <option value="">Filter by Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
                 </select>
             </div>
-            <div id="pageInfo"></div>
-            <div class="flex gap-2">
-                <button id="prevPage" class="p-2 bg-gray-200 rounded-lg disabled:opacity-50"><</button>
-                <button id="nextPage" class="p-2 bg-gray-200 rounded-lg disabled:opacity-50">></button>
+
+            <!-- Table -->
+            <div class="bg-white rounded-lg shadow-sm">
+                <table class="min-w-full">
+                    <thead>
+                        <tr>
+                            <th>Serial No</th>
+                            <th>Roll Number</th>
+                            <th>Name</th>
+                            <th>Branch</th>
+                            <th>Email</th>
+                            <th>Gender</th>
+                            <th>DOB</th>
+                            <th>Contact Number</th>
+                            <th>Present Address</th>
+                            <th>Category</th>
+                            <th>Campus</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-between items-center mt-4 text-gray-600">
+                <div>
+                    Rows per page: 
+                    <select id="rowsPerPageSelect" class="p-1 rounded-lg border border-gray-300">
+                        <option value="150" selected>150</option>
+                        <option value="300">300</option>
+                        <option value="500">500</option>
+                    </select>
+                </div>
+                <div id="pageInfo"></div>
+                <div class="flex gap-2">
+                    <button id="prevPage" class="p-1 bg-gray-200 rounded-lg disabled:opacity-50"><</button>
+                    <button id="nextPage" class="p-1 bg-gray-200 rounded-lg disabled:opacity-50">></button>
+                </div>
             </div>
         </div>
     </div>
@@ -261,6 +255,34 @@
         let rowsPerPage = parseInt(rowsPerPageSelect.value);
         let selectedBranch = '';
 
+        // Branch and Gender color mapping
+        const branchColors = {
+            'Cumulative': '#e5e7eb',
+            'CSAI': '#93c5fd',
+            'CSE': '#60a5fa',
+            'CSDS': '#3b82f6',
+            'CIOT': '#2563eb',
+            'IT': '#1d4ed8',
+            'ITNS': '#1e40af',
+            'MAC': '#fef3c7',
+            'ECIOT': '#fde68a',
+            'ECE': '#fcd34d',
+            'ECAM': '#fbbf24',
+            'EE': '#f59e0b',
+            'ICE': '#d97706',
+            'ME': '#b45309',
+            'MEEV': '#92400e',
+            'WEST': '#fef2f2',
+            'CE': '#fee2e2',
+            'BT': '#fecaca',
+            'GI': '#f87171'
+        };
+        const genderColors = {
+            'Male': '#bfdbfe',
+            'Female': '#e9d5ff',
+            'Other': '#d1fae5'
+        };
+
         // Fetch and parse CSV
         Papa.parse('https://raw.githubusercontent.com/avashx/nsutgod/main/students.csv', {
             download: true,
@@ -300,9 +322,15 @@
                 const button = document.createElement('button');
                 button.className = 'branch-button';
                 button.textContent = branch;
+                button.style.backgroundColor = branchColors[branch] || '#e5e7eb';
                 button.addEventListener('click', () => {
-                    document.querySelectorAll('.branch-button').forEach(btn => btn.classList.remove('active'));
+                    document.querySelectorAll('.branch-button').forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.style.backgroundColor = branchColors[btn.textContent] || '#e5e7eb';
+                        btn.style.color = '#000';
+                    });
                     button.classList.add('active');
+                    button.style.color = '#fff';
                     selectedBranch = branch === 'Cumulative' ? '' : branch;
                     filterStudents();
                 });
@@ -310,6 +338,7 @@
             });
             // Set Cumulative as default
             branchFilterButtons.children[0].classList.add('active');
+            branchFilterButtons.children[0].style.color = '#fff';
         }
 
         // Display students in the table
@@ -326,9 +355,9 @@
                     <td>${serialNo}</td>
                     <td>${student.rollNumber || '-'}</td>
                     <td>${student.Name || '-'}</td>
-                    <td>${student.branch || '-'}</td>
+                    <td><span class="tag" style="background-color: ${branchColors[student.branch] || '#e5e7eb'}">${student.branch || '-'}</span></td>
                     <td>${student.email || '-'}</td>
-                    <td>${student.gender || '-'}</td>
+                    <td><span class="tag" style="background-color: ${genderColors[student.gender] || '#e5e7eb'}">${student.gender || '-'}</span></td>
                     <td>${student.dob || '-'}</td>
                     <td>${student.contact_number || '-'}</td>
                     <td>${student.present_address || '-'}</td>
