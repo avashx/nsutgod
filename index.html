@@ -23,6 +23,7 @@
             resize: horizontal;
             overflow: auto;
             min-width: 80px;
+            position: relative;
         }
         td {
             padding: 4px 8px;
@@ -66,6 +67,16 @@
             border-color: #4b5563;
             color: #fff;
         }
+        .analyze-button {
+            padding: 4px 8px;
+            margin: 2px;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+        }
         .tag {
             padding: 2px 6px;
             border-radius: 4px;
@@ -95,45 +106,30 @@
         .modern-select:hover {
             border-color: #9ca3af;
         }
-        .dropdown-container {
+        .dropdown {
             position: relative;
             display: inline-block;
         }
-        .dropdown-menu {
+        .dropdown-content {
             display: none;
             position: absolute;
             background-color: #fff;
-            min-width: 200px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
             z-index: 1;
-            border-radius: 6px;
-            padding: 8px 0;
-            max-height: 300px;
-            overflow-y: auto;
+            border-radius: 4px;
+            right: 0;
         }
-        .dropdown-menu label {
-            display: block;
-            padding: 8px 16px;
-            font-size: 14px;
-            color: #374151;
-            cursor: pointer;
-        }
-        .dropdown-menu label:hover {
-            background-color: #f3f4f6;
-        }
-        .dropdown-button {
+        .dropdown-content div, .dropdown-content input {
             padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 14px;
-            color: #374151;
-            background-color: #fff;
             cursor: pointer;
-            display: flex;
-            align-items: center;
+            font-size: 14px;
         }
-        .dropdown-button:hover {
-            border-color: #9ca3af;
+        .dropdown-content div:hover {
+            background-color: #f5f5f5;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
         }
         @media (max-width: 768px) {
             .navbar {
@@ -198,12 +194,20 @@
             <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <h1 class="text-2xl font-bold text-gray-800">Student Data - <span class="text-green-600" id="totalRecords"></span></h1>
                 <div class="flex gap-2">
-                    <input type="text" id="searchInput" placeholder="Search (Name, Roll, Email, Address...)" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 w-full md:w-auto" />
+                    <input type="text" id="searchInput" placeholder="Search" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 w-full md:w-auto" />
                     <button class="p-2 bg-gray-100 rounded-lg">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
                     </button>
+                </div>
+            </div>
+
+            <!-- Column Customization -->
+            <div class="mb-4">
+                <button id="customizeColumnsBtn" class="p-2 bg-blue-500 text-white rounded-lg text-sm">Customize Columns</button>
+                <div id="columnsDropdown" class="hidden mt-2 bg-white border rounded-lg shadow-lg p-4 max-h-64 overflow-y-auto">
+                    <!-- Column checkboxes will be populated here -->
                 </div>
             </div>
 
@@ -246,40 +250,10 @@
                 </select>
             </div>
 
-            <!-- Column Visibility Toggle -->
-            <div class="mb-4">
-                <div class="dropdown-container">
-                    <button id="columnToggleBtn" class="dropdown-button">
-                        Manage Columns
-                        <svg class="h-4 w-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-                    <div id="columnDropdown" class="dropdown-menu">
-                        <!-- Column checkboxes will be dynamically added here -->
-                    </div>
-                </div>
-            </div>
-
             <!-- Table -->
             <div class="bg-white rounded-lg shadow-sm table-container">
-                <table class="min-w-full" id="studentTable">
-                    <thead id="tableHeader">
-                        <tr>
-                            <th data-key="serialNo">Serial No</th>
-                            <th data-key="rollNumber">Roll Number</th>
-                            <th data-key="name">Name</th>
-                            <th data-key="branch">Branch</th>
-                            <th data-key="email">Email</th>
-                            <th data-key="gender">Gender</th>
-                            <th data-key="dob">DOB</th>
-                            <th data-key="contactNumber">Contact Number</th>
-                            <th data-key="presentAddress">Present Address</th>
-                            <th data-key="category">Category</th>
-                            <th data-key="cgpa">CGPA</th>
-                            <th data-key="viewProfile">View Profile</th>
-                        </tr>
-                    </thead>
+                <table class="min-w-full">
+                    <thead id="tableHeader"></thead>
                     <tbody id="studentTableBody"></tbody>
                 </table>
             </div>
@@ -320,20 +294,28 @@
         const navbar = document.getElementById('navbar');
         const mainContent = document.getElementById('mainContent');
         const graphsSection = document.getElementById('graphsSection');
-        const columnToggleBtn = document.getElementById('columnToggleBtn');
-        const columnDropdown = document.getElementById('columnDropdown');
+        const customizeColumnsBtn = document.getElementById('customizeColumnsBtn');
+        const columnsDropdown = document.getElementById('columnsDropdown');
 
         let students = [];
         let filteredStudents = [];
         let currentPage = 1;
         let rowsPerPage = parseInt(rowsPerPageSelect.value);
         let selectedBranch = '';
+        let sortColumn = null;
+        let sortDirection = 'asc';
+        let columnFilters = {};
         let visibleColumns = [
-            'serialNo', 'rollNumber', 'name', 'branch', 'email', 'gender',
-            'dob', 'contactNumber', 'presentAddress', 'category', 'cgpa', 'viewProfile'
+            'Serial No', 'Roll Number', 'Name', 'Branch', 'Email', 'Gender',
+            'DOB', 'Contact Number', 'Present Address', 'Category', 'CGPA', 'View Profile'
+        ];
+        const allColumns = [
+            'Serial No', 'Roll Number', 'Name', 'Branch', 'Email', 'Gender',
+            'DOB', 'Contact Number', 'Present Address', 'Permanent Address',
+            'Category', 'CGPA', 'Campus', 'PWD', 'Blood Group', 'View Profile'
         ];
 
-        // Branch and Gender color mapping with lighter shades
+        // Branch and Gender color mapping
         const branchColors = {
             'Cumulative': '#f3f4f6',
             'CSAI': '#bfdbfe',
@@ -356,23 +338,20 @@
             'GI': '#fed7aa'
         };
         const genderColors = {
-            'Male': '#bfdbfe',
-            'Female': '#f9a8d4',
-            'Other': '#d1fae5'
+            'male': '#bfdbfe',
+            'female': '#f9a8d4',
+            'other': '#d1fae5'
         };
 
         // Function to map CGPA to a color gradient (red at 4, green at 9)
         function getCgpaColor(cgpa) {
             if (!cgpa || isNaN(cgpa)) return '#e5e7eb';
             const value = parseFloat(cgpa);
-            if (value < 4) return 'rgb(255, 0, 0)'; // Red for CGPA < 4
-            if (value > 9) return 'rgb(0, 255, 0)'; // Green for CGPA > 9
-
-            // Linear interpolation between red (4) and green (9)
-            const range = 9 - 4;
-            const normalized = (value - 4) / range;
-            const red = Math.round(255 * (1 - normalized));
-            const green = Math.round(255 * normalized);
+            if (value < 4) return 'rgb(255, 0, 0)';
+            if (value > 9) return 'rgb(0, 255, 0)';
+            const ratio = (value - 4) / (9 - 4);
+            const red = Math.round(255 * (1 - ratio));
+            const green = Math.round(255 * ratio);
             return `rgb(${red}, ${green}, 0)`;
         }
 
@@ -388,7 +367,8 @@
                 // Populate filter options
                 populateFilters();
                 populateBranchButtons();
-                populateColumnDropdown();
+                populateColumnsDropdown();
+                renderTableHeader();
                 displayStudents();
             },
             error: function(error) {
@@ -412,80 +392,98 @@
         function populateBranchButtons() {
             const branches = ['Cumulative', ...new Set(students.map(student => student.branch))].filter(Boolean);
             branches.forEach(branch => {
-                const button = document.createElement('button');
-                button.className = 'branch-button';
-                button.textContent = branch;
-                button.style.backgroundColor = branchColors[branch] || '#f3f4f6';
-                button.addEventListener('click', () => {
+                const container = document.createElement('div');
+                container.className = 'flex items-center gap-1';
+
+                const filterButton = document.createElement('button');
+                filterButton.className = 'branch-button';
+                filterButton.textContent = branch;
+                filterButton.style.backgroundColor = branchColors[branch] || '#f3f4f6';
+                filterButton.addEventListener('click', () => {
                     document.querySelectorAll('.branch-button').forEach(btn => {
                         btn.classList.remove('active');
                         btn.style.backgroundColor = branchColors[btn.textContent] || '#f3f4f6';
                         btn.style.color = '#000';
                     });
-                    button.classList.add('active');
-                    button.style.color = '#fff';
+                    filterButton.classList.add('active');
+                    filterButton.style.color = '#fff';
                     selectedBranch = branch === 'Cumulative' ? '' : branch;
                     filterStudents();
-                    if (selectedBranch) {
-                        displayBranchAnalytics(selectedBranch);
-                        graphsSection.classList.remove('hidden');
-                    } else {
-                        graphsSection.classList.add('hidden');
-                    }
                 });
-                branchFilterButtons.appendChild(button);
+
+                const analyzeButton = document.createElement('button');
+                analyzeButton.className = 'analyze-button';
+                analyzeButton.textContent = 'Analyze';
+                analyzeButton.addEventListener('click', () => {
+                    if (branch === 'Cumulative') return;
+                    displayBranchGraphs(branch);
+                    graphsSection.classList.remove('hidden');
+                    graphsSection.scrollIntoView({ behavior: 'smooth' });
+                });
+
+                container.appendChild(filterButton);
+                container.appendChild(analyzeButton);
+                branchFilterButtons.appendChild(container);
             });
             // Set Cumulative as default
-            branchFilterButtons.children[0].classList.add('active');
-            branchFilterButtons.children[0].style.color = '#fff';
+            branchFilterButtons.children[0].children[0].classList.add('active');
+            branchFilterButtons.children[0].children[0].style.color = '#fff';
         }
 
-        // Populate column visibility dropdown
-        function populateColumnDropdown() {
-            const columns = [
-                { key: 'serialNo', label: 'Serial No' },
-                { key: 'rollNumber', label: 'Roll Number' },
-                { key: 'name', label: 'Name' },
-                { key: 'branch', label: 'Branch' },
-                { key: 'email', label: 'Email' },
-                { key: 'gender', label: 'Gender' },
-                { key: 'dob', label: 'DOB' },
-                { key: 'contactNumber', label: 'Contact Number' },
-                { key: 'presentAddress', label: 'Present Address' },
-                { key: 'category', label: 'Category' },
-                { key: 'cgpa', label: 'CGPA' },
-                { key: 'viewProfile', label: 'View Profile' }
-            ];
-
-            columnDropdown.innerHTML = '';
-            columns.forEach(column => {
-                const label = document.createElement('label');
+        // Populate columns dropdown
+        function populateColumnsDropdown() {
+            columnsDropdown.innerHTML = '';
+            allColumns.forEach(column => {
+                if (column === 'View Profile') return; // Always visible
+                const div = document.createElement('div');
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
-                checkbox.checked = visibleColumns.includes(column.key);
+                checkbox.checked = visibleColumns.includes(column);
                 checkbox.addEventListener('change', () => {
                     if (checkbox.checked) {
-                        visibleColumns.push(column.key);
+                        if (!visibleColumns.includes(column)) {
+                            visibleColumns.push(column);
+                        }
                     } else {
-                        visibleColumns = visibleColumns.filter(col => col !== column.key);
+                        visibleColumns = visibleColumns.filter(col => col !== column);
                     }
+                    renderTableHeader();
                     displayStudents();
                 });
-                label.appendChild(checkbox);
-                label.appendChild(document.createTextNode(` ${column.label}`));
-                columnDropdown.appendChild(label);
+                const label = document.createElement('label');
+                label.textContent = column;
+                label.className = 'ml-2';
+                div.appendChild(checkbox);
+                div.appendChild(label);
+                columnsDropdown.appendChild(div);
             });
+        }
 
-            columnToggleBtn.addEventListener('click', () => {
-                columnDropdown.style.display = columnDropdown.style.display === 'block' ? 'none' : 'block';
-            });
+        // Toggle columns dropdown
+        customizeColumnsBtn.addEventListener('click', () => {
+            columnsDropdown.classList.toggle('hidden');
+        });
 
-            // Close dropdown when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!columnToggleBtn.contains(e.target) && !columnDropdown.contains(e.target)) {
-                    columnDropdown.style.display = 'none';
-                }
+        // Render table header with sorting and filtering
+        function renderTableHeader() {
+            const tr = document.createElement('tr');
+            visibleColumns.forEach(column => {
+                const th = document.createElement('th');
+                const dropdown = document.createElement('div');
+                dropdown.className = 'dropdown';
+                dropdown.innerHTML = `
+                    <span>${column}</span>
+                    <div class="dropdown-content">
+                        <div onclick="sortTable('${column}', 'asc')">Sort Ascending</div>
+                        <div onclick="sortTable('${column}', 'desc')">Sort Descending</div>
+                        <input type="text" placeholder="Filter ${column}" oninput="applyColumnFilter('${column}', this.value)" />
+                    </div>
+                `;
+                th.appendChild(dropdown);
+                tr.appendChild(th);
             });
+            tableHeader.innerHTML = '';
+            tableHeader.appendChild(tr);
         }
 
         // Display students in the table
@@ -494,34 +492,67 @@
             const end = rowsPerPage === 'all' ? filteredStudents.length : start + rowsPerPage;
             const paginatedStudents = filteredStudents.slice(start, end);
 
-            // Update table headers based on visible columns
-            const headers = tableHeader.querySelectorAll('th');
-            headers.forEach(header => {
-                const key = header.getAttribute('data-key');
-                header.style.display = visibleColumns.includes(key) ? '' : 'none';
-            });
-
-            // Update table rows
             studentTableBody.innerHTML = '';
             paginatedStudents.forEach((student, index) => {
                 const serialNo = start + index + 1;
                 const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td style="display: ${visibleColumns.includes('serialNo') ? '' : 'none'}">${serialNo}</td>
-                    <td style="display: ${visibleColumns.includes('rollNumber') ? '' : 'none'}">${student.rollNumber || '-'}</td>
-                    <td style="display: ${visibleColumns.includes('name') ? '' : 'none'}">${student.Name || '-'}</td>
-                    <td style="display: ${visibleColumns.includes('branch') ? '' : 'none'}"><span class="tag" style="background-color: ${branchColors[student.branch] || '#e5e7eb'}">${student.branch || '-'}</span></td>
-                    <td style="display: ${visibleColumns.includes('email') ? '' : 'none'}">${student.email || '-'}</td>
-                    <td style="display: ${visibleColumns.includes('gender') ? '' : 'none'}"><span class="tag" style="background-color: ${genderColors[student.gender] || '#e5e7eb'}">${student.gender || '-'}</span></td>
-                    <td style="display: ${visibleColumns.includes('dob') ? '' : 'none'}">${student.dob || '-'}</td>
-                    <td style="display: ${visibleColumns.includes('contactNumber') ? '' : 'none'}">${student.contact_number || '-'}</td>
-                    <td style="display: ${visibleColumns.includes('presentAddress') ? '' : 'none'}">${student.present_address || '-'}</td>
-                    <td style="display: ${visibleColumns.includes('category') ? '' : 'none'}">${student.category || '-'}</td>
-                    <td style="display: ${visibleColumns.includes('cgpa') ? '' : 'none'}"><span class="tag" style="background-color: ${getCgpaColor(student.cgpa)}">${student.cgpa || '-'}</span></td>
-                    <td style="display: ${visibleColumns.includes('viewProfile') ? '' : 'none'}">
-                        <a href="student-profile.html?data=${encodeURIComponent(JSON.stringify(student))}" target="_blank" class="p-1 bg-blue-100 text-blue-600 rounded text-xs">View Profile</a>
-                    </td>
-                `;
+                let cells = '';
+                visibleColumns.forEach(column => {
+                    let cellContent = '';
+                    switch (column) {
+                        case 'Serial No':
+                            cellContent = serialNo;
+                            break;
+                        case 'Roll Number':
+                            cellContent = student.rollNumber || '-';
+                            break;
+                        case 'Name':
+                            cellContent = student.Name || '-';
+                            break;
+                        case 'Branch':
+                            cellContent = `<span class="tag" style="background-color: ${branchColors[student.branch] || '#e5e7eb'}">${student.branch || '-'}</span>`;
+                            break;
+                        case 'Email':
+                            cellContent = student.email || '-';
+                            break;
+                        case 'Gender':
+                            const genderLower = (student.gender || '').toLowerCase();
+                            cellContent = `<span class="tag" style="background-color: ${genderColors[genderLower] || '#e5e7eb'}">${student.gender || '-'}</span>`;
+                            break;
+                        case 'DOB':
+                            cellContent = student.dob || '-';
+                            break;
+                        case 'Contact Number':
+                            cellContent = student.contact_number || '-';
+                            break;
+                        case 'Present Address':
+                            cellContent = student.present_address || '-';
+                            break;
+                        case 'Permanent Address':
+                            cellContent = student.perm_address || '-';
+                            break;
+                        case 'Category':
+                            cellContent = student.category || '-';
+                            break;
+                        case 'CGPA':
+                            cellContent = `<span class="tag" style="background-color: ${getCgpaColor(student.cgpa)}">${student.cgpa || '-'}</span>`;
+                            break;
+                        case 'Campus':
+                            cellContent = student.campus || '-';
+                            break;
+                        case 'PWD':
+                            cellContent = student.pwd || '-';
+                            break;
+                        case 'Blood Group':
+                            cellContent = student.blood_group || '-';
+                            break;
+                        case 'View Profile':
+                            cellContent = `<a href="student-profile.html?data=${encodeURIComponent(JSON.stringify(student))}" target="_blank" class="p-1 bg-blue-100 text-blue-600 rounded text-xs">View Profile</a>`;
+                            break;
+                    }
+                    cells += `<td>${cellContent}</td>`;
+                });
+                row.innerHTML = cells;
                 studentTableBody.appendChild(row);
             });
 
@@ -534,25 +565,18 @@
             nextPageBtn.disabled = (currentPage === totalPages || totalPages === 0 || rowsPerPage === 'all');
         }
 
-        // Display branch-specific analytics
-        function displayBranchAnalytics(branch) {
+        // Display branch-specific graphs
+        function displayBranchGraphs(branch) {
             const branchStudents = students.filter(student => student.branch === branch);
-            if (!branchStudents.length) {
-                graphsSection.innerHTML = '<p>No data available for this branch.</p>';
-                return;
-            }
-
             const batches = [...new Set(branchStudents.map(student => student.batch))].filter(Boolean).sort();
 
             // Gender Ratio (Bar Chart per Batch)
-            const genderData = {};
-            batches.forEach(batch => {
+            const genderData = batches.map(batch => {
                 const batchStudents = branchStudents.filter(student => student.batch === batch);
-                genderData[batch] = {
-                    Male: batchStudents.filter(student => student.gender === 'Male').length,
-                    Female: batchStudents.filter(student => student.gender === 'Female').length,
-                    Other: batchStudents.filter(student => student.gender === 'Other').length
-                };
+                const males = batchStudents.filter(student => (student.gender || '').toLowerCase() === 'male').length;
+                const females = batchStudents.filter(student => (student.gender || '').toLowerCase() === 'female').length;
+                const others = batchStudents.filter(student => (student.gender || '').toLowerCase() === 'other').length;
+                return { batch, males, females, others };
             });
 
             const genderCtx = document.getElementById('genderRatioChart').getContext('2d');
@@ -562,21 +586,9 @@
                 data: {
                     labels: batches,
                     datasets: [
-                        {
-                            label: 'Male',
-                            data: batches.map(batch => genderData[batch].Male),
-                            backgroundColor: genderColors['Male']
-                        },
-                        {
-                            label: 'Female',
-                            data: batches.map(batch => genderData[batch].Female),
-                            backgroundColor: genderColors['Female']
-                        },
-                        {
-                            label: 'Other',
-                            data: batches.map(batch => genderData[batch].Other),
-                            backgroundColor: genderColors['Other']
-                        }
+                        { label: 'Male', data: genderData.map(data => data.males), backgroundColor: genderColors['male'] },
+                        { label: 'Female', data: genderData.map(data => data.females), backgroundColor: genderColors['female'] },
+                        { label: 'Other', data: genderData.map(data => data.others), backgroundColor: genderColors['other'] }
                     ]
                 },
                 options: {
@@ -587,12 +599,11 @@
                 }
             });
 
-            // CGPA Distribution (Bar Chart per Batch - Average CGPA)
-            const cgpaData = {};
-            batches.forEach(batch => {
+            // CGPA Distribution (Bar Chart per Batch)
+            const cgpaData = batches.map(batch => {
                 const batchStudents = branchStudents.filter(student => student.batch === batch);
                 const cgpas = batchStudents.map(student => parseFloat(student.cgpa)).filter(val => !isNaN(val));
-                cgpaData[batch] = cgpas.length ? cgpas.reduce((a, b) => a + b, 0) / cgpas.length : 0;
+                return { batch, cgpas };
             });
 
             const cgpaCtx = document.getElementById('cgpaDistributionChart').getContext('2d');
@@ -602,8 +613,11 @@
                 data: {
                     labels: batches,
                     datasets: [{
-                        label: 'Average CGPA',
-                        data: batches.map(batch => cgpaData[batch].toFixed(2)),
+                        label: 'CGPA (Average)',
+                        data: cgpaData.map(data => {
+                            const avg = data.cgpas.length ? data.cgpas.reduce((a, b) => a + b, 0) / data.cgpas.length : 0;
+                            return avg.toFixed(2);
+                        }),
                         backgroundColor: '#93c5fd'
                     }]
                 },
@@ -616,11 +630,11 @@
             });
 
             // Highest CGPA (Line Chart per Batch)
-            const highestCgpaData = {};
-            batches.forEach(batch => {
+            const highestCgpaData = batches.map(batch => {
                 const batchStudents = branchStudents.filter(student => student.batch === batch);
                 const cgpas = batchStudents.map(student => parseFloat(student.cgpa)).filter(val => !isNaN(val));
-                highestCgpaData[batch] = cgpas.length ? Math.max(...cgpas) : 0;
+                const highest = cgpas.length ? Math.max(...cgpas) : 0;
+                return highest;
             });
 
             const highestCgpaCtx = document.getElementById('highestCgpaChart').getContext('2d');
@@ -631,7 +645,7 @@
                     labels: batches,
                     datasets: [{
                         label: 'Highest CGPA',
-                        data: batches.map(batch => highestCgpaData[batch]),
+                        data: highestCgpaData,
                         borderColor: '#3b82f6',
                         backgroundColor: 'rgba(59, 130, 246, 0.2)',
                         fill: true
@@ -646,11 +660,11 @@
             });
 
             // Average CGPA (Line Chart per Batch)
-            const averageCgpaData = {};
-            batches.forEach(batch => {
+            const averageCgpaData = batches.map(batch => {
                 const batchStudents = branchStudents.filter(student => student.batch === batch);
                 const cgpas = batchStudents.map(student => parseFloat(student.cgpa)).filter(val => !isNaN(val));
-                averageCgpaData[batch] = cgpas.length ? cgpas.reduce((a, b) => a + b, 0) / cgpas.length : 0;
+                const avg = cgpas.length ? cgpas.reduce((a, b) => a + b, 0) / cgpas.length : 0;
+                return avg.toFixed(2);
             });
 
             const averageCgpaCtx = document.getElementById('averageCgpaChart').getContext('2d');
@@ -661,7 +675,7 @@
                     labels: batches,
                     datasets: [{
                         label: 'Average CGPA',
-                        data: batches.map(batch => averageCgpaData[batch].toFixed(2)),
+                        data: averageCgpaData,
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.2)',
                         fill: true
@@ -676,26 +690,173 @@
             });
         }
 
-        // Enhanced filter and search logic
+        // Filter and search logic
         function filterStudents() {
             const searchTerm = searchInput.value.toLowerCase();
             const batchValue = batchFilter.value;
             const genderValue = genderFilter.value;
 
             filteredStudents = students.filter(student => {
-                const matchesSearch = Object.values(student).some(value => 
-                    value && value.toString().toLowerCase().includes(searchTerm)
+                const matchesSearch = Object.values(student).some(value =>
+                    String(value || '').toLowerCase().includes(searchTerm)
                 );
                 const matchesBranch = !selectedBranch || student.branch === selectedBranch;
                 const matchesBatch = !batchValue || student.batch === batchValue;
-                const matchesGender = !genderValue || student.gender === genderValue;
+                const matchesGender = !genderValue || (student.gender || '').toLowerCase() === genderValue.toLowerCase();
+                let matchesFilters = true;
 
-                return matchesSearch && matchesBranch && matchesBatch && matchesGender;
+                for (const [column, filterValue] of Object.entries(columnFilters)) {
+                    if (!filterValue) continue;
+                    let studentValue;
+                    switch (column) {
+                        case 'Serial No':
+                            studentValue = String(filteredStudents.indexOf(student) + 1);
+                            break;
+                        case 'Roll Number':
+                            studentValue = student.rollNumber || '';
+                            break;
+                        case 'Name':
+                            studentValue = student.Name || '';
+                            break;
+                        case 'Branch':
+                            studentValue = student.branch || '';
+                            break;
+                        case 'Email':
+                            studentValue = student.email || '';
+                            break;
+                        case 'Gender':
+                            studentValue = student.gender || '';
+                            break;
+                        case 'DOB':
+                            studentValue = student.dob || '';
+                            break;
+                        case 'Contact Number':
+                            studentValue = student.contact_number || '';
+                            break;
+                        case 'Present Address':
+                            studentValue = student.present_address || '';
+                            break;
+                        case 'Permanent Address':
+                            studentValue = student.perm_address || '';
+                            break;
+                        case 'Category':
+                            studentValue = student.category || '';
+                            break;
+                        case 'CGPA':
+                            studentValue = student.cgpa || '';
+                            break;
+                        case 'Campus':
+                            studentValue = student.campus || '';
+                            break;
+                        case 'PWD':
+                            studentValue = student.pwd || '';
+                            break;
+                        case 'Blood Group':
+                            studentValue = student.blood_group || '';
+                            break;
+                        default:
+                            studentValue = '';
+                    }
+                    if (!String(studentValue).toLowerCase().includes(filterValue.toLowerCase())) {
+                        matchesFilters = false;
+                    }
+                }
+
+                return matchesSearch && matchesBranch && matchesBatch && matchesGender && matchesFilters;
             });
+
+            if (sortColumn) {
+                filteredStudents.sort((a, b) => {
+                    let aValue, bValue;
+                    switch (sortColumn) {
+                        case 'Serial No':
+                            aValue = filteredStudents.indexOf(a) + 1;
+                            bValue = filteredStudents.indexOf(b) + 1;
+                            break;
+                        case 'Roll Number':
+                            aValue = a.rollNumber || '';
+                            bValue = b.rollNumber || '';
+                            break;
+                        case 'Name':
+                            aValue = a.Name || '';
+                            bValue = b.Name || '';
+                            break;
+                        case 'Branch':
+                            aValue = a.branch || '';
+                            bValue = b.branch || '';
+                            break;
+                        case 'Email':
+                            aValue = a.email || '';
+                            bValue = b.email || '';
+                            break;
+                        case 'Gender':
+                            aValue = a.gender || '';
+                            bValue = b.gender || '';
+                            break;
+                        case 'DOB':
+                            aValue = a.dob || '';
+                            bValue = b.dob || '';
+                            break;
+                        case 'Contact Number':
+                            aValue = a.contact_number || '';
+                            bValue = b.contact_number || '';
+                            break;
+                        case 'Present Address':
+                            aValue = a.present_address || '';
+                            bValue = b.present_address || '';
+                            break;
+                        case 'Permanent Address':
+                            aValue = a.perm_address || '';
+                            bValue = b.perm_address || '';
+                            break;
+                        case 'Category':
+                            aValue = a.category || '';
+                            bValue = b.category || '';
+                            break;
+                        case 'CGPA':
+                            aValue = parseFloat(a.cgpa) || 0;
+                            bValue = parseFloat(b.cgpa) || 0;
+                            break;
+                        case 'Campus':
+                            aValue = a.campus || '';
+                            bValue = b.campus || '';
+                            break;
+                        case 'PWD':
+                            aValue = a.pwd || '';
+                            bValue = b.pwd || '';
+                            break;
+                        case 'Blood Group':
+                            aValue = a.blood_group || '';
+                            bValue = b.blood_group || '';
+                            break;
+                        default:
+                            aValue = '';
+                            bValue = '';
+                    }
+                    if (sortDirection === 'asc') {
+                        return aValue > bValue ? 1 : -1;
+                    } else {
+                        return aValue < bValue ? 1 : -1;
+                    }
+                });
+            }
 
             currentPage = 1;
             displayStudents();
         }
+
+        // Sorting function
+        window.sortTable = function(column, direction) {
+            sortColumn = column;
+            sortDirection = direction;
+            filterStudents();
+        };
+
+        // Column filter function
+        window.applyColumnFilter = function(column, value) {
+            columnFilters[column] = value;
+            filterStudents();
+        };
 
         // Event listeners
         searchInput.addEventListener('input', filterStudents);
