@@ -9,35 +9,74 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #f5f5f5;
         }
         th, td {
-            padding: 12px;
+            padding: 8px;
             text-align: left;
             border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
         }
         th {
             background-color: #f9fafb;
             font-weight: 600;
+            color: #4b5563;
         }
         tr:hover {
-            background-color: #f3f4f6;
+            background-color: #fef3c7;
+            cursor: pointer;
+        }
+        tr.selected {
+            background-color: #fef3c7;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
         }
     </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-[#f5f5f5]">
     <div class="container mx-auto p-6">
-        <h1 class="text-3xl font-bold mb-6 text-gray-800">Student Data Dashboard</h1>
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-2xl font-bold text-gray-800">Student Data - <span class="text-green-600" id="totalRecords"></span></h1>
+            <div class="flex gap-2">
+                <select id="monthFilter" class="p-2 rounded-lg border border-gray-300 text-gray-600">
+                    <option>2025</option>
+                </select>
+                <input type="text" id="searchInput" placeholder="Search" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500" />
+                <button class="p-2 bg-yellow-100 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                </button>
+            </div>
+        </div>
 
-        <!-- Search and Filter -->
-        <div class="flex flex-col md:flex-row gap-4 mb-6">
-            <input type="text" id="searchInput" placeholder="Search by name, roll number, email..." class="w-full md:w-1/3 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            <select id="branchFilter" class="p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <!-- Filters -->
+        <div class="flex flex-col md:flex-row gap-4 mb-4">
+            <select id="branchFilter" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500">
                 <option value="">Filter by Branch</option>
             </select>
-            <select id="batchFilter" class="p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <select id="batchFilter" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500">
                 <option value="">Filter by Batch</option>
             </select>
-            <select id="genderFilter" class="p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <select id="genderFilter" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500">
                 <option value="">Filter by Gender</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
@@ -50,19 +89,18 @@
             <table class="min-w-full">
                 <thead>
                     <tr>
+                        <th>Serial No</th>
                         <th>Roll Number</th>
                         <th>Name</th>
-                        <th>DOB</th>
-                        <th>Batch</th>
                         <th>Branch</th>
                         <th>Email</th>
                         <th>Personal Email</th>
-                        <th>Degree</th>
-                        <th>Campus</th>
                         <th>Gender</th>
+                        <th>DOB</th>
                         <th>Contact Number</th>
-                        <th>CGPA</th>
-                        <th>Graduation GPA</th>
+                        <th>Present Address</th>
+                        <th>Category</th>
+                        <th>Campus</th>
                     </tr>
                 </thead>
                 <tbody id="studentTableBody"></tbody>
@@ -70,10 +108,29 @@
         </div>
 
         <!-- Pagination -->
-        <div class="flex justify-between items-center mt-4">
-            <button id="prevPage" class="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-300">Previous</button>
-            <span id="pageInfo" class="text-gray-600"></span>
-            <button id="nextPage" class="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-300">Next</button>
+        <div class="flex justify-between items-center mt-4 text-gray-600">
+            <div>
+                Rows per page: 
+                <select id="rowsPerPageSelect" class="p-1 rounded-lg border border-gray-300">
+                    <option value="10">10</option>
+                    <option value="20" selected>20</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
+            <div id="pageInfo"></div>
+            <div class="flex gap-2">
+                <button id="prevPage" class="p-2 bg-gray-200 rounded-lg disabled:opacity-50">&lt;</button>
+                <button id="nextPage" class="p-2 bg-gray-200 rounded-lg disabled:opacity-50">&gt;</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Additional Details -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-xl font-bold mb-4">Student Details</h2>
+            <div id="modalContent"></div>
+            <button id="closeModal" class="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg">Close</button>
         </div>
     </div>
 
@@ -86,11 +143,16 @@
         const prevPageBtn = document.getElementById('prevPage');
         const nextPageBtn = document.getElementById('nextPage');
         const pageInfo = document.getElementById('pageInfo');
+        const totalRecords = document.getElementById('totalRecords');
+        const rowsPerPageSelect = document.getElementById('rowsPerPageSelect');
+        const detailsModal = document.getElementById('detailsModal');
+        const modalContent = document.getElementById('modalContent');
+        const closeModalBtn = document.getElementById('closeModal');
 
         let students = [];
         let filteredStudents = [];
         let currentPage = 1;
-        const rowsPerPage = 20;
+        let rowsPerPage = parseInt(rowsPerPageSelect.value);
 
         // Fetch and parse CSV
         Papa.parse('https://raw.githubusercontent.com/avashx/nsutgod/main/students.csv', {
@@ -99,6 +161,7 @@
             complete: function(results) {
                 students = results.data;
                 filteredStudents = [...students];
+                totalRecords.textContent = `${students.length} Students`;
 
                 // Populate filter options
                 populateFilters();
@@ -106,7 +169,7 @@
             },
             error: function(error) {
                 console.error('Error fetching CSV:', error);
-                studentTableBody.innerHTML = '<tr><td colspan="13">Error loading data. Please try again later.</td></tr>';
+                studentTableBody.innerHTML = '<tr><td colspan="12">Error loading data. Please try again later.</td></tr>';
             }
         });
 
@@ -137,32 +200,61 @@
             const paginatedStudents = filteredStudents.slice(start, end);
 
             studentTableBody.innerHTML = '';
-            paginatedStudents.forEach(student => {
+            paginatedStudents.forEach((student, index) => {
+                const serialNo = start + index + 1;
                 const row = document.createElement('tr');
                 row.innerHTML = `
+                    <td>${serialNo}</td>
                     <td>${student.rollNumber || '-'}</td>
                     <td>${student.Name || '-'}</td>
-                    <td>${student.dob || '-'}</td>
-                    <td>${student.batch || '-'}</td>
                     <td>${student.branch || '-'}</td>
                     <td>${student.email || '-'}</td>
                     <td>${student.personal_email || '-'}</td>
-                    <td>${student.degree || '-'}</td>
-                    <td>${student.campus || '-'}</td>
                     <td>${student.gender || '-'}</td>
+                    <td>${student.dob || '-'}</td>
                     <td>${student.contact_number || '-'}</td>
-                    <td>${student.cgpa || '-'}</td>
-                    <td>${student.graduation_gpa || '-'}</td>
+                    <td>${student.present_address || '-'}</td>
+                    <td>${student.category || '-'}</td>
+                    <td>${student.campus || '-'}</td>
                 `;
+                row.addEventListener('click', () => showDetails(student));
                 studentTableBody.appendChild(row);
             });
 
             // Update pagination info
             const totalPages = Math.ceil(filteredStudents.length / rowsPerPage);
-            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            const startRecord = start + 1;
+            const endRecord = Math.min(end, filteredStudents.length);
+            pageInfo.textContent = `${startRecord}-${endRecord} of ${filteredStudents.length}`;
             prevPageBtn.disabled = currentPage === 1;
             nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
         }
+
+        // Show additional details in modal
+        function showDetails(student) {
+            modalContent.innerHTML = `
+                <p><strong>Alternate Contact Number:</strong> ${student.alt_contact_number || '-'}</p>
+                <p><strong>Graduation GPA:</strong> ${student.graduation_gpa || '-'}</p>
+                <p><strong>Backlogs:</strong> ${student.backlogs || '-'}</p>
+                <p><strong>Permanent Address:</strong> ${student.perm_address || '-'}</p>
+                <p><strong>CGPA 12th:</strong> ${student.cgpa_12th || '-'}</p>
+                <p><strong>CGPA 10th:</strong> ${student.cgpa_10th || '-'}</p>
+                <p><strong>CGPA:</strong> ${student.cgpa || '-'}</p>
+                <p><strong>CGPA Before Drop:</strong> ${student.cgpa_before_drop || '-'}</p>
+                <p><strong>Sem 1 GPA:</strong> ${student.sem1_gpa || '-'}</p>
+                <p><strong>Sem 2 GPA:</strong> ${student.sem2_gpa || '-'}</p>
+                <p><strong>Sem 3 GPA:</strong> ${student.sem3_gpa || '-'}</p>
+                <p><strong>Sem 4 GPA:</strong> ${student.sem4_gpa || '-'}</p>
+                <p><strong>Sem 5 GPA:</strong> ${student.sem5_gpa || '-'}</p>
+                <p><strong>Sem 6 GPA:</strong> ${student.sem6_gpa || '-'}</p>
+            `;
+            detailsModal.style.display = 'flex';
+        }
+
+        // Close modal
+        closeModalBtn.addEventListener('click', () => {
+            detailsModal.style.display = 'none';
+        });
 
         // Filter and search logic
         function filterStudents() {
@@ -208,6 +300,12 @@
                 currentPage++;
                 displayStudents();
             }
+        });
+
+        rowsPerPageSelect.addEventListener('change', () => {
+            rowsPerPage = parseInt(rowsPerPageSelect.value);
+            currentPage = 1;
+            displayStudents();
         });
     </script>
 </body>
