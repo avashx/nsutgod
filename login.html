@@ -166,7 +166,7 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             text-align: center;
             z-index: 10;
-            width: 350px; /* Increased width */
+            width: 350px;
         }
 
         .login-header {
@@ -188,13 +188,38 @@
             font-weight: bold;
         }
 
-        .login-container input {
-            display: block;
-            width: 96%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
+        .otp-section {
+            margin-top: 20px;
+        }
+
+        .otp-section p {
+            color: #333;
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .otp-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .otp-inputs input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 20px;
+            border: 2px solid #ccc;
             border-radius: 5px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .otp-inputs input:focus {
+            border-color: #4b5563;
+            box-shadow: 0 0 5px rgba(75, 85, 99, 0.2);
         }
 
         .login-container button {
@@ -210,16 +235,6 @@
 
         .login-container button:hover {
             background-color: #6b7280;
-        }
-
-        .otp-section {
-            margin-top: 20px;
-        }
-
-        .otp-section p {
-            color: #333;
-            font-size: 16px;
-            text-align: center;
         }
 
         .error-message {
@@ -261,31 +276,93 @@
         </div>
         <div class="otp-section">
             <p>neeche OTP likho</p>
-            <input type="text" id="otp" placeholder="Enter OTP" required>
+            <div class="otp-inputs">
+                <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, 1)">
+                <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, 2)">
+                <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, 3)">
+                <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, 4)">
+            </div>
             <button onclick="verifyOTP()">Verify OTP</button>
         </div>
         <p class="error-message" id="errorMessage">Invalid OTP</p>
     </div>
 
     <script>
-        const correctOTP = '1714'; // Hardcoded for demo; in production, this should be sent via email/SMS
+        // Check session on page load
+        checkSession();
 
-        // Log the OTP to the console for demo purposes
-        console.log('Demo OTP:', correctOTP);
+        // Function to check session (1-hour expiry)
+        function checkSession() {
+            const loginTime = localStorage.getItem('loginTime');
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+            if (isLoggedIn === 'true' && loginTime) {
+                const currentTime = new Date().getTime();
+                const loginTimestamp = parseInt(loginTime);
+                const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+
+                if (currentTime - loginTimestamp < oneHour) {
+                    // Session is still valid, redirect to dashboard
+                    window.location.href = 'index.html';
+                } else {
+                    // Session expired, clear localStorage
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('loginTime');
+                }
+            }
+        }
+
+        // Generate dynamic OTP based on current hour and date (HHDD format)
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0'); // e.g., "18" for 6 PM
+        const date = String(now.getDate()).padStart(2, '0');   // e.g., "12" for 12th
+        const correctOTP = hours + date; // e.g., "1812" for 6 PM on the 12th
+        console.log('Dynamic OTP:', correctOTP); // For demo purposes
+
+        // Function to move focus to the next OTP input box
+        function moveToNext(current, nextIndex) {
+            if (current.value.length === 1 && nextIndex <= 4) {
+                const nextInput = document.querySelector(`.otp-box:nth-child(${nextIndex + 1})`);
+                if (nextInput) {
+                    nextInput.focus();
+                }
+            }
+            // Allow backspace to move to previous input
+            if (current.value.length === 0 && nextIndex > 1) {
+                const prevInput = document.querySelector(`.otp-box:nth-child(${nextIndex - 1})`);
+                if (prevInput) {
+                    prevInput.focus();
+                }
+            }
+        }
 
         function verifyOTP() {
-            const otp = document.getElementById('otp').value;
+            const otpInputs = document.querySelectorAll('.otp-box');
+            const enteredOTP = Array.from(otpInputs).map(input => input.value).join('');
             const errorMessage = document.getElementById('errorMessage');
 
-            if (otp === correctOTP) {
-                // Store login state in localStorage
+            if (enteredOTP === correctOTP) {
+                // Store login state and timestamp in localStorage
                 localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('loginTime', new Date().getTime());
                 // Redirect to dashboard
                 window.location.href = 'index.html';
             } else {
                 errorMessage.style.display = 'block';
+                // Clear input fields on error
+                otpInputs.forEach(input => (input.value = ''));
+                otpInputs[0].focus();
             }
         }
+
+        // Add event listener for Enter key to trigger OTP verification
+        document.querySelectorAll('.otp-box').forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    verifyOTP();
+                }
+            });
+        });
     </script>
 </body>
 </html>
