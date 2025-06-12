@@ -66,26 +66,28 @@
             font-size: 12px;
             font-weight: 500;
         }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 50;
+        .modern-select {
+            appearance: none;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci' +
+                      'IGNsYXNzPSJoLTUgdy01IHRleHQtZ3JheS02MDAiIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggc3Ryb2tlLW' +
+                      'xpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik02IDlsNiA2IDYtNiIvPjwvc3ZnPg==') no-repeat right 8px center;
+            background-size: 16px;
+            padding-right: 32px;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #374151;
+            background-color: #fff;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
-        .modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 900px;
-            max-height: 90vh;
-            overflow-y: auto;
+        .modern-select:focus {
+            outline: none;
+            border-color: #4b5563;
+            box-shadow: 0 0 0 2px rgba(75, 85, 99, 0.2);
+        }
+        .modern-select:hover {
+            border-color: #9ca3af;
         }
         @media (max-width: 768px) {
             .navbar {
@@ -101,13 +103,6 @@
             th, td {
                 font-size: 12px;
                 max-width: 100px;
-            }
-            .modal-content {
-                width: 95%;
-                max-height: 85vh;
-            }
-            .modal-content .grid {
-                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -167,10 +162,10 @@
 
             <!-- Other Filters -->
             <div class="flex flex-col md:flex-row gap-4 mb-6">
-                <select id="batchFilter" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 w-full md:w-auto">
+                <select id="batchFilter" class="modern-select w-full md:w-auto">
                     <option value="">Batch Year</option>
                 </select>
-                <select id="genderFilter" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 w-full md:w-auto">
+                <select id="genderFilter" class="modern-select w-full md:w-auto">
                     <option value="">Filter by Gender</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
@@ -193,7 +188,7 @@
                             <th>Contact Number</th>
                             <th>Present Address</th>
                             <th>Category</th>
-                            <th>Campus</th>
+                            <th>CGPA</th>
                             <th>View Profile</th>
                         </tr>
                     </thead>
@@ -205,7 +200,7 @@
             <div class="flex flex-col md:flex-row justify-between items-center mt-4 text-gray-600 gap-4">
                 <div>
                     Rows per page: 
-                    <select id="rowsPerPageSelect" class="p-1 rounded-lg border border-gray-300">
+                    <select id="rowsPerPageSelect" class="modern-select">
                         <option value="150" selected>150</option>
                         <option value="300">300</option>
                         <option value="500">500</option>
@@ -218,56 +213,27 @@
                     <button id="nextPage" class="p-1 bg-gray-200 rounded-lg disabled:opacity-50">></button>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Modal for Student Profile -->
-    <div id="detailsModal" class="modal">
-        <div class="modal-content">
-            <div class="flex justify-between items-start mb-4">
-                <div class="flex items-center">
-                    <img src="https://via.placeholder.com/60" alt="Avatar" class="rounded-full mr-4">
+            <!-- Graphs Section -->
+            <div id="graphsSection" class="mt-8 hidden">
+                <h2 class="text-xl font-bold mb-4">Branch Statistics</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <h2 class="text-xl font-bold" id="modalStudentName"></h2>
-                        <p class="text-sm text-gray-600" id="modalStudentHandle"></p>
+                        <h3 class="text-lg font-semibold mb-2">Gender Ratio (Year-wise)</h3>
+                        <canvas id="genderRatioChart"></canvas>
                     </div>
-                </div>
-                <button id="closeModal" class="text-gray-600">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Left Column -->
-                <div>
-                    <h3 class="text-lg font-semibold mb-2">Personal Information</h3>
-                    <p><strong>Roll Number:</strong> <span id="modalRollNumber"></span></p>
-                    <p><strong>Email:</strong> <span id="modalEmail"></span></p>
-                    <p><strong>Personal Email:</strong> <span id="modalPersonalEmail"></span></p>
-                    <p><strong>Gender:</strong> <span id="modalGender"></span></p>
-                    <p><strong>Date of Birth:</strong> <span id="modalDOB"></span></p>
-                    <p><strong>Contact Number:</strong> <span id="modalContactNumber"></span></p>
-                    <p><strong>Alternate Contact Number:</strong> <span id="modalAltContactNumber"></span></p>
-                    <p><strong>Present Address:</strong> <span id="modalPresentAddress"></span></p>
-                    <p><strong>Permanent Address:</strong> <span id="modalPermAddress"></span></p>
-                    <p><strong>Category:</strong> <span id="modalCategory"></span></p>
-                    <p><strong>Campus:</strong> <span id="modalCampus"></span></p>
-                    <p><strong>PWD:</strong> <span id="modalPWD"></span></p>
-                    <p><strong>Blood Group:</strong> <span id="modalBloodGroup"></span></p>
-                </div>
-                <!-- Right Column -->
-                <div>
-                    <h3 class="text-lg font-semibold mb-2">Academic Information</h3>
-                    <p><strong>Branch:</strong> <span id="modalBranch"></span></p>
-                    <p><strong>Batch:</strong> <span id="modalBatch"></span></p>
-                    <p><strong>Degree:</strong> <span id="modalDegree"></span></p>
-                    <p><strong>CGPA 10th:</strong> <span id="modalCGPA10th"></span></p>
-                    <p><strong>CGPA 12th:</strong> <span id="modalCGPA12th"></span></p>
-                    <p><strong>CGPA:</strong> <span id="modalCGPA"></span></p>
-                    <p><strong>CGPA Before Drop:</strong> <span id="modalCGPABeforeDrop"></span></p>
-                    <p><strong>Graduation GPA:</strong> <span id="modalGraduationGPA"></span></p>
-                    <p><strong>Backlogs:</strong> <span id="modalBacklogs"></span></p>
-                    <h3 class="text-lg font-semibold mt-4 mb-2">Semester GPA Graph</h3>
-                    <canvas id="gpaChart" height="150"></canvas>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">CGPA Distribution (Year-wise)</h3>
+                        <canvas id="cgpaDistributionChart"></canvas>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">Highest CGPA (Year-wise)</h3>
+                        <canvas id="highestCgpaChart"></canvas>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-2">Average CGPA (Year-wise)</h3>
+                        <canvas id="averageCgpaChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -284,11 +250,10 @@
         const pageInfo = document.getElementById('pageInfo');
         const totalRecords = document.getElementById('totalRecords');
         const rowsPerPageSelect = document.getElementById('rowsPerPageSelect');
-        const detailsModal = document.getElementById('detailsModal');
-        const closeModalBtn = document.getElementById('closeModal');
         const menuToggle = document.getElementById('menuToggle');
         const navbar = document.getElementById('navbar');
         const mainContent = document.getElementById('mainContent');
+        const graphsSection = document.getElementById('graphsSection');
 
         let students = [];
         let filteredStudents = [];
@@ -320,7 +285,7 @@
         };
         const genderColors = {
             'Male': '#bfdbfe',
-            'Female': '#f9a8d4', // More distinct pink
+            'Female': '#f9a8d4',
             'Other': '#d1fae5'
         };
 
@@ -374,6 +339,12 @@
                     button.style.color = '#fff';
                     selectedBranch = branch === 'Cumulative' ? '' : branch;
                     filterStudents();
+                    if (selectedBranch) {
+                        displayBranchGraphs(selectedBranch);
+                        graphsSection.classList.remove('hidden');
+                    } else {
+                        graphsSection.classList.add('hidden');
+                    }
                 });
                 branchFilterButtons.appendChild(button);
             });
@@ -403,20 +374,12 @@
                     <td>${student.contact_number || '-'}</td>
                     <td>${student.present_address || '-'}</td>
                     <td>${student.category || '-'}</td>
-                    <td>${student.campus || '-'}</td>
+                    <td>${student.cgpa || '-'}</td>
                     <td>
-                        <button class="view-profile-btn p-1 bg-blue-100 text-blue-600 rounded text-xs" data-student='${JSON.stringify(student)}'>View Profile</button>
+                        <a href="student-profile.html?data=${encodeURIComponent(JSON.stringify(student))}" target="_blank" class="p-1 bg-blue-100 text-blue-600 rounded text-xs">View Profile</a>
                     </td>
                 `;
                 studentTableBody.appendChild(row);
-            });
-
-            // Add event listeners to View Profile buttons
-            document.querySelectorAll('.view-profile-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    const student = JSON.parse(button.getAttribute('data-student'));
-                    showDetails(student);
-                });
             });
 
             // Update pagination info
@@ -428,82 +391,142 @@
             nextPageBtn.disabled = (currentPage === totalPages || totalPages === 0 || rowsPerPage === 'all');
         }
 
-        // Show student profile in modal
-        function showDetails(student) {
-            document.getElementById('modalStudentName').textContent = student.Name || '-';
-            document.getElementById('modalStudentHandle').textContent = `@${student.rollNumber || '-'}`;
-            document.getElementById('modalRollNumber').textContent = student.rollNumber || '-';
-            document.getElementById('modalEmail').textContent = student.email || '-';
-            document.getElementById('modalPersonalEmail').textContent = student.personal_email || '-';
-            document.getElementById('modalGender').textContent = student.gender || '-';
-            document.getElementById('modalDOB').textContent = student.dob || '-';
-            document.getElementById('modalContactNumber').textContent = student.contact_number || '-';
-            document.getElementById('modalAltContactNumber').textContent = student.alt_contact_number || '-';
-            document.getElementById('modalPresentAddress').textContent = student.present_address || '-';
-            document.getElementById('modalPermAddress').textContent = student.perm_address || '-';
-            document.getElementById('modalCategory').textContent = student.category || '-';
-            document.getElementById('modalCampus').textContent = student.campus || '-';
-            document.getElementById('modalPWD').textContent = student.pwd || '-';
-            document.getElementById('modalBloodGroup').textContent = student.blood_group || '-';
-            document.getElementById('modalBranch').textContent = student.branch || '-';
-            document.getElementById('modalBatch').textContent = student.batch || '-';
-            document.getElementById('modalDegree').textContent = student.degree || '-';
-            document.getElementById('modalCGPA10th').textContent = student.cgpa_10th || '-';
-            document.getElementById('modalCGPA12th').textContent = student.cgpa_12th || '-';
-            document.getElementById('modalCGPA').textContent = student.cgpa || '-';
-            document.getElementById('modalCGPABeforeDrop').textContent = student.cgpa_before_drop || '-';
-            document.getElementById('modalGraduationGPA').textContent = student.graduation_gpa || '-';
-            document.getElementById('modalBacklogs').textContent = student.backlogs || '-';
+        // Display branch-specific graphs
+        function displayBranchGraphs(branch) {
+            const branchStudents = students.filter(student => student.branch === branch);
+            const batches = [...new Set(branchStudents.map(student => student.batch))].filter(Boolean).sort();
 
-            // GPA Graph
-            const ctx = document.getElementById('gpaChart').getContext('2d');
-            if (window.gpaChart) window.gpaChart.destroy();
-            window.gpaChart = new Chart(ctx, {
-                type: 'line',
+            // Gender Ratio (Pie Chart per Batch)
+            const genderData = batches.map(batch => {
+                const batchStudents = branchStudents.filter(student => student.batch === batch);
+                const males = batchStudents.filter(student => student.gender === 'Male').length;
+                const females = batchStudents.filter(student => student.gender === 'Female').length;
+                const others = batchStudents.filter(student => student.gender === 'Other').length;
+                return { batch, males, females, others };
+            });
+
+            const genderCtx = document.getElementById('genderRatioChart').getContext('2d');
+            if (window.genderChart) window.genderChart.destroy();
+            window.genderChart = new Chart(genderCtx, {
+                type: 'bar',
                 data: {
-                    labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6'],
-                    datasets: [{
-                        label: 'GPA',
-                        data: [
-                            parseFloat(student.sem1_gpa) || 0,
-                            parseFloat(student.sem2_gpa) || 0,
-                            parseFloat(student.sem3_gpa) || 0,
-                            parseFloat(student.sem4_gpa) || 0,
-                            parseFloat(student.sem5_gpa) || 0,
-                            parseFloat(student.sem6_gpa) || 0
-                        ],
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                        fill: true,
-                        tension: 0.3
-                    }]
+                    labels: batches,
+                    datasets: [
+                        {
+                            label: 'Male',
+                            data: genderData.map(data => data.males),
+                            backgroundColor: genderColors['Male']
+                        },
+                        {
+                            label: 'Female',
+                            data: genderData.map(data => data.females),
+                            backgroundColor: genderColors['Female']
+                        },
+                        {
+                            label: 'Other',
+                            data: genderData.map(data => data.others),
+                            backgroundColor: genderColors['Other']
+                        }
+                    ]
                 },
                 options: {
                     scales: {
-                        y: { beginAtZero: true, max: 10 }
+                        x: { title: { display: true, text: 'Batch Year' } },
+                        y: { title: { display: true, text: 'Count' }, beginAtZero: true }
                     }
                 }
             });
 
-            detailsModal.style.display = 'flex';
+            // CGPA Distribution (Box Plot approximated with Bar Chart per Batch)
+            const cgpaData = batches.map(batch => {
+                const batchStudents = branchStudents.filter(student => student.batch === batch);
+                const cgpas = batchStudents.map(student => parseFloat(student.cgpa)).filter(val => !isNaN(val));
+                return { batch, cgpas };
+            });
+
+            const cgpaCtx = document.getElementById('cgpaDistributionChart').getContext('2d');
+            if (window.cgpaChart) window.cgpaChart.destroy();
+            window.cgpaChart = new Chart(cgpaCtx, {
+                type: 'bar',
+                data: {
+                    labels: batches,
+                    datasets: [{
+                        label: 'CGPA (Average)',
+                        data: cgpaData.map(data => {
+                            const avg = data.cgpas.length ? data.cgpas.reduce((a, b) => a + b, 0) / data.cgpas.length : 0;
+                            return avg.toFixed(2);
+                        }),
+                        backgroundColor: '#93c5fd'
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { title: { display: true, text: 'Batch Year' } },
+                        y: { title: { display: true, text: 'CGPA' }, beginAtZero: true, max: 10 }
+                    }
+                }
+            });
+
+            // Highest CGPA (Line Chart per Batch)
+            const highestCgpaData = batches.map(batch => {
+                const batchStudents = branchStudents.filter(student => student.batch === batch);
+                const cgpas = batchStudents.map(student => parseFloat(student.cgpa)).filter(val => !isNaN(val));
+                const highest = cgpas.length ? Math.max(...cgpas) : 0;
+                return highest;
+            });
+
+            const highestCgpaCtx = document.getElementById('highestCgpaChart').getContext('2d');
+            if (window.highestCgpaChart) window.highestCgpaChart.destroy();
+            window.highestCgpaChart = new Chart(highestCgpaCtx, {
+                type: 'line',
+                data: {
+                    labels: batches,
+                    datasets: [{
+                        label: 'Highest CGPA',
+                        data: highestCgpaData,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { title: { display: true, text: 'Batch Year' } },
+                        y: { title: { display: true, text: 'CGPA' }, beginAtZero: true, max: 10 }
+                    }
+                }
+            });
+
+            // Average CGPA (Line Chart per Batch)
+            const averageCgpaData = batches.map(batch => {
+                const batchStudents = branchStudents.filter(student => student.batch === batch);
+                const cgpas = batchStudents.map(student => parseFloat(student.cgpa)).filter(val => !isNaN(val));
+                const avg = cgpas.length ? cgpas.reduce((a, b) => a + b, 0) / cgpas.length : 0;
+                return avg.toFixed(2);
+            });
+
+            const averageCgpaCtx = document.getElementById('averageCgpaChart').getContext('2d');
+            if (window.averageCgpaChart) window.averageCgpaChart.destroy();
+            window.averageCgpaChart = new Chart(averageCgpaCtx, {
+                type: 'line',
+                data: {
+                    labels: batches,
+                    datasets: [{
+                        label: 'Average CGPA',
+                        data: averageCgpaData,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { title: { display: true, text: 'Batch Year' } },
+                        y: { title: { display: true, text: 'CGPA' }, beginAtZero: true, max: 10 }
+                    }
+                }
+            });
         }
-
-        // Close modal
-        closeModalBtn.addEventListener('click', () => {
-            detailsModal.style.display = 'none';
-        });
-
-        // Toggle navbar on mobile
-        menuToggle.addEventListener('click', () => {
-            navbar.classList.toggle('hidden');
-        });
-
-        // Close navbar when clicking outside on mobile
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth < 768 && !navbar.contains(e.target) && !menuToggle.contains(e.target)) {
-                navbar.classList.add('hidden');
-            }
-        });
 
         // Filter and search logic
         function filterStudents() {
@@ -552,6 +575,18 @@
             rowsPerPage = rowsPerPageSelect.value === 'all' ? 'all' : parseInt(rowsPerPageSelect.value);
             currentPage = 1;
             displayStudents();
+        });
+
+        // Toggle navbar on mobile
+        menuToggle.addEventListener('click', () => {
+            navbar.classList.toggle('hidden');
+        });
+
+        // Close navbar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth < 768 && !navbar.contains(e.target) && !menuToggle.contains(e.target)) {
+                navbar.classList.add('hidden');
+            }
         });
     </script>
 </body>
