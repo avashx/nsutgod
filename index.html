@@ -6,7 +6,6 @@
     <title>Student Data Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -67,16 +66,6 @@
             border-color: #4b5563;
             color: #fff;
         }
-        .analyze-button {
-            padding: 4px 8px;
-            margin: 2px;
-            background-color: #3b82f6;
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
-        }
         .tag {
             padding: 2px 6px;
             border-radius: 4px;
@@ -106,30 +95,55 @@
         .modern-select:hover {
             border-color: #9ca3af;
         }
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        .dropdown-content {
-            display: none;
+        .column-options {
             position: absolute;
-            background-color: #fff;
-            min-width: 160px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-            z-index: 1;
-            border-radius: 4px;
+            top: 0;
             right: 0;
+            padding: 2px;
         }
-        .dropdown-content div, .dropdown-content input {
-            padding: 8px 12px;
-            cursor: pointer;
-            font-size: 14px;
+        .dropdown {
+            position: absolute;
+            top: 20px;
+            right: 0;
+            background-color: #fff;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            display: none;
         }
-        .dropdown-content div:hover {
-            background-color: #f5f5f5;
-        }
-        .dropdown:hover .dropdown-content {
+        .dropdown.show {
             display: block;
+        }
+        .dropdown-item {
+            padding: 8px 12px;
+            font-size: 14px;
+            color: #374151;
+            cursor: pointer;
+        }
+        .dropdown-item:hover {
+            background-color: #f3f4f6;
+        }
+        .filter-modal {
+            position: absolute;
+            top: 20px;
+            right: 0;
+            background-color: #fff;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            display: none;
+            padding: 12px;
+            width: 200px;
+        }
+        .filter-modal.show {
+            display: block;
+        }
+        .nav-item.active {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            font-weight: 500;
         }
         @media (max-width: 768px) {
             .navbar {
@@ -165,31 +179,32 @@
             <h2 class="text-xl font-bold text-gray-800">NSUTGod</h2>
         </div>
         <ul class="space-y-2">
-            <li class="flex items-center text-gray-600">
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="overview">
                 <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 Overview
             </li>
-            <li class="flex items-center text-gray-600">
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="student-profile">
                 <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 Student Profile
             </li>
-            <li class="flex items-center text-gray-600">
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="analytics">
                 <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10"/></svg>
                 Analytics
             </li>
-            <li class="flex items-center text-gray-600">
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="placement">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                Placement
+            </li>
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="notifications">
                 <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
                 Notifications
                 <span class="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded">2</span>
             </li>
-            <li class="flex items-center text-gray-600">
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                Placement
-            </li>
         </ul>
     </div>
 
-    <div id="mainContent" class="md:ml-56 p-8 main-content">
+    <!-- Overview Page -->
+    <div id="overviewPage" class="md:ml-56 p-8 main-content page-content">
         <div class="max-w-6xl mx-auto">
             <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <h1 class="text-2xl font-bold text-gray-800">Student Data - <span class="text-green-600" id="totalRecords"></span></h1>
@@ -203,37 +218,14 @@
                 </div>
             </div>
 
-            <!-- Column Customization -->
-            <div class="mb-4">
-                <button id="customizeColumnsBtn" class="p-2 bg-blue-500 text-white rounded-lg text-sm">Customize Columns</button>
-                <div id="columnsDropdown" class="hidden mt-2 bg-white border rounded-lg shadow-lg p-4 max-h-64 overflow-y-auto">
-                    <!-- Column checkboxes will be populated here -->
-                </div>
-            </div>
-
             <!-- Branch Filter Buttons -->
             <div class="flex flex-wrap gap-1 mb-4 overflow-x-auto" id="branchFilterButtons"></div>
 
-            <!-- Graphs Section -->
-            <div id="graphsSection" class="mt-8 hidden">
-                <h2 class="text-xl font-bold mb-4">Branch Analytics</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <h3 class="text-lg font-semibold mb-2">Gender Ratio (Year-wise)</h3>
-                        <canvas id="genderRatioChart"></canvas>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-semibold mb-2">CGPA Distribution (Year-wise)</h3>
-                        <canvas id="cgpaDistributionChart"></canvas>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-semibold mb-2">Highest CGPA (Year-wise)</h3>
-                        <canvas id="highestCgpaChart"></canvas>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-semibold mb-2">Average CGPA (Year-wise)</h3>
-                        <canvas id="averageCgpaChart"></canvas>
-                    </div>
+            <!-- Column Customization -->
+            <div class="mb-4">
+                <button id="customizeColumnsBtn" class="p-2 bg-gray-100 rounded-lg text-sm text-gray-600">Customize Columns</button>
+                <div id="columnsDropdown" class="dropdown hidden">
+                    <!-- Column options will be populated dynamically -->
                 </div>
             </div>
 
@@ -244,16 +236,211 @@
                 </select>
                 <select id="genderFilter" class="modern-select w-full md:w-auto">
                     <option value="">Filter by Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
                 </select>
             </div>
 
             <!-- Table -->
             <div class="bg-white rounded-lg shadow-sm table-container">
-                <table class="min-w-full">
-                    <thead id="tableHeader"></thead>
+                <table class="min-w-full" id="studentTable">
+                    <thead id="tableHeader">
+                        <tr>
+                            <th data-key="serialNo">Serial No
+                                <div class="column-options">
+                                    <button class="options-btn p-1">
+                                        <svg class="h-4 w-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+                                    </button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="rollNumber">Roll Number
+                                <div class="column-options">
+                                    <button class="options-btn p-1">
+                                        <svg class="h-4 w-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+                                    </button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="name">Name
+                                <div class="column-options">
+                                    <button class="options-btn p-1">
+                                        <svg class="h-4 w-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+                                    </button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="branch">Branch
+                                <div class="column-options">
+                                    <button class="options-btn p-1">
+                                        <svg class="h-4 w-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+                                    </button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="email">Email
+                                <div class="column-options">
+                                    <button class="options-btn p-1">
+                                        <svg class="h-4 w-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+                                    </button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="gender">Gender
+                                <div class="column-options">
+                                    <button class="options-btn p-1">
+                                        <svg class="h-4 w-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+                                    </button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="dob">DOB
+                                <div class="column-options">
+                                    <button class="options-btn p-1">
+                                        <svg class="h-4 w-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+                                    </button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="contactNumber">Contact Number
+                                <div class="column-options">
+                                    <button class="options-btn p-1">
+                                        <svg class="h-4 w-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+                                    </button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="presentAddress">Present Address
+                                <div class="column-options">
+                                    <button class="options-btn p-1">
+                                        <svg class="h-4 w-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+                                    </button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="category">Category
+                                <div class="column-options">
+                                    <button class="options-btn p-1">
+                                        <svg class="h-4 w-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+                                    </button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="cgpa">CGPA
+                                <div class="column-options">
+                                    <button class="options-btn p-1">
+                                        <svg class="h-4 w-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+                                    </button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="viewProfile">View Profile
+                                <div class="column-options">
+                                    <button class="options-btn p-1">
+                                        <svg class="h-4 w-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/></svg>
+                                    </button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
                     <tbody id="studentTableBody"></tbody>
                 </table>
             </div>
@@ -278,9 +465,40 @@
         </div>
     </div>
 
+    <!-- Student Profile Page (Placeholder) -->
+    <div id="studentProfilePage" class="md:ml-56 p-8 main-content page-content hidden">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">Student Profile</h1>
+            <p class="text-gray-600">This section will allow viewing individual student profiles. (Placeholder)</p>
+        </div>
+    </div>
+
+    <!-- Analytics Page (Placeholder) -->
+    <div id="analyticsPage" class="md:ml-56 p-8 main-content page-content hidden">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">Analytics</h1>
+            <p class="text-gray-600">This section will display analytics graphs. See <a href="analytics.html" class="text-blue-600 underline">analytics.html</a> for details.</p>
+        </div>
+    </div>
+
+    <!-- Placement Page (Placeholder) -->
+    <div id="placementPage" class="md:ml-56 p-8 main-content page-content hidden">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">Placement</h1>
+            <p class="text-gray-600">This section will display placement statistics. See <a href="placement.html" class="text-blue-600 underline">placement.html</a> for details.</p>
+        </div>
+    </div>
+
+    <!-- Notifications Page (Placeholder) -->
+    <div id="notificationsPage" class="md:ml-56 p-8 main-content page-content hidden">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">Notifications</h1>
+            <p class="text-gray-600">This section will display notifications. (Placeholder)</p>
+        </div>
+    </div>
+
     <script>
         const studentTableBody = document.getElementById('studentTableBody');
-        const tableHeader = document.getElementById('tableHeader');
         const searchInput = document.getElementById('searchInput');
         const branchFilterButtons = document.getElementById('branchFilterButtons');
         const batchFilter = document.getElementById('batchFilter');
@@ -292,28 +510,17 @@
         const rowsPerPageSelect = document.getElementById('rowsPerPageSelect');
         const menuToggle = document.getElementById('menuToggle');
         const navbar = document.getElementById('navbar');
-        const mainContent = document.getElementById('mainContent');
-        const graphsSection = document.getElementById('graphsSection');
         const customizeColumnsBtn = document.getElementById('customizeColumnsBtn');
         const columnsDropdown = document.getElementById('columnsDropdown');
+        const tableHeader = document.getElementById('tableHeader');
 
         let students = [];
         let filteredStudents = [];
         let currentPage = 1;
         let rowsPerPage = parseInt(rowsPerPageSelect.value);
         let selectedBranch = '';
-        let sortColumn = null;
-        let sortDirection = 'asc';
+        let visibleColumns = ['serialNo', 'rollNumber', 'name', 'branch', 'email', 'gender', 'dob', 'contactNumber', 'presentAddress', 'category', 'cgpa', 'viewProfile'];
         let columnFilters = {};
-        let visibleColumns = [
-            'Serial No', 'Roll Number', 'Name', 'Branch', 'Email', 'Gender',
-            'DOB', 'Contact Number', 'Present Address', 'Category', 'CGPA', 'View Profile'
-        ];
-        const allColumns = [
-            'Serial No', 'Roll Number', 'Name', 'Branch', 'Email', 'Gender',
-            'DOB', 'Contact Number', 'Present Address', 'Permanent Address',
-            'Category', 'CGPA', 'Campus', 'PWD', 'Blood Group', 'View Profile'
-        ];
 
         // Branch and Gender color mapping
         const branchColors = {
@@ -349,7 +556,7 @@
             const value = parseFloat(cgpa);
             if (value < 4) return 'rgb(255, 0, 0)';
             if (value > 9) return 'rgb(0, 255, 0)';
-            const ratio = (value - 4) / (9 - 4);
+            const ratio = (value - 4) / (9 - 4); // Normalize between 4 and 9
             const red = Math.round(255 * (1 - ratio));
             const green = Math.round(255 * ratio);
             return `rgb(${red}, ${green}, 0)`;
@@ -360,15 +567,17 @@
             download: true,
             header: true,
             complete: function(results) {
-                students = results.data;
+                students = results.data.map(student => ({
+                    ...student,
+                    gender: student.gender ? student.gender.toLowerCase() : ''
+                }));
                 filteredStudents = [...students];
                 totalRecords.textContent = `${students.length} Students`;
 
                 // Populate filter options
                 populateFilters();
                 populateBranchButtons();
-                populateColumnsDropdown();
-                renderTableHeader();
+                populateColumnOptions();
                 displayStudents();
             },
             error: function(error) {
@@ -392,98 +601,62 @@
         function populateBranchButtons() {
             const branches = ['Cumulative', ...new Set(students.map(student => student.branch))].filter(Boolean);
             branches.forEach(branch => {
-                const container = document.createElement('div');
-                container.className = 'flex items-center gap-1';
-
-                const filterButton = document.createElement('button');
-                filterButton.className = 'branch-button';
-                filterButton.textContent = branch;
-                filterButton.style.backgroundColor = branchColors[branch] || '#f3f4f6';
-                filterButton.addEventListener('click', () => {
+                const button = document.createElement('button');
+                button.className = 'branch-button';
+                button.textContent = branch;
+                button.style.backgroundColor = branchColors[branch] || '#f3f4f6';
+                button.addEventListener('click', () => {
                     document.querySelectorAll('.branch-button').forEach(btn => {
                         btn.classList.remove('active');
                         btn.style.backgroundColor = branchColors[btn.textContent] || '#f3f4f6';
                         btn.style.color = '#000';
                     });
-                    filterButton.classList.add('active');
-                    filterButton.style.color = '#fff';
+                    button.classList.add('active');
+                    button.style.color = '#fff';
                     selectedBranch = branch === 'Cumulative' ? '' : branch;
                     filterStudents();
                 });
-
-                const analyzeButton = document.createElement('button');
-                analyzeButton.className = 'analyze-button';
-                analyzeButton.textContent = 'Analyze';
-                analyzeButton.addEventListener('click', () => {
-                    if (branch === 'Cumulative') return;
-                    displayBranchGraphs(branch);
-                    graphsSection.classList.remove('hidden');
-                    graphsSection.scrollIntoView({ behavior: 'smooth' });
-                });
-
-                container.appendChild(filterButton);
-                container.appendChild(analyzeButton);
-                branchFilterButtons.appendChild(container);
+                branchFilterButtons.appendChild(button);
             });
-            // Set Cumulative as default
-            branchFilterButtons.children[0].children[0].classList.add('active');
-            branchFilterButtons.children[0].children[0].style.color = '#fff';
+            branchFilterButtons.children[0].classList.add('active');
+            branchFilterButtons.children[0].style.color = '#fff';
         }
 
-        // Populate columns dropdown
-        function populateColumnsDropdown() {
+        // Populate column customization options
+        function populateColumnOptions() {
             columnsDropdown.innerHTML = '';
+            const allColumns = [
+                { key: 'serialNo', label: 'Serial No' },
+                { key: 'rollNumber', label: 'Roll Number' },
+                { key: 'name', label: 'Name' },
+                { key: 'branch', label: 'Branch' },
+                { key: 'email', label: 'Email' },
+                { key: 'gender', label: 'Gender' },
+                { key: 'dob', label: 'DOB' },
+                { key: 'contactNumber', label: 'Contact Number' },
+                { key: 'presentAddress', label: 'Present Address' },
+                { key: 'category', label: 'Category' },
+                { key: 'cgpa', label: 'CGPA' },
+                { key: 'viewProfile', label: 'View Profile' }
+            ];
+
             allColumns.forEach(column => {
-                if (column === 'View Profile') return; // Always visible
                 const div = document.createElement('div');
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.checked = visibleColumns.includes(column);
-                checkbox.addEventListener('change', () => {
-                    if (checkbox.checked) {
-                        if (!visibleColumns.includes(column)) {
-                            visibleColumns.push(column);
-                        }
+                div.className = 'dropdown-item';
+                div.innerHTML = `
+                    <input type="checkbox" id="col-${column.key}" ${visibleColumns.includes(column.key) ? 'checked' : ''}>
+                    <label for="col-${column.key}">${column.label}</label>
+                `;
+                div.querySelector('input').addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        visibleColumns.push(column.key);
                     } else {
-                        visibleColumns = visibleColumns.filter(col => col !== column);
+                        visibleColumns = visibleColumns.filter(col => col !== column.key);
                     }
-                    renderTableHeader();
                     displayStudents();
                 });
-                const label = document.createElement('label');
-                label.textContent = column;
-                label.className = 'ml-2';
-                div.appendChild(checkbox);
-                div.appendChild(label);
                 columnsDropdown.appendChild(div);
             });
-        }
-
-        // Toggle columns dropdown
-        customizeColumnsBtn.addEventListener('click', () => {
-            columnsDropdown.classList.toggle('hidden');
-        });
-
-        // Render table header with sorting and filtering
-        function renderTableHeader() {
-            const tr = document.createElement('tr');
-            visibleColumns.forEach(column => {
-                const th = document.createElement('th');
-                const dropdown = document.createElement('div');
-                dropdown.className = 'dropdown';
-                dropdown.innerHTML = `
-                    <span>${column}</span>
-                    <div class="dropdown-content">
-                        <div onclick="sortTable('${column}', 'asc')">Sort Ascending</div>
-                        <div onclick="sortTable('${column}', 'desc')">Sort Descending</div>
-                        <input type="text" placeholder="Filter ${column}" oninput="applyColumnFilter('${column}', this.value)" />
-                    </div>
-                `;
-                th.appendChild(dropdown);
-                tr.appendChild(th);
-            });
-            tableHeader.innerHTML = '';
-            tableHeader.appendChild(tr);
         }
 
         // Display students in the table
@@ -497,63 +670,52 @@
                 const serialNo = start + index + 1;
                 const row = document.createElement('tr');
                 let cells = '';
-                visibleColumns.forEach(column => {
-                    let cellContent = '';
-                    switch (column) {
-                        case 'Serial No':
-                            cellContent = serialNo;
-                            break;
-                        case 'Roll Number':
-                            cellContent = student.rollNumber || '-';
-                            break;
-                        case 'Name':
-                            cellContent = student.Name || '-';
-                            break;
-                        case 'Branch':
-                            cellContent = `<span class="tag" style="background-color: ${branchColors[student.branch] || '#e5e7eb'}">${student.branch || '-'}</span>`;
-                            break;
-                        case 'Email':
-                            cellContent = student.email || '-';
-                            break;
-                        case 'Gender':
-                            const genderLower = (student.gender || '').toLowerCase();
-                            cellContent = `<span class="tag" style="background-color: ${genderColors[genderLower] || '#e5e7eb'}">${student.gender || '-'}</span>`;
-                            break;
-                        case 'DOB':
-                            cellContent = student.dob || '-';
-                            break;
-                        case 'Contact Number':
-                            cellContent = student.contact_number || '-';
-                            break;
-                        case 'Present Address':
-                            cellContent = student.present_address || '-';
-                            break;
-                        case 'Permanent Address':
-                            cellContent = student.perm_address || '-';
-                            break;
-                        case 'Category':
-                            cellContent = student.category || '-';
-                            break;
-                        case 'CGPA':
-                            cellContent = `<span class="tag" style="background-color: ${getCgpaColor(student.cgpa)}">${student.cgpa || '-'}</span>`;
-                            break;
-                        case 'Campus':
-                            cellContent = student.campus || '-';
-                            break;
-                        case 'PWD':
-                            cellContent = student.pwd || '-';
-                            break;
-                        case 'Blood Group':
-                            cellContent = student.blood_group || '-';
-                            break;
-                        case 'View Profile':
-                            cellContent = `<a href="student-profile.html?data=${encodeURIComponent(JSON.stringify(student))}" target="_blank" class="p-1 bg-blue-100 text-blue-600 rounded text-xs">View Profile</a>`;
-                            break;
-                    }
-                    cells += `<td>${cellContent}</td>`;
-                });
+
+                if (visibleColumns.includes('serialNo')) {
+                    cells += `<td>${serialNo}</td>`;
+                }
+                if (visibleColumns.includes('rollNumber')) {
+                    cells += `<td>${student.rollNumber || '-'}</td>`;
+                }
+                if (visibleColumns.includes('name')) {
+                    cells += `<td>${student.Name || '-'}</td>`;
+                }
+                if (visibleColumns.includes('branch')) {
+                    cells += `<td><span class="tag" style="background-color: ${branchColors[student.branch] || '#e5e7eb'}">${student.branch || '-'}</span></td>`;
+                }
+                if (visibleColumns.includes('email')) {
+                    cells += `<td>${student.email || '-'}</td>`;
+                }
+                if (visibleColumns.includes('gender')) {
+                    cells += `<td><span class="tag" style="background-color: ${genderColors[student.gender] || '#e5e7eb'}">${student.gender || '-'}</span></td>`;
+                }
+                if (visibleColumns.includes('dob')) {
+                    cells += `<td>${student.dob || '-'}</td>`;
+                }
+                if (visibleColumns.includes('contactNumber')) {
+                    cells += `<td>${student.contact_number || '-'}</td>`;
+                }
+                if (visibleColumns.includes('presentAddress')) {
+                    cells += `<td>${student.present_address || '-'}</td>`;
+                }
+                if (visibleColumns.includes('category')) {
+                    cells += `<td>${student.category || '-'}</td>`;
+                }
+                if (visibleColumns.includes('cgpa')) {
+                    cells += `<td><span class="tag" style="background-color: ${getCgpaColor(student.cgpa)}">${student.cgpa || '-'}</span></td>`;
+                }
+                if (visibleColumns.includes('viewProfile')) {
+                    cells += `<td><a href="student-profile.html?data=${encodeURIComponent(JSON.stringify(student))}" target="_blank" class="p-1 bg-blue-100 text-blue-600 rounded text-xs">View Profile</a></td>`;
+                }
+
                 row.innerHTML = cells;
                 studentTableBody.appendChild(row);
+            });
+
+            // Update table header visibility
+            document.querySelectorAll('#tableHeader th').forEach(th => {
+                const key = th.getAttribute('data-key');
+                th.style.display = visibleColumns.includes(key) ? '' : 'none';
             });
 
             // Update pagination info
@@ -565,131 +727,6 @@
             nextPageBtn.disabled = (currentPage === totalPages || totalPages === 0 || rowsPerPage === 'all');
         }
 
-        // Display branch-specific graphs
-        function displayBranchGraphs(branch) {
-            const branchStudents = students.filter(student => student.branch === branch);
-            const batches = [...new Set(branchStudents.map(student => student.batch))].filter(Boolean).sort();
-
-            // Gender Ratio (Bar Chart per Batch)
-            const genderData = batches.map(batch => {
-                const batchStudents = branchStudents.filter(student => student.batch === batch);
-                const males = batchStudents.filter(student => (student.gender || '').toLowerCase() === 'male').length;
-                const females = batchStudents.filter(student => (student.gender || '').toLowerCase() === 'female').length;
-                const others = batchStudents.filter(student => (student.gender || '').toLowerCase() === 'other').length;
-                return { batch, males, females, others };
-            });
-
-            const genderCtx = document.getElementById('genderRatioChart').getContext('2d');
-            if (window.genderChart) window.genderChart.destroy();
-            window.genderChart = new Chart(genderCtx, {
-                type: 'bar',
-                data: {
-                    labels: batches,
-                    datasets: [
-                        { label: 'Male', data: genderData.map(data => data.males), backgroundColor: genderColors['male'] },
-                        { label: 'Female', data: genderData.map(data => data.females), backgroundColor: genderColors['female'] },
-                        { label: 'Other', data: genderData.map(data => data.others), backgroundColor: genderColors['other'] }
-                    ]
-                },
-                options: {
-                    scales: {
-                        x: { title: { display: true, text: 'Batch Year' } },
-                        y: { title: { display: true, text: 'Count' }, beginAtZero: true }
-                    }
-                }
-            });
-
-            // CGPA Distribution (Bar Chart per Batch)
-            const cgpaData = batches.map(batch => {
-                const batchStudents = branchStudents.filter(student => student.batch === batch);
-                const cgpas = batchStudents.map(student => parseFloat(student.cgpa)).filter(val => !isNaN(val));
-                return { batch, cgpas };
-            });
-
-            const cgpaCtx = document.getElementById('cgpaDistributionChart').getContext('2d');
-            if (window.cgpaChart) window.cgpaChart.destroy();
-            window.cgpaChart = new Chart(cgpaCtx, {
-                type: 'bar',
-                data: {
-                    labels: batches,
-                    datasets: [{
-                        label: 'CGPA (Average)',
-                        data: cgpaData.map(data => {
-                            const avg = data.cgpas.length ? data.cgpas.reduce((a, b) => a + b, 0) / data.cgpas.length : 0;
-                            return avg.toFixed(2);
-                        }),
-                        backgroundColor: '#93c5fd'
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: { title: { display: true, text: 'Batch Year' } },
-                        y: { title: { display: true, text: 'CGPA' }, beginAtZero: true, max: 10 }
-                    }
-                }
-            });
-
-            // Highest CGPA (Line Chart per Batch)
-            const highestCgpaData = batches.map(batch => {
-                const batchStudents = branchStudents.filter(student => student.batch === batch);
-                const cgpas = batchStudents.map(student => parseFloat(student.cgpa)).filter(val => !isNaN(val));
-                const highest = cgpas.length ? Math.max(...cgpas) : 0;
-                return highest;
-            });
-
-            const highestCgpaCtx = document.getElementById('highestCgpaChart').getContext('2d');
-            if (window.highestCgpaChart) window.highestCgpaChart.destroy();
-            window.highestCgpaChart = new Chart(highestCgpaCtx, {
-                type: 'line',
-                data: {
-                    labels: batches,
-                    datasets: [{
-                        label: 'Highest CGPA',
-                        data: highestCgpaData,
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                        fill: true
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: { title: { display: true, text: 'Batch Year' } },
-                        y: { title: { display: true, text: 'CGPA' }, beginAtZero: true, max: 10 }
-                    }
-                }
-            });
-
-            // Average CGPA (Line Chart per Batch)
-            const averageCgpaData = batches.map(batch => {
-                const batchStudents = branchStudents.filter(student => student.batch === batch);
-                const cgpas = batchStudents.map(student => parseFloat(student.cgpa)).filter(val => !isNaN(val));
-                const avg = cgpas.length ? cgpas.reduce((a, b) => a + b, 0) / cgpas.length : 0;
-                return avg.toFixed(2);
-            });
-
-            const averageCgpaCtx = document.getElementById('averageCgpaChart').getContext('2d');
-            if (window.averageCgpaChart) window.averageCgpaChart.destroy();
-            window.averageCgpaChart = new Chart(averageCgpaCtx, {
-                type: 'line',
-                data: {
-                    labels: batches,
-                    datasets: [{
-                        label: 'Average CGPA',
-                        data: averageCgpaData,
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                        fill: true
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: { title: { display: true, text: 'Batch Year' } },
-                        y: { title: { display: true, text: 'CGPA' }, beginAtZero: true, max: 10 }
-                    }
-                }
-            });
-        }
-
         // Filter and search logic
         function filterStudents() {
             const searchTerm = searchInput.value.toLowerCase();
@@ -697,168 +734,28 @@
             const genderValue = genderFilter.value;
 
             filteredStudents = students.filter(student => {
-                const matchesSearch = Object.values(student).some(value =>
-                    String(value || '').toLowerCase().includes(searchTerm)
+                const matchesSearch = Object.values(student).some(val => 
+                    val && val.toString().toLowerCase().includes(searchTerm)
                 );
                 const matchesBranch = !selectedBranch || student.branch === selectedBranch;
                 const matchesBatch = !batchValue || student.batch === batchValue;
-                const matchesGender = !genderValue || (student.gender || '').toLowerCase() === genderValue.toLowerCase();
-                let matchesFilters = true;
+                const matchesGender = !genderValue || student.gender === genderValue;
 
-                for (const [column, filterValue] of Object.entries(columnFilters)) {
-                    if (!filterValue) continue;
-                    let studentValue;
-                    switch (column) {
-                        case 'Serial No':
-                            studentValue = String(filteredStudents.indexOf(student) + 1);
-                            break;
-                        case 'Roll Number':
-                            studentValue = student.rollNumber || '';
-                            break;
-                        case 'Name':
-                            studentValue = student.Name || '';
-                            break;
-                        case 'Branch':
-                            studentValue = student.branch || '';
-                            break;
-                        case 'Email':
-                            studentValue = student.email || '';
-                            break;
-                        case 'Gender':
-                            studentValue = student.gender || '';
-                            break;
-                        case 'DOB':
-                            studentValue = student.dob || '';
-                            break;
-                        case 'Contact Number':
-                            studentValue = student.contact_number || '';
-                            break;
-                        case 'Present Address':
-                            studentValue = student.present_address || '';
-                            break;
-                        case 'Permanent Address':
-                            studentValue = student.perm_address || '';
-                            break;
-                        case 'Category':
-                            studentValue = student.category || '';
-                            break;
-                        case 'CGPA':
-                            studentValue = student.cgpa || '';
-                            break;
-                        case 'Campus':
-                            studentValue = student.campus || '';
-                            break;
-                        case 'PWD':
-                            studentValue = student.pwd || '';
-                            break;
-                        case 'Blood Group':
-                            studentValue = student.blood_group || '';
-                            break;
-                        default:
-                            studentValue = '';
-                    }
-                    if (!String(studentValue).toLowerCase().includes(filterValue.toLowerCase())) {
-                        matchesFilters = false;
+                let matchesFilters = true;
+                for (const [key, filter] of Object.entries(columnFilters)) {
+                    if (filter && student[key]) {
+                        matchesFilters = matchesFilters && student[key].toString().toLowerCase().includes(filter.toLowerCase());
                     }
                 }
 
                 return matchesSearch && matchesBranch && matchesBatch && matchesGender && matchesFilters;
             });
 
-            if (sortColumn) {
-                filteredStudents.sort((a, b) => {
-                    let aValue, bValue;
-                    switch (sortColumn) {
-                        case 'Serial No':
-                            aValue = filteredStudents.indexOf(a) + 1;
-                            bValue = filteredStudents.indexOf(b) + 1;
-                            break;
-                        case 'Roll Number':
-                            aValue = a.rollNumber || '';
-                            bValue = b.rollNumber || '';
-                            break;
-                        case 'Name':
-                            aValue = a.Name || '';
-                            bValue = b.Name || '';
-                            break;
-                        case 'Branch':
-                            aValue = a.branch || '';
-                            bValue = b.branch || '';
-                            break;
-                        case 'Email':
-                            aValue = a.email || '';
-                            bValue = b.email || '';
-                            break;
-                        case 'Gender':
-                            aValue = a.gender || '';
-                            bValue = b.gender || '';
-                            break;
-                        case 'DOB':
-                            aValue = a.dob || '';
-                            bValue = b.dob || '';
-                            break;
-                        case 'Contact Number':
-                            aValue = a.contact_number || '';
-                            bValue = b.contact_number || '';
-                            break;
-                        case 'Present Address':
-                            aValue = a.present_address || '';
-                            bValue = b.present_address || '';
-                            break;
-                        case 'Permanent Address':
-                            aValue = a.perm_address || '';
-                            bValue = b.perm_address || '';
-                            break;
-                        case 'Category':
-                            aValue = a.category || '';
-                            bValue = b.category || '';
-                            break;
-                        case 'CGPA':
-                            aValue = parseFloat(a.cgpa) || 0;
-                            bValue = parseFloat(b.cgpa) || 0;
-                            break;
-                        case 'Campus':
-                            aValue = a.campus || '';
-                            bValue = b.campus || '';
-                            break;
-                        case 'PWD':
-                            aValue = a.pwd || '';
-                            bValue = b.pwd || '';
-                            break;
-                        case 'Blood Group':
-                            aValue = a.blood_group || '';
-                            bValue = b.blood_group || '';
-                            break;
-                        default:
-                            aValue = '';
-                            bValue = '';
-                    }
-                    if (sortDirection === 'asc') {
-                        return aValue > bValue ? 1 : -1;
-                    } else {
-                        return aValue < bValue ? 1 : -1;
-                    }
-                });
-            }
-
             currentPage = 1;
             displayStudents();
         }
 
-        // Sorting function
-        window.sortTable = function(column, direction) {
-            sortColumn = column;
-            sortDirection = direction;
-            filterStudents();
-        };
-
-        // Column filter function
-        window.applyColumnFilter = function(column, value) {
-            columnFilters[column] = value;
-            filterStudents();
-        };
-
-        // Event listeners
+        // Event listeners for search and filters
         searchInput.addEventListener('input', filterStudents);
         batchFilter.addEventListener('change', filterStudents);
         genderFilter.addEventListener('change', filterStudents);
@@ -895,6 +792,123 @@
                 navbar.classList.add('hidden');
             }
         });
+
+        // Column customization dropdown
+        customizeColumnsBtn.addEventListener('click', () => {
+            columnsDropdown.classList.toggle('show');
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!customizeColumnsBtn.contains(e.target) && !columnsDropdown.contains(e.target)) {
+                columnsDropdown.classList.remove('show');
+            }
+
+            const openDropdown = document.querySelector('.dropdown.show');
+            if (openDropdown && !e.target.closest('.column-options')) {
+                openDropdown.classList.remove('show');
+            }
+
+            const openFilterModal = document.querySelector('.filter-modal.show');
+            if (openFilterModal && !e.target.closest('.filter-modal') && !e.target.closest('.filter-btn')) {
+                openFilterModal.classList.remove('show');
+            }
+        });
+
+        // Column sorting and filtering
+        document.querySelectorAll('.options-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const dropdown = btn.nextElementSibling;
+                document.querySelectorAll('.dropdown').forEach(d => {
+                    if (d !== dropdown) d.classList.remove('show');
+                });
+                dropdown.classList.toggle('show');
+            });
+        });
+
+        document.querySelectorAll('.sort-asc').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const th = e.target.closest('th');
+                const key = th.getAttribute('data-key');
+                filteredStudents.sort((a, b) => {
+                    const valA = a[key] || '';
+                    const valB = b[key] || '';
+                    return valA.toString().localeCompare(valB.toString());
+                });
+                displayStudents();
+                e.target.closest('.dropdown').classList.remove('show');
+            });
+        });
+
+        document.querySelectorAll('.sort-desc').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const th = e.target.closest('th');
+                const key = th.getAttribute('data-key');
+                filteredStudents.sort((a, b) => {
+                    const valA = a[key] || '';
+                    const valB = b[key] || '';
+                    return valB.toString().localeCompare(valA.toString());
+                });
+                displayStudents();
+                e.target.closest('.dropdown').classList.remove('show');
+            });
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const th = e.target.closest('th');
+                const key = th.getAttribute('data-key');
+                const filterModal = th.querySelector('.filter-modal');
+                document.querySelectorAll('.filter-modal').forEach(m => {
+                    if (m !== filterModal) m.classList.remove('show');
+                });
+                filterModal.classList.toggle('show');
+                const input = filterModal.querySelector('.filter-input');
+                input.value = columnFilters[key] || '';
+            });
+        });
+
+        document.querySelectorAll('.apply-filter').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const th = e.target.closest('th');
+                const key = th.getAttribute('data-key');
+                const input = th.querySelector('.filter-input');
+                columnFilters[key] = input.value;
+                filterStudents();
+                e.target.closest('.filter-modal').classList.remove('show');
+            });
+        });
+
+        // Navigation between pages
+        const pages = {
+            'overview': document.getElementById('overviewPage'),
+            'student-profile': document.getElementById('studentProfilePage'),
+            'analytics': document.getElementById('analyticsPage'),
+            'placement': document.getElementById('placementPage'),
+            'notifications': document.getElementById('notificationsPage')
+        };
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const page = item.getAttribute('data-page');
+                if (page === 'analytics') {
+                    window.location.href = 'analytics.html';
+                    return;
+                }
+                if (page === 'placement') {
+                    window.location.href = 'placement.html';
+                    return;
+                }
+                document.querySelectorAll('.page-content').forEach(content => content.classList.add('hidden'));
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                pages[page].classList.remove('hidden');
+                item.classList.add('active');
+            });
+        });
+
+        // Set default page
+        pages['overview'].classList.remove('hidden');
+        document.querySelector('.nav-item[data-page="overview"]').classList.add('active');
     </script>
 </body>
 </html>
