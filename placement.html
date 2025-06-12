@@ -70,6 +70,46 @@
             font-weight: 500;
             color: #4b5563;
         }
+        .company-table th {
+            padding: 4px 8px;
+            text-align: left;
+            border-bottom: 2px solid #e5e7eb;
+            font-size: 13px;
+            font-weight: 500;
+            color: #4b5563;
+            background-color: #fafafa;
+            resize: horizontal;
+            overflow: auto;
+            min-width: 80px;
+            position: relative;
+            cursor: pointer;
+        }
+        .company-table td {
+            padding: 4px 8px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+        }
+        .company-table th:hover {
+            background-color: #f5f5f5;
+        }
+        .company-table-container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-top: 16px;
+        }
+        .tag {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
         @media (max-width: 768px) {
             .navbar {
                 width: 200px;
@@ -92,6 +132,10 @@
                 font-size: 12px;
                 padding: 6px 8px;
             }
+            .company-table th, .company-table td {
+                font-size: 12px;
+                max-width: 100px;
+            }
         }
         @media (max-width: 480px) {
             .navbar {
@@ -110,6 +154,10 @@
             table th, table td {
                 font-size: 11px;
                 padding: 4px 6px;
+            }
+            .company-table th, .company-table td {
+                font-size: 11px;
+                max-width: 80px;
             }
         }
     </style>
@@ -189,6 +237,32 @@
                     <tbody></tbody>
                 </table>
             </div>
+
+            <!-- Company Recruitment Table -->
+            <div class="company-table-container">
+                <h3 class="text-lg font-semibold mb-4">Upcoming Company Recruitment</h3>
+                <div class="bg-white rounded-lg shadow-sm">
+                    <table class="min-w-full company-table" id="companyTable">
+                        <thead id="companyTableHeader">
+                            <tr>
+                                <th data-key="company">Company</th>
+                                <th data-key="dateOfArrival">Date of Arrival</th>
+                                <th data-key="role">Role</th>
+                                <th data-key="ctc">CTC (LPA)</th>
+                                <th data-key="internStipend">Intern Stipend (INR/Month)</th>
+                                <th data-key="ppoFromIntern">PPO from Intern</th>
+                                <th data-key="fteHired2025">FTE Hired 2025</th>
+                                <th data-key="totalOffers">Total Offers</th>
+                                <th data-key="type">Type</th>
+                                <th data-key="category">Category</th>
+                                <th data-key="eligibleBranches">Eligible Branches (B.Tech Only)</th>
+                                <th data-key="cutoffCgpa">Cutoff CGPA</th>
+                            </tr>
+                        </thead>
+                        <tbody id="companyTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -200,7 +274,9 @@
         const branchFilterButtons = document.getElementById('branchFilterButtons');
         const menuToggle = document.getElementById('menuToggle');
         const navbar = document.getElementById('navbar');
+        const companyTableBody = document.getElementById('companyTableBody');
         let students = [];
+        let companies = [];
         let filteredStudents = [];
         let selectedBranch = '';
 
@@ -225,6 +301,35 @@
             'CE': '#fee2e2',
             'BT': '#ffedd5',
             'GI': '#fed7aa'
+        };
+
+        // Role colors
+        const roleColors = {
+            'SDE': '#bfdbfe',
+            'SDE Intern': '#93c5fd',
+            'Data Engineer': '#60a5fa',
+            'Data Engineer Intern': '#3b82f6',
+            'Analyst': '#dbeafe',
+            'Analyst Intern': '#c7d2fe',
+            'Core Engineer': '#fef9c3',
+            'Core Engineer Intern': '#fef3c7',
+            'Consultant': '#ffedd5',
+            'Consultant Intern': '#fed7aa'
+        };
+
+        // Type colors
+        const typeColors = {
+            'Internship': '#f9a8d4',
+            'FTE': '#d1fae5',
+            'Internship + FTE': '#a7f3d0'
+        };
+
+        // Category colors
+        const categoryColors = {
+            'Tech': '#bfdbfe',
+            'Core': '#fef9c3',
+            'Consulting': '#ffedd5',
+            'Finance': '#d1fae5'
         };
 
         // Mock placement data (since the CSV doesn't have placement info)
@@ -258,7 +363,7 @@
             { name: 'TCS', offers: 60, avgPackage: 8 }
         ];
 
-        // Fetch and parse CSV (for branch filtering)
+        // Fetch and parse students CSV (for branch filtering)
         Papa.parse('https://raw.githubusercontent.com/avashx/nsutgod/main/students.csv', {
             download: true,
             header: true,
@@ -272,8 +377,22 @@
                 renderPlacementStats();
             },
             error: function(error) {
-                console.error('Error fetching CSV:', error);
-                document.querySelector('.main-content').innerHTML += '<p class="text-red-600">Error loading data. Please try again later.</p>';
+                console.error('Error fetching students CSV:', error);
+                document.querySelector('.main-content').innerHTML += '<p class="text-red-600">Error loading student data. Please try again later.</p>';
+            }
+        });
+
+        // Fetch and parse companies CSV (place.csv)
+        Papa.parse('https://raw.githubusercontent.com/avashx/nsutgod/main/src/place.csv', {
+            download: true,
+            header: true,
+            complete: function(results) {
+                companies = results.data;
+                displayCompanies();
+            },
+            error: function(error) {
+                console.error('Error fetching companies CSV:', error);
+                companyTableBody.innerHTML = '<tr><td colspan="12">Error loading company data. Please try again later.</td></tr>';
             }
         });
 
@@ -307,6 +426,29 @@
         function filterStudents() {
             filteredStudents = students.filter(student => {
                 return !selectedBranch || student.branch === selectedBranch;
+            });
+        }
+
+        // Display companies in the table with tags and colors
+        function displayCompanies() {
+            companyTableBody.innerHTML = '';
+            companies.forEach(company => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${company.Company || '-'}</td>
+                    <td>${company['Date of Arrival'] || '-'}</td>
+                    <td><span class="tag" style="background-color: ${roleColors[company.Role] || '#e5e7eb'}">${company.Role || '-'}</span></td>
+                    <td>${company['CTC (LPA)'] || '-'}</td>
+                    <td>${company['Intern Stipend (INR/Month)'] || '-'}</td>
+                    <td>${company['PPO from Intern'] || '-'}</td>
+                    <td>${company['FTE Hired 2025'] || '-'}</td>
+                    <td>${company['Total Offers'] || '-'}</td>
+                    <td><span class="tag" style="background-color: ${typeColors[company.Type] || '#e5e7eb'}">${company.Type || '-'}</span></td>
+                    <td><span class="tag" style="background-color: ${categoryColors[company.Category] || '#e5e7eb'}">${company.Category || '-'}</span></td>
+                    <td>${company['Eligible Branches (B.Tech Only)'] || '-'}</td>
+                    <td>${company['Cutoff CGPA'] || '-'}</td>
+                `;
+                companyTableBody.appendChild(row);
             });
         }
 
