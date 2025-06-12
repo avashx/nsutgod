@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+            .grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-[#f5f5f5]">
+    <div class="container bg-white rounded-lg shadow-sm p-6">
+        <div class="flex justify-between items-start mb-4">
+            <div class="flex items-center">
+                <img src="https://via.placeholder.com/60" alt="Avatar" class="rounded-full mr-4">
+                <div>
+                    <h2 class="text-xl font-bold" id="studentName"></h2>
+                    <p class="text-sm text-gray-600" id="studentHandle"></p>
+                </div>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Left Column -->
+            <div>
+                <h3 class="text-lg font-semibold mb-2">Personal Information</h3>
+                <p><strong>Roll Number:</strong> <span id="rollNumber"></span></p>
+                <p><strong>Email:</strong> <span id="email"></span></p>
+                <p><strong>Personal Email:</strong> <span id="personalEmail"></span></p>
+                <p><strong>Gender:</strong> <span id="gender"></span></p>
+                <p><strong>Date of Birth:</strong> <span id="dob"></span></p>
+                <p><strong>Contact Number:</strong> <span id="contactNumber"></span></p>
+                <p><strong>Alternate Contact Number:</strong> <span id="altContactNumber"></span></p>
+                <p><strong>Present Address:</strong> <span id="presentAddress"></span></p>
+                <p><strong>Permanent Address:</strong> <span id="permAddress"></span></p>
+                <p><strong>Category:</strong> <span id="category"></span></p>
+                <p><strong>Campus:</strong> <span id="campus"></span></p>
+                <p><strong>PWD:</strong> <span id="pwd"></span></p>
+                <p><strong>Blood Group:</strong> <span id="bloodGroup"></span></p>
+            </div>
+            <!-- Right Column -->
+            <div>
+                <h3 class="text-lg font-semibold mb-2">Academic Information</h3>
+                <p><strong>Branch:</strong> <span id="branch"></span></p>
+                <p><strong>Batch:</strong> <span id="batch"></span></p>
+                <p><strong>Degree:</strong> <span id="degree"></span></p>
+                <p><strong>CGPA 10th:</strong> <span id="cgpa10th"></span></p>
+                <p><strong>CGPA 12th:</strong> <span id="cgpa12th"></span></p>
+                <p><strong>CGPA:</strong> <span id="cgpa"></span></p>
+                <p><strong>CGPA Before Drop:</strong> <span id="cgpaBeforeDrop"></span></p>
+                <p><strong>Graduation GPA:</strong> <span id="graduationGpa"></span></p>
+                <p><strong>Backlogs:</strong> <span id="backlogs"></span></p>
+                <h3 class="text-lg font-semibold mt-4 mb-2">Semester GPA Graph</h3>
+                <canvas id="gpaChart" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get student data from URL
+        const params = new URLSearchParams(window.location.search);
+        const student = JSON.parse(decodeURIComponent(params.get('data')));
+
+        // Populate student data
+        document.getElementById('studentName').textContent = student.Name || '-';
+        document.getElementById('studentHandle').textContent = `@${student.rollNumber || '-'}`;
+        document.getElementById('rollNumber').textContent = student.rollNumber || '-';
+        document.getElementById('email').textContent = student.email || '-';
+        document.getElementById('personalEmail').textContent = student.personal_email || '-';
+        document.getElementById('gender').textContent = student.gender || '-';
+        document.getElementById('dob').textContent = student.dob || '-';
+        document.getElementById('contactNumber').textContent = student.contact_number || '-';
+        document.getElementById('altContactNumber').textContent = student.alt_contact_number || '-';
+        document.getElementById('presentAddress').textContent = student.present_address || '-';
+        document.getElementById('permAddress').textContent = student.perm_address || '-';
+        document.getElementById('category').textContent = student.category || '-';
+        document.getElementById('campus').textContent = student.campus || '-';
+        document.getElementById('pwd').textContent = student.pwd || '-';
+        document.getElementById('bloodGroup').textContent = student.blood_group || '-';
+        document.getElementById('branch').textContent = student.branch || '-';
+        document.getElementById('batch').textContent = student.batch || '-';
+        document.getElementById('degree').textContent = student.degree || '-';
+        document.getElementById('cgpa10th').textContent = student.cgpa_10th || '-';
+        document.getElementById('cgpa12th').textContent = student.cgpa_12th || '-';
+        document.getElementById('cgpa').textContent = student.cgpa || '-';
+        document.getElementById('cgpaBeforeDrop').textContent = student.cgpa_before_drop || '-';
+        document.getElementById('graduationGpa').textContent = student.graduation_gpa || '-';
+        document.getElementById('backlogs').textContent = student.backlogs || '-';
+
+        // GPA Graph
+        const ctx = document.getElementById('gpaChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6'],
+                datasets: [{
+                    label: 'GPA',
+                    data: [
+                        parseFloat(student.sem1_gpa) || 0,
+                        parseFloat(student.sem2_gpa) || 0,
+                        parseFloat(student.sem3_gpa) || 0,
+                        parseFloat(student.sem4_gpa) || 0,
+                        parseFloat(student.sem5_gpa) || 0,
+                        parseFloat(student.sem6_gpa) || 0
+                    ],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                scales: {
+                    y: { beginAtZero: true, max: 10 }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
