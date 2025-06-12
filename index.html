@@ -3,12 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Overview</title>
+    <title>Student Data Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #f5f5f5;
+        }
+        th {
+            padding: 4px 8px;
+            text-align: left;
+            border-bottom: 2px solid #e5e7eb;
+            font-size: 13px;
+            font-weight: 500;
+            color: #4b5563;
+            background-color: #fafafa;
+            resize: horizontal;
+            overflow: auto;
+            min-width: 80px;
+            position: relative;
+            cursor: pointer;
+        }
+        td {
+            padding: 4px 8px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+        }
+        th:hover {
             background-color: #f5f5f5;
         }
         .navbar {
@@ -29,85 +56,110 @@
         .nav-item {
             cursor: pointer;
         }
+        .branch-button {
+            padding: 4px 8px;
+            margin: 2px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .branch-button.active {
+            border-color: #4b5563;
+            color: #fff;
+        }
+        .tag {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .modern-select {
+            appearance: none;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci' +
+                      'IGNsYXNzPSJoLTUgdy01IHRleHQtZ3JheS02MDAiIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggc3Ryb2tlLW' +
+                      'xpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik02IDlsNiA2IDYtNiIvPjwvc3ZnPg==') no-repeat right 8px center;
+            background-size: 16px;
+            padding-right: 32px;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #374151;
+            background-color: #fff;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .modern-select:focus {
+            outline: none;
+            border-color: #4b5563;
+            box-shadow: 0 0 0 2px rgba(75, 85, 99, 0.2);
+        }
+        .modern-select:hover {
+            border-color: #9ca3af;
+        }
+        .column-options {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 2px;
+        }
+        .dropdown {
+            position: absolute;
+            bottom: 30px;
+            right: 0;
+            background-color: #fff;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+        }
+        .dropdown.show {
+            display: block;
+            z-index: 1000;
+        }
+        .dropdown-item {
+            padding: 8px 12px;
+            font-size: 14px;
+            color: #374151;
+            cursor: pointer;
+        }
+        .dropdown-item:hover {
+            background-color: #f3f4f6;
+        }
+        .filter-modal {
+            position: absolute;
+            bottom: 30px;
+            right: 0;
+            background-color: #fff;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+            padding: 12px;
+            width: 200px;
+        }
+        .filter-modal.show {
+            display: block;
+        }
         .nav-item.active {
             background-color: #f3f4f6;
             color: #1f2937;
             font-weight: 500;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 16px;
-        }
-        th, td {
-            padding: 8px 12px;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb;
-            font-size: 14px;
-        }
-        th {
-            background-color: #f9fafb;
-            font-weight: 500;
-            color: #4b5563;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 50;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: #fff;
-            padding: 24px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-            position: relative;
-        }
-        .dropdown-container {
-            position: relative;
-            display: inline-block;
-        }
-        .dropdown-menu {
-            position: absolute;
-            bottom: 100%;
-            left: 0;
-            background-color: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            z-index: 10;
-            width: 200px;
-            margin-bottom: 4px;
-        }
-        .dropdown-item {
-            padding: 8px 12px;
-            cursor: pointer;
-            font-size: 14px;
-            color: #374151;
-        }
-        .dropdown-item:hover {
-            background-color: #f3f4f6;
-        }
         .customize-columns-btn {
-            background-color: #2563eb;
+            padding: 8px 16px;
+            background-color: #4b5563;
             color: #fff;
-            padding: 6px 12px;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 14px;
             font-weight: 500;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s ease;
         }
         .customize-columns-btn:hover {
-            background-color: #1d4ed8;
+            background-color: #6b7280;
         }
         @media (max-width: 768px) {
             .navbar {
@@ -117,13 +169,22 @@
                 margin-left: 0 !important;
                 padding: 16px;
             }
-            table th, table td {
+            .table-container {
+                overflow-x: auto;
+            }
+            th, td {
+                font-size: 12px;
+                max-width: 100px;
+            }
+            .modern-select, .branch-button {
                 font-size: 12px;
                 padding: 6px 8px;
             }
-            .customize-columns-btn {
-                font-size: 12px;
-                padding: 6px 8px;
+            .flex-col.md\\:flex-row {
+                flex-direction: column !important;
+            }
+            #searchInput {
+                width: 100%;
             }
         }
         @media (max-width: 480px) {
@@ -133,13 +194,9 @@
             .main-content {
                 padding: 12px;
             }
-            table th, table td {
+            th, td {
                 font-size: 11px;
-                padding: 4px 6px;
-            }
-            .customize-columns-btn {
-                font-size: 11px;
-                padding: 4px 6px;
+                max-width: 80px;
             }
         }
     </style>
@@ -161,7 +218,7 @@
             <h2 class="text-xl font-bold text-gray-800">NSUTGod</h2>
         </div>
         <ul class="space-y-2">
-            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg active" data-page="overview">
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="overview">
                 <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 Overview
             </li>
@@ -185,92 +242,273 @@
         </ul>
     </div>
 
-    <!-- Main Content -->
-    <div class="md:ml-56 p-8 main-content">
+    <!-- Overview Page -->
+    <div id="overviewPage" class="md:ml-56 p-8 main-content page-content">
         <div class="max-w-6xl mx-auto">
-            <h1 class="text-2xl font-bold text-gray-800 mb-6">Student Overview</h1>
-
-            <!-- Password Display -->
-            <div class="mb-6">
-                <h2 class="text-lg font-semibold text-gray-700">Password</h2>
-                <p id="passwordDisplay" class="text-gray-600">Loading password...</p>
-            </div>
-
-            <!-- Table Controls -->
-            <div class="flex justify-between items-center mb-4">
-                <div class="flex items-center space-x-2">
-                    <button id="optionsBtn" class="options-btn p-1 bg-gray-200 rounded-lg">Options</button>
-                    <div id="rowsPerPageContainer" class="dropdown-container">
-                        <button id="rowsPerPageBtn" class="p-2 bg-gray-200 rounded-lg text-sm">Rows per page: <span id="rowsPerPageValue">10</span></button>
-                        <div id="rowsPerPageMenu" class="dropdown-menu hidden">
-                            <div class="dropdown-item" data-value="10">10</div>
-                            <div class="dropdown-item" data-value="25">25</div>
-                            <div class="dropdown-item" data-value="50">50</div>
-                            <div class="dropdown-item" data-value="100">100</div>
-                        </div>
-                    </div>
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <h1 class="text-2xl font-bold text-gray-800">Student Data - <span class="text-green-600" id="totalRecords"></span></h1>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <input type="text" id="searchInput" placeholder="Search" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 w-full md:w-auto" />
+                    <button class="p-2 bg-gray-100 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                    </button>
                 </div>
-                <button id="customizeColumnsBtn" class="customize-columns-btn">Customize Columns</button>
             </div>
 
-            <!-- Student Table -->
-            <div class="overflow-x-auto bg-white rounded-lg shadow">
-                <table id="studentTable">
-                    <thead>
-                        <tr id="tableHeader"></tr>
+            <!-- Branch Filter Buttons -->
+            <div class="flex flex-wrap gap-1 mb-4 overflow-x-auto" id="branchFilterButtons"></div>
+
+            <!-- Column Customization -->
+            <div class="mb-4 flex justify-end relative">
+                <button id="customizeColumnsBtn" class="customize-columns-btn">Customize Columns</button>
+                <div id="columnsDropdown" class="dropdown hidden">
+                    <!-- Column options will be populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Other Filters -->
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                <select id="batchFilter" class="modern-select w-full md:w-auto">
+                    <option value="">Batch Year</option>
+                </select>
+                <select id="genderFilter" class="modern-select w-full md:w-auto">
+                    <option value="">Filter by Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <!-- Table -->
+            <div class="bg-white rounded-lg shadow-sm table-container">
+                <table class="min-w-full" id="studentTable">
+                    <thead id="tableHeader">
+                        <tr>
+                            <th data-key="serialNo">Serial No
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="rollNumber">Roll Number
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="name">Name
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="branch">Branch
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="email">Email
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="gender">Gender
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="dob">DOB
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="contactNumber">Contact Number
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="presentAddress">Present Address
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="category">Category
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="cgpa">CGPA
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th data-key="viewProfile">View Profile
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
+                        </tr>
                     </thead>
-                    <tbody id="tableBody"></tbody>
+                    <tbody id="studentTableBody"></tbody>
                 </table>
             </div>
 
             <!-- Pagination -->
-            <div class="flex justify-between items-center mt-4">
-                <div class="text-sm text-gray-600">
-                    Showing <span id="startRow">1</span> to <span id="endRow">10</span> of <span id="totalRows">0</span> entries
+            <div class="flex flex-col md:flex-row justify-between items-center mt-4 text-gray-600 gap-4">
+                <div>
+                    Rows per page: 
+                    <select id="rowsPerPageSelect" class="modern-select">
+                        <option value="150" selected>150</option>
+                        <option value="300">300</option>
+                        <option value="500">500</option>
+                        <option value="all">All</option>
+                    </select>
                 </div>
-                <div class="flex space-x-2">
-                    <button id="prevBtn" class="p-2 bg-gray-200 rounded-lg text-sm disabled:opacity-50" disabled>Previous</button>
-                    <button id="nextBtn" class="p-2 bg-gray-200 rounded-lg text-sm disabled:opacity-50" disabled>Next</button>
-                </div>
-            </div>
-
-            <!-- Placement Table -->
-            <div class="mt-8">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Placement and Internship Opportunities</h2>
-                <div class="overflow-x-auto bg-white rounded-lg shadow">
-                    <table id="placementTable">
-                        <thead>
-                            <tr>
-                                <th>Company</th>
-                                <th>Date of Arrival</th>
-                                <th>Role</th>
-                                <th>CTC (LPA)</th>
-                                <th>Intern Stipend (INR/Month)</th>
-                                <th>PPO from Intern</th>
-                                <th>FTE Hired 2025</th>
-                                <th>Total Offers</th>
-                                <th>Type</th>
-                                <th>Category</th>
-                                <th>Eligible Branches (B.Tech Only)</th>
-                                <th>Cutoff CGPA</th>
-                            </tr>
-                        </thead>
-                        <tbody id="placementTableBody"></tbody>
-                    </table>
+                <div id="pageInfo"></div>
+                <div class="flex gap-2">
+                    <button id="prevPage" class="p-1 bg-gray-200 rounded-lg disabled:opacity-50"><</button>
+                    <button id="nextPage" class="p-1 bg-gray-200 rounded-lg disabled:opacity-50">></button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Customize Columns Modal -->
-    <div id="customizeColumnsModal" class="modal">
-        <div class="modal-content">
-            <h2 class="text-lg font-semibold mb-4">Customize Columns</h2>
-            <div id="columnCheckboxes" class="space-y-2"></div>
-            <div class="mt-6 flex justify-end space-x-2">
-                <button id="cancelColumnsBtn" class="p-2 bg-gray-200 rounded-lg text-sm">Cancel</button>
-                <button id="saveColumnsBtn" class="p-2 bg-blue-600 text-white rounded-lg text-sm">Save</button>
-            </div>
+    <!-- Student Profile Page (Placeholder) -->
+    <div id="studentProfilePage" class="md:ml-56 p-8 main-content page-content hidden">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">Student Profile</h1>
+            <p class="text-gray-600">This section will allow viewing individual student profiles. (Placeholder)</p>
+        </div>
+    </div>
+
+    <!-- Analytics Page (Placeholder) -->
+    <div id="analyticsPage" class="md:ml-56 p-8 main-content page-content hidden">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">Analytics</h1>
+            <p class="text-gray-600">This section will display analytics graphs. See <a href="analytics.html" class="text-blue-600 underline">analytics.html</a> for details.</p>
+        </div>
+    </div>
+
+    <!-- Placement Page (Placeholder) -->
+    <div id="placementPage" class="md:ml-56 p-8 main-content page-content hidden">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">Placement</h1>
+            <p class="text-gray-600">This section will display placement statistics. See <a href="placement.html" class="text-blue-600 underline">placement.html</a> for details.</p>
+        </div>
+    </div>
+
+    <!-- Notifications Page (Placeholder) -->
+    <div id="notificationsPage" class="md:ml-56 p-8 main-content page-content hidden">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">Notifications</h1>
+            <p class="text-gray-600">This section will display notifications. (Placeholder)</p>
         </div>
     </div>
 
@@ -279,212 +517,284 @@
         // Check session on page load
         checkSession();
 
+        const studentTableBody = document.getElementById('studentTableBody');
+        const searchInput = document.getElementById('searchInput');
+        const branchFilterButtons = document.getElementById('branchFilterButtons');
+        const batchFilter = document.getElementById('batchFilter');
+        const genderFilter = document.getElementById('genderFilter');
+        const prevPageBtn = document.getElementById('prevPage');
+        const nextPageBtn = document.getElementById('nextPage');
+        const pageInfo = document.getElementById('pageInfo');
+        const totalRecords = document.getElementById('totalRecords');
+        const rowsPerPageSelect = document.getElementById('rowsPerPageSelect');
         const menuToggle = document.getElementById('menuToggle');
         const navbar = document.getElementById('navbar');
-        const optionsBtn = document.getElementById('optionsBtn');
-        const rowsPerPageBtn = document.getElementById('rowsPerPageBtn');
-        const rowsPerPageMenu = document.getElementById('rowsPerPageMenu');
-        const rowsPerPageValue = document.getElementById('rowsPerPageValue');
         const customizeColumnsBtn = document.getElementById('customizeColumnsBtn');
-        const customizeColumnsModal = document.getElementById('customizeColumnsModal');
-        const columnCheckboxes = document.getElementById('columnCheckboxes');
-        const cancelColumnsBtn = document.getElementById('cancelColumnsBtn');
-        const saveColumnsBtn = document.getElementById('saveColumnsBtn');
+        const columnsDropdown = document.getElementById('columnsDropdown');
         const tableHeader = document.getElementById('tableHeader');
-        const tableBody = document.getElementById('tableBody');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const startRow = document.getElementById('startRow');
-        const endRow = document.getElementById('endRow');
-        const totalRows = document.getElementById('totalRows');
-        const placementTableBody = document.getElementById('placementTableBody');
-        const passwordDisplay = document.getElementById('passwordDisplay');
 
         let students = [];
+        let filteredStudents = [];
         let currentPage = 1;
-        let rowsPerPage = 10;
-        let visibleColumns = ['rollno', 'name', 'email', 'branch', 'cgpa', 'batch'];
-        const allColumns = ['rollno', 'name', 'email', 'phone', 'branch', 'cgpa', 'batch', 'gender', 'address'];
+        let rowsPerPage = parseInt(rowsPerPageSelect.value);
+        let selectedBranch = '';
+        let visibleColumns = ['serialNo', 'rollNumber', 'name', 'branch', 'email', 'gender', 'dob', 'contactNumber', 'presentAddress', 'category', 'cgpa', 'viewProfile'];
+        let columnFilters = {};
 
-        // Fetch and display password
-        fetch('https://raw.githubusercontent.com/avashx/nsutgod/main/src/pass.txt')
-            .then(response => response.text())
-            .then(data => {
-                passwordDisplay.textContent = data.trim();
-            })
-            .catch(error => {
-                console.error('Error fetching password:', error);
-                passwordDisplay.textContent = 'Error loading password';
-            });
+        // Branch and Gender color mapping
+        const branchColors = {
+            'Cumulative': '#f3f4f6',
+            'CSAI': '#bfdbfe',
+            'CSE': '#93c5fd',
+            'CSDS': '#60a5fa',
+            'CIOT': '#93c5fd',
+            'IT': '#bfdbfe',
+            'ITNS': '#dbeafe',
+            'MAC': '#fef9c3',
+            'ECIOT': '#fef9c3',
+            'ECE': '#fef3c7',
+            'ECAM': '#fde68a',
+            'EE': '#fce7a3',
+            'ICE': '#fef9c3',
+            'ME': '#fef3c7',
+            'MEEV': '#fef9c3',
+            'WEST': '#fef2f2',
+            'CE': '#fee2e2',
+            'BT': '#ffedd5',
+            'GI': '#fed7aa'
+        };
+        const genderColors = {
+            'male': '#bfdbfe',
+            'female': '#f9a8d4',
+            'other': '#d1fae5'
+        };
 
-        // Fetch and parse student CSV
+        // Function to map CGPA to a color gradient (red at 4, green at 9)
+        function getCgpaColor(cgpa) {
+            if (!cgpa || isNaN(cgpa)) return '#e5e7eb';
+            const value = parseFloat(cgpa);
+            if (value < 4) return 'rgb(255, 0, 0)';
+            if (value > 9) return 'rgb(0, 255, 0)';
+            const ratio = (value - 4) / (9 - 4);
+            const red = Math.round(255 * (1 - ratio));
+            const green = Math.round(255 * ratio);
+            return `rgb(${red}, ${green}, 0)`;
+        }
+
+        // Fetch and parse CSV
         Papa.parse('https://raw.githubusercontent.com/avashx/nsutgod/main/students.csv', {
             download: true,
             header: true,
             complete: function(results) {
-                students = results.data;
-                totalRows.textContent = students.length;
-                renderTable();
-                setupPagination();
+                students = results.data.map(student => ({
+                    ...student,
+                    gender: student.gender ? student.gender.toLowerCase() : ''
+                }));
+                filteredStudents = [...students];
+                totalRecords.textContent = `${students.length} Students`;
+
+                populateFilters();
+                populateBranchButtons();
+                populateColumnOptions();
+                displayStudents();
             },
             error: function(error) {
                 console.error('Error fetching CSV:', error);
-                tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-red-600">Error loading data</td></tr>';
+                studentTableBody.innerHTML = '<tr><td colspan="12">Error loading data. Please try again later.</td></tr>';
             }
         });
 
-        // Fetch and parse placement CSV
-        Papa.parse('https://raw.githubusercontent.com/avashx/nsutgod/refs/heads/main/src/place.csv', {
-            download: true,
-            header: true,
-            complete: function(results) {
-                const placementData = results.data;
-                renderPlacementTable(placementData);
-            },
-            error: function(error) {
-                console.error('Error fetching placement CSV:', error);
-                placementTableBody.innerHTML = '<tr><td colspan="12" class="text-center text-red-600">Error loading placement data</td></tr>';
-            }
-        });
-
-        // Toggle rows per page dropdown
-        rowsPerPageBtn.addEventListener('click', () => {
-            rowsPerPageMenu.classList.toggle('hidden');
-        });
-
-        // Handle rows per page selection
-        rowsPerPageMenu.addEventListener('click', (e) => {
-            if (e.target.classList.contains('dropdown-item')) {
-                rowsPerPage = parseInt(e.target.getAttribute('data-value'));
-                rowsPerPageValue.textContent = rowsPerPage;
-                rowsPerPageMenu.classList.add('hidden');
-                currentPage = 1;
-                renderTable();
-                setupPagination();
-            }
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!rowsPerPageBtn.contains(e.target) && !rowsPerPageMenu.contains(e.target)) {
-                rowsPerPageMenu.classList.add('hidden');
-            }
-        });
-
-        // Render student table
-        function renderTable() {
-            // Render headers
-            tableHeader.innerHTML = '';
-            visibleColumns.forEach(col => {
-                const th = document.createElement('th');
-                th.textContent = col.charAt(0).toUpperCase() + col.slice(1);
-                tableHeader.appendChild(th);
+        // Populate filter dropdowns
+        function populateFilters() {
+            const batches = [...new Set(students.map(student => student.batch))].filter(Boolean);
+            batches.forEach(batch => {
+                const option = document.createElement('option');
+                option.value = batch;
+                option.textContent = batch;
+                batchFilter.appendChild(option);
             });
+        }
 
-            // Render rows
-            tableBody.innerHTML = '';
-            const start = (currentPage - 1) * rowsPerPage;
-            const end = Math.min(start + rowsPerPage, students.length);
-            for (let i = start; i < end; i++) {
-                const student = students[i];
-                const tr = document.createElement('tr');
-                visibleColumns.forEach(col => {
-                    const td = document.createElement('td');
-                    td.textContent = student[col] || '-';
-                    tr.appendChild(td);
+        // Populate branch filter buttons
+        function populateBranchButtons() {
+            const branches = ['Cumulative', ...new Set(students.map(student => student.branch))].filter(Boolean);
+            branches.forEach(branch => {
+                const button = document.createElement('button');
+                button.className = 'branch-button';
+                button.textContent = branch;
+                button.style.backgroundColor = branchColors[branch] || '#f3f4f6';
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.branch-button').forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.style.backgroundColor = branchColors[btn.textContent] || '#f3f4f6';
+                        btn.style.color = '#000';
+                    });
+                    button.classList.add('active');
+                    button.style.color = '#fff';
+                    selectedBranch = branch === 'Cumulative' ? '' : branch;
+                    filterStudents();
                 });
-                tableBody.appendChild(tr);
-            }
-
-            // Update pagination info
-            startRow.textContent = start + 1;
-            endRow.textContent = end;
-        }
-
-        // Render placement table
-        function renderPlacementTable(data) {
-            placementTableBody.innerHTML = '';
-            data.forEach(company => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${company['Company'] || '-'}</td>
-                    <td>${company['Date of Arrival'] || '-'}</td>
-                    <td>${company['Role'] || '-'}</td>
-                    <td>${company['CTC (LPA)'] || '-'}</td>
-                    <td>${company['Intern Stipend (INR/Month)'] || '-'}</td>
-                    <td>${company['PPO from Intern'] || '-'}</td>
-                    <td>${company['FTE Hired 2025'] || '-'}</td>
-                    <td>${company['Total Offers'] || '-'}</td>
-                    <td>${company['Type'] || '-'}</td>
-                    <td>${company['Category'] || '-'}</td>
-                    <td>${company['Eligible Branches (B.Tech Only)'] || '-'}</td>
-                    <td>${company['Cutoff CGPA'] || '-'}</td>
-                `;
-                placementTableBody.appendChild(tr);
+                branchFilterButtons.appendChild(button);
             });
+            branchFilterButtons.children[0].classList.add('active');
+            branchFilterButtons.children[0].style.color = '#fff';
         }
 
-        // Setup pagination
-        function setupPagination() {
-            const totalPages = Math.ceil(students.length / rowsPerPage);
-            prevBtn.disabled = currentPage === 1;
-            nextBtn.disabled = currentPage === totalPages || totalPages === 0;
+        // Populate column customization options
+        function populateColumnOptions() {
+            columnsDropdown.innerHTML = '';
+            const allColumns = [
+                { key: 'serialNo', label: 'Serial No' },
+                { key: 'rollNumber', label: 'Roll Number' },
+                { key: 'name', label: 'Name' },
+                { key: 'branch', label: 'Branch' },
+                { key: 'email', label: 'Email' },
+                { key: 'gender', label: 'Gender' },
+                { key: 'dob', label: 'DOB' },
+                { key: 'contactNumber', label: 'Contact Number' },
+                { key: 'presentAddress', label: 'Present Address' },
+                { key: 'category', label: 'Category' },
+                { key: 'cgpa', label: 'CGPA' },
+                { key: 'viewProfile', label: 'View Profile' }
+            ];
 
-            prevBtn.onclick = () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderTable();
-                    setupPagination();
-                }
-            };
-
-            nextBtn.onclick = () => {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderTable();
-                    setupPagination();
-                }
-            };
-        }
-
-        // Customize columns modal
-        customizeColumnsBtn.addEventListener('click', () => {
-            columnCheckboxes.innerHTML = '';
-            allColumns.forEach(col => {
+            allColumns.forEach(column => {
                 const div = document.createElement('div');
-                div.className = 'flex items-center';
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = col;
-                checkbox.checked = visibleColumns.includes(col);
-                const label = document.createElement('label');
-                label.htmlFor = col;
-                label.className = 'ml-2 text-sm';
-                label.textContent = col.charAt(0).toUpperCase() + col.slice(1);
-                div.appendChild(checkbox);
-                div.appendChild(label);
-                columnCheckboxes.appendChild(div);
+                div.className = 'dropdown-item';
+                div.innerHTML = `
+                    <input type="checkbox" id="col-${column.key}" ${visibleColumns.includes(column.key) ? 'checked' : ''}>
+                    <label for="col-${column.key}">${column.label}</label>
+                `;
+                div.querySelector('input').addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        visibleColumns.push(column.key);
+                    } else {
+                        visibleColumns = visibleColumns.filter(col => col !== column.key);
+                    }
+                    displayStudents();
+                });
+                columnsDropdown.appendChild(div);
             });
-            customizeColumnsModal.style.display = 'flex';
-        });
+        }
 
-        cancelColumnsBtn.addEventListener('click', () => {
-            customizeColumnsModal.style.display = 'none';
-        });
+        // Display students in the table
+        function displayStudents() {
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = rowsPerPage === 'all' ? filteredStudents.length : start + rowsPerPage;
+            const paginatedStudents = filteredStudents.slice(start, end);
 
-        saveColumnsBtn.addEventListener('click', () => {
-            visibleColumns = [];
-            allColumns.forEach(col => {
-                const checkbox = document.getElementById(col);
-                if (checkbox.checked) {
-                    visibleColumns.push(col);
+            studentTableBody.innerHTML = '';
+            paginatedStudents.forEach((student, index) => {
+                const serialNo = start + index + 1;
+                const row = document.createElement('tr');
+                let cells = '';
+
+                if (visibleColumns.includes('serialNo')) {
+                    cells += `<td>${serialNo}</td>`;
                 }
+                if (visibleColumns.includes('rollNumber')) {
+                    cells += `<td>${student.rollNumber || '-'}</td>`;
+                }
+                if (visibleColumns.includes('name')) {
+                    cells += `<td>${student.Name || '-'}</td>`;
+                }
+                if (visibleColumns.includes('branch')) {
+                    cells += `<td><span class="tag" style="background-color: ${branchColors[student.branch] || '#e5e7eb'}">${student.branch || '-'}</span></td>`;
+                }
+                if (visibleColumns.includes('email')) {
+                    cells += `<td>${student.email || '-'}</td>`;
+                }
+                if (visibleColumns.includes('gender')) {
+                    cells += `<td><span class="tag" style="background-color: ${genderColors[student.gender] || '#e5e7eb'}">${student.gender || '-'}</span></td>`;
+                }
+                if (visibleColumns.includes('dob')) {
+                    cells += `<td>${student.dob || '-'}</td>`;
+                }
+                if (visibleColumns.includes('contactNumber')) {
+                    cells += `<td>${student.contact_number || '-'}</td>`;
+                }
+                if (visibleColumns.includes('presentAddress')) {
+                    cells += `<td>${student.present_address || '-'}</td>`;
+                }
+                if (visibleColumns.includes('category')) {
+                    cells += `<td>${student.category || '-'}</td>`;
+                }
+                if (visibleColumns.includes('cgpa')) {
+                    cells += `<td><span class="tag" style="background-color: ${getCgpaColor(student.cgpa)}">${student.cgpa || '-'}</span></td>`;
+                }
+                if (visibleColumns.includes('viewProfile')) {
+                    cells += `<td><a href="student-profile.html?data=${encodeURIComponent(JSON.stringify(student))}" target="_blank" class="p-1 bg-blue-100 text-blue-600 rounded text-xs">View Profile</a></td>`;
+                }
+
+                row.innerHTML = cells;
+                studentTableBody.appendChild(row);
             });
-            if (visibleColumns.length === 0) {
-                visibleColumns = ['rollno', 'name', 'email', 'branch', 'cgpa', 'batch'];
+
+            document.querySelectorAll('#tableHeader th').forEach(th => {
+                const key = th.getAttribute('data-key');
+                th.style.display = visibleColumns.includes(key) ? '' : 'none';
+            });
+
+            const totalPages = rowsPerPage === 'all' ? 1 : Math.ceil(filteredStudents.length / rowsPerPage);
+            const startRecord = start + 1;
+            const endRecord = Math.min(end, filteredStudents.length);
+            pageInfo.textContent = rowsPerPage === 'all' ? `1-${filteredStudents.length} of ${filteredStudents.length}` : `${startRecord}-${endRecord} of ${filteredStudents.length}`;
+            prevPageBtn.disabled = currentPage === 1 || rowsPerPage === 'all';
+            nextPageBtn.disabled = (currentPage === totalPages || totalPages === 0 || rowsPerPage === 'all');
+        }
+
+        // Filter and search logic
+        function filterStudents() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const batchValue = batchFilter.value;
+            const genderValue = genderFilter.value;
+
+            filteredStudents = students.filter(student => {
+                const matchesSearch = Object.values(student).some(val => 
+                    val && val.toString().toLowerCase().includes(searchTerm)
+                );
+                const matchesBranch = !selectedBranch || student.branch === selectedBranch;
+                const matchesBatch = !batchValue || student.batch === batchValue;
+                const matchesGender = !genderValue || student.gender === genderValue;
+
+                let matchesFilters = true;
+                for (const [key, filter] of Object.entries(columnFilters)) {
+                    if (filter && student[key]) {
+                        matchesFilters = matchesFilters && student[key].toString().toLowerCase().includes(filter.toLowerCase());
+                    }
+                }
+
+                return matchesSearch && matchesBranch && matchesBatch && matchesGender && matchesFilters;
+            });
+
+            currentPage = 1;
+            displayStudents();
+        }
+
+        // Event listeners for search and filters
+        searchInput.addEventListener('input', filterStudents);
+        batchFilter.addEventListener('change', filterStudents);
+        genderFilter.addEventListener('change', filterStudents);
+
+        prevPageBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                displayStudents();
             }
-            renderTable();
-            customizeColumnsModal.style.display = 'none';
+        });
+
+        nextPageBtn.addEventListener('click', () => {
+            const totalPages = rowsPerPage === 'all' ? 1 : Math.ceil(filteredStudents.length / rowsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                displayStudents();
+            }
+        });
+
+        rowsPerPageSelect.addEventListener('change', () => {
+            rowsPerPage = rowsPerPageSelect.value === 'all' ? 'all' : parseInt(rowsPerPageSelect.value);
+            currentPage = 1;
+            displayStudents();
         });
 
         // Toggle navbar on mobile
@@ -499,21 +809,124 @@
             }
         });
 
+        // Column customization dropdown
+        customizeColumnsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            columnsDropdown.classList.toggle('show');
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!customizeColumnsBtn.contains(e.target) && !columnsDropdown.contains(e.target)) {
+                columnsDropdown.classList.remove('show');
+            }
+
+            const openDropdown = document.querySelector('.dropdown.show');
+            if (openDropdown && !e.target.closest('th')) {
+                openDropdown.classList.remove('show');
+            }
+
+            const openFilterModal = document.querySelector('.filter-modal.show');
+            if (openFilterModal && !e.target.closest('.filter-modal') && !e.target.closest('.filter-btn')) {
+                openFilterModal.classList.remove('show');
+            }
+        });
+
+        // Column sorting and filtering
+        document.querySelectorAll('#tableHeader th').forEach(th => {
+            th.addEventListener('click', (e) => {
+                if (e.target.closest('.column-options')) return;
+                const dropdown = th.querySelector('.dropdown');
+                document.querySelectorAll('.dropdown').forEach(d => {
+                    if (d !== dropdown) d.classList.remove('show');
+                });
+                dropdown.classList.toggle('show');
+            });
+        });
+
+        document.querySelectorAll('.sort-asc').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const th = e.target.closest('th');
+                const key = th.getAttribute('data-key');
+                filteredStudents.sort((a, b) => {
+                    const valA = a[key] || '';
+                    const valB = b[key] || '';
+                    return valA.toString().localeCompare(valB.toString());
+                });
+                displayStudents();
+                e.target.closest('.dropdown').classList.remove('show');
+            });
+        });
+
+        document.querySelectorAll('.sort-desc').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const th = e.target.closest('th');
+                const key = th.getAttribute('data-key');
+                filteredStudents.sort((a, b) => {
+                    const valA = a[key] || '';
+                    const valB = b[key] || '';
+                    return valB.toString().localeCompare(valA.toString());
+                });
+                displayStudents();
+                e.target.closest('.dropdown').classList.remove('show');
+            });
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const th = e.target.closest('th');
+                const key = th.getAttribute('data-key');
+                const filterModal = th.querySelector('.filter-modal');
+                document.querySelectorAll('.filter-modal').forEach(m => {
+                    if (m !== filterModal) m.classList.remove('show');
+                });
+                filterModal.classList.toggle('show');
+                const input = filterModal.querySelector('.filter-input');
+                input.value = columnFilters[key] || '';
+            });
+        });
+
+        document.querySelectorAll('.apply-filter').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const th = e.target.closest('th');
+                const key = th.getAttribute('data-key');
+                const input = th.querySelector('.filter-input');
+                columnFilters[key] = input.value;
+                filterStudents();
+                e.target.closest('.filter-modal').classList.remove('show');
+            });
+        });
+
         // Navigation between pages
         const pages = {
-            'overview': () => {},
-            'student-profile': () => window.location.href = 'student-profile.html',
-            'analytics': () => window.location.href = 'analytics.html',
-            'placement': () => window.location.href = 'placement.html',
-            'notifications': () => window.location.href = '#notificationsPage'
+            'overview': document.getElementById('overviewPage'),
+            'student-profile': document.getElementById('studentProfilePage'),
+            'analytics': document.getElementById('analyticsPage'),
+            'placement': document.getElementById('placementPage'),
+            'notifications': document.getElementById('notificationsPage')
         };
 
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', () => {
                 const page = item.getAttribute('data-page');
-                pages[page]();
+                if (page === 'analytics') {
+                    window.location.href = 'analytics.html';
+                    return;
+                }
+                if (page === 'placement') {
+                    window.location.href = 'placement.html';
+                    return;
+                }
+                document.querySelectorAll('.page-content').forEach(content => content.classList.add('hidden'));
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                pages[page].classList.remove('hidden');
+                item.classList.add('active');
             });
         });
+
+        // Set default page
+        pages['overview'].classList.remove('hidden');
+        document.querySelector('.nav-item[data-page="overview"]').classList.add('active');
     </script>
 </body>
 </html>
