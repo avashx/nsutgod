@@ -106,6 +106,12 @@
             height: 220px;
         }
 
+        .cgpa-improvement-chart {
+            position: relative;
+            height: 150px;
+            margin-top: 10px;
+        }
+
         .company-table, .suggestions-table {
             width: 100%;
             border-collapse: collapse;
@@ -138,7 +144,7 @@
 
         .semester-grid {
             display: grid;
-            grid-template-columns: repeat(8, minmax(60px, 1fr));
+            grid-template-columns: repeat(8, minmax(40px, 1fr));
             gap: 5px;
             margin-top: 10px;
             font-size: 14px;
@@ -198,7 +204,7 @@
                 padding: 6px;
             }
             .semester-grid {
-                grid-template-columns: repeat(4, minmax(60px, 1fr));
+                grid-template-columns: repeat(4, minmax(40px, 1fr));
             }
         }
     </style>
@@ -246,7 +252,9 @@
 
     <!-- Main Content -->
     <div class="md:ml-56 p-8 content">
-        <h1 class="text-2xl font-bold text-gray-800 mb-6">Student Profile</h1>
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">
+            Student Profile - <span id="studentName">-</span>
+        </h1>
 
         <div class="elements">
             <!-- Box 1: Personal Information -->
@@ -284,14 +292,14 @@
                     <p>Backlogs: <span id="backlogs">-</span></p>
                 </div>
                 <div class="semester-grid" id="semesterGpaGrid">
-                    <div>Semester 1</div>
-                    <div>Semester 2</div>
-                    <div>Semester 3</div>
-                    <div>Semester 4</div>
-                    <div>Semester 5</div>
-                    <div>Semester 6</div>
-                    <div>Semester 7</div>
-                    <div>Semester 8</div>
+                    <div>1</div>
+                    <div>2</div>
+                    <div>3</div>
+                    <div>4</div>
+                    <div>5</div>
+                    <div>6</div>
+                    <div>7</div>
+                    <div>8</div>
                     <div id="sem1Gpa">-</div>
                     <div id="sem2Gpa">-</div>
                     <div id="sem3Gpa">-</div>
@@ -338,9 +346,14 @@
             <div class="box">
                 <h3>CGPA Improvement Suggestions</h3>
                 <div class="suggestions" id="suggestions">
-                    <p>Current CGPA: <span id="currentCgpa">-</span></p>
-                    <p>Target SGPA for Next Semester: <span id="targetSgpa">-</span></p>
-                    <p>Projected CGPA After Improvement: <span id="projectedCgpa">-</span></p>
+                    <div class="info-grid">
+                        <p>Current CGPA: <span id="currentCgpa" class="tag">-</span></p>
+                        <p>Target SGPA for Next Semester: <span id="targetSgpa" class="tag">-</span></p>
+                        <p>Projected CGPA After Improvement: <span id="projectedCgpa" class="tag">-</span></p>
+                    </div>
+                    <div class="cgpa-improvement-chart">
+                        <canvas id="cgpaImprovementChart" height="150"></canvas>
+                    </div>
                     <p>Companies You Can Target After Improvement:</p>
                     <table class="suggestions-table" id="targetCompaniesTable">
                         <thead>
@@ -422,11 +435,11 @@
             return 'Non-Tech'; // Default to Non-Tech for others like Deloitte, EY, etc.
         }
 
-        // Function to get color based on CGPA cutoff
-        function getCutoffColor(cgpa) {
-            cgpa = parseFloat(cgpa) || 0;
-            if (cgpa < 7) return '#f87171'; // Red
-            if (cgpa <= 8.5) return '#facc15'; // Yellow
+        // Function to get color based on CGPA cutoff or value
+        function getCgpaColor(value) {
+            value = parseFloat(value) || 0;
+            if (value < 7) return '#f87171'; // Red
+            if (value <= 8.5) return '#facc15'; // Yellow
             return '#4ade80'; // Green
         }
 
@@ -449,6 +462,7 @@
                     console.error('Student not found for roll number:', rollNumber);
                     studentData = {
                         rollNumber: "Not Found",
+                        Name: "Unknown",
                         branch: "-",
                         email: "-",
                         personal_email: "-",
@@ -488,6 +502,7 @@
                 console.error('Error fetching students CSV:', error);
                 studentData = {
                     rollNumber: "Error",
+                    Name: "Error",
                     cgpa: 0
                 };
                 displayStudentData();
@@ -501,11 +516,13 @@
             download: true,
             header: true,
             complete: function(results) {
-                companies = results.data.map(company => ({
-                    ...company,
-                    'CTC (LPA)': parseFloat(company['CTC (LPA)']) || 0,
-                    'Cutoff CGPA': parseFloat(company['Cutoff CGPA']) || 0
-                }));
+                companies = results.data
+                    .filter(company => company.Company && company['Cutoff CGPA'] && company['CTC (LPA)']) // Ensure all required fields exist
+                    .map(company => ({
+                        Company: company.Company,
+                        'CTC (LPA)': parseFloat(company['CTC (LPA)']) || 0,
+                        'Cutoff CGPA': parseFloat(company['Cutoff CGPA']) || 0
+                    }));
                 displayEligibleCompanies();
                 provideSuggestions();
             },
@@ -517,6 +534,9 @@
 
         // Display student data in the boxes
         function displayStudentData() {
+            // Display student name in the title
+            document.getElementById('studentName').textContent = studentData.Name || '-';
+
             // Personal Information
             document.getElementById('rollNumber').textContent = studentData.rollNumber || '-';
             document.getElementById('email').textContent = studentData.email || '-';
@@ -614,6 +634,8 @@
                                     type: 'line',
                                     yMin: yourCgpa,
                                     yMax: yourCgpa,
+                                    xMin: -0.5, // Extend to the left edge
+                                    xMax: 4.5,  // Extend to the right edge (5 bars total)
                                     borderColor: '#2c3038',
                                     borderWidth: 2,
                                     borderDash: [5, 5],
@@ -648,6 +670,32 @@
             });
 
             // Semester-wise GPA Chart with Performance Trend
+            const semesterData = [
+                studentData.sem1_gpa || 0,
+                studentData.sem2_gpa || 0,
+                studentData.sem3_gpa || 0,
+                studentData.sem4_gpa || 0,
+                studentData.sem5_gpa || 0,
+                studentData.sem6_gpa || 0,
+                studentData.sem7_gpa || 0,
+                studentData.sem8_gpa || 0
+            ].map(parseFloat);
+
+            // Adjust performance trend data: extend as a straight line if sem7 or sem8 are missing
+            const performanceTrendData = [...semesterData];
+            let lastKnownValue = parseFloat(studentData.cgpa) || 0; // Default to CGPA if no SGPAs
+            let lastKnownIndex = -1;
+            for (let i = 0; i < semesterData.length; i++) {
+                if (semesterData[i] > 0) {
+                    lastKnownValue = semesterData[i];
+                    lastKnownIndex = i;
+                }
+            }
+            // Extend the trend line as a constant value after the last known SGPA
+            for (let i = lastKnownIndex + 1; i < performanceTrendData.length; i++) {
+                performanceTrendData[i] = lastKnownValue;
+            }
+
             const semesterGpaChartCtx = document.getElementById('semesterGpaChart').getContext('2d');
             new Chart(semesterGpaChartCtx, {
                 type: 'bar',
@@ -657,31 +705,13 @@
                         {
                             type: 'bar',
                             label: 'Semester GPA',
-                            data: [
-                                studentData.sem1_gpa || 0,
-                                studentData.sem2_gpa || 0,
-                                studentData.sem3_gpa || 0,
-                                studentData.sem4_gpa || 0,
-                                studentData.sem5_gpa || 0,
-                                studentData.sem6_gpa || 0,
-                                studentData.sem7_gpa || 0,
-                                studentData.sem8_gpa || 0
-                            ],
+                            data: semesterData,
                             backgroundColor: '#2c3038'
                         },
                         {
                             type: 'line',
                             label: 'Performance Trend',
-                            data: [
-                                studentData.sem1_gpa || 0,
-                                studentData.sem2_gpa || 0,
-                                studentData.sem3_gpa || 0,
-                                studentData.sem4_gpa || 0,
-                                studentData.sem5_gpa || 0,
-                                studentData.sem6_gpa || 0,
-                                studentData.sem7_gpa || 0,
-                                studentData.sem8_gpa || 0
-                            ],
+                            data: performanceTrendData,
                             borderColor: '#ff0000',
                             borderWidth: 2,
                             fill: false,
@@ -756,7 +786,10 @@
         function displayEligibleCompanies() {
             const studentCgpa = parseFloat(studentData.cgpa) || 0;
             const eligibleCompanies = companies
-                .filter(company => studentCgpa >= (company['Cutoff CGPA'] || 0))
+                .filter(company => {
+                    const cutoff = parseFloat(company['Cutoff CGPA']) || 0;
+                    return studentCgpa >= cutoff;
+                })
                 .sort((a, b) => b['CTC (LPA)'] - a['CTC (LPA)']);
 
             const tbody = document.getElementById('eligibleCompaniesBody');
@@ -773,7 +806,7 @@
                 row.innerHTML = `
                     <td><span class="tag" style="background-color: ${companyTypeColors[companyType]}">${company.Company || '-'}</span></td>
                     <td><span class="tag" style="background-color: ${getCtcColor(company['CTC (LPA)'])}">${company['CTC (LPA)'] || '-'}</span></td>
-                    <td><span class="tag" style="background-color: ${getCutoffColor(company['Cutoff CGPA'])}">${company['Cutoff CGPA'] || '-'}</span></td>
+                    <td><span class="tag" style="background-color: ${getCgpaColor(company['Cutoff CGPA'])}">${company['Cutoff CGPA'] || '-'}</span></td>
                 `;
                 tbody.appendChild(row);
             });
@@ -799,7 +832,9 @@
             const totalCredits = 8 * creditsPerSemester; // Total credits for the degree
 
             // Display current CGPA
-            document.getElementById('currentCgpa').textContent = currentCgpa.toFixed(2);
+            const currentCgpaSpan = document.getElementById('currentCgpa');
+            currentCgpaSpan.textContent = currentCgpa.toFixed(2);
+            currentCgpaSpan.style.backgroundColor = getCgpaColor(currentCgpa);
 
             // Determine a realistic target SGPA based on current CGPA and last semester performance
             const lastSemesterSgpa = semesters[semesters.length - 1] || currentCgpa;
@@ -819,14 +854,69 @@
 
             // Ensure target SGPA is between current CGPA and 9.5 for realism
             targetSgpa = Math.max(currentCgpa + 0.3, Math.min(targetSgpa, 9.5));
-            document.getElementById('targetSgpa').textContent = targetSgpa.toFixed(2);
+            const targetSgpaSpan = document.getElementById('targetSgpa');
+            targetSgpaSpan.textContent = targetSgpa.toFixed(2);
+            targetSgpaSpan.style.backgroundColor = getCgpaColor(targetSgpa);
 
             // Calculate projected CGPA after achieving the target SGPA
             const currentPoints = currentCgpa * totalCreditsSoFar;
             const remainingCredits = remainingSemesters * creditsPerSemester;
             const projectedPoints = currentPoints + (targetSgpa * remainingCredits);
             const projectedCgpa = projectedPoints / totalCredits;
-            document.getElementById('projectedCgpa').textContent = projectedCgpa.toFixed(2);
+            const projectedCgpaSpan = document.getElementById('projectedCgpa');
+            projectedCgpaSpan.textContent = projectedCgpa.toFixed(2);
+            projectedCgpaSpan.style.backgroundColor = getCgpaColor(projectedCgpa);
+
+            // CGPA Improvement Chart
+            const cgpaImprovementChartCtx = document.getElementById('cgpaImprovementChart').getContext('2d');
+            new Chart(cgpaImprovementChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Current CGPA', 'Projected CGPA'],
+                    datasets: [{
+                        label: 'CGPA',
+                        data: [currentCgpa.toFixed(2), projectedCgpa.toFixed(2)],
+                        backgroundColor: [getCgpaColor(currentCgpa), getCgpaColor(projectedCgpa)],
+                        barThickness: 20
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        annotation: {
+                            annotations: {
+                                improvementLine: {
+                                    type: 'line',
+                                    xMin: 0,
+                                    xMax: 1,
+                                    yMin: currentCgpa,
+                                    yMax: projectedCgpa,
+                                    borderColor: '#2c3038',
+                                    borderWidth: 2,
+                                    borderDash: [5, 5]
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            title: {
+                                display: true,
+                                text: 'CGPA'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Category'
+                            }
+                        }
+                    }
+                }
+            });
 
             // Find companies the student can target after improving CGPA
             const targetCompanies = companies
@@ -847,7 +937,7 @@
                     row.innerHTML = `
                         <td><span class="tag" style="background-color: ${companyTypeColors[companyType]}">${company.Company}</span></td>
                         <td><span class="tag" style="background-color: ${getCtcColor(company['CTC (LPA)'])}">${company['CTC (LPA)']} LPA</span></td>
-                        <td><span class="tag" style="background-color: ${getCutoffColor(company['Cutoff CGPA'])}">${company['Cutoff CGPA']}</span></td>
+                        <td><span class="tag" style="background-color: ${getCgpaColor(company['Cutoff CGPA'])}">${company['Cutoff CGPA']}</span></td>
                     `;
                     targetCompaniesBody.appendChild(row);
                 });
