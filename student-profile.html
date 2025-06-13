@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Profile - NSUTGod</title>
+    <link rel="icon" type="image/png" href="https://github.com/avashx/nsutgod/blob/main/src/logo.png?raw=true">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -99,17 +100,6 @@
             height: 220px;
         }
 
-        .chart-data {
-            font-size: 14px;
-            color: var(--light);
-        }
-
-        .chart-data span.chart-count {
-            color: var(--dark);
-            font-size: 24px;
-            font-weight: 700;
-        }
-
         .company-table {
             width: 100%;
             border-collapse: collapse;
@@ -129,16 +119,24 @@
             color: #4b5563;
         }
 
+        .suggestions {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .suggestions ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+
         @media (max-width: 768px) {
             .navbar {
                 width: 200px;
             }
-
             .content {
                 margin-left: 0 !important;
                 padding: 16px;
             }
-
             .elements {
                 grid-template-columns: 1fr;
             }
@@ -148,11 +146,9 @@
             .navbar {
                 width: 180px;
             }
-
             .content {
                 padding: 12px;
             }
-
             .company-table th, .company-table td {
                 font-size: 12px;
                 padding: 6px;
@@ -248,17 +244,17 @@
                 </div>
             </div>
 
-            <!-- Box 3: CGPA Graph -->
+            <!-- Box 3: CGPA Comparison Histogram -->
             <div class="box">
-                <h3>CGPA Overview</h3>
+                <h3>CGPA Comparison</h3>
                 <div class="chart-container">
                     <canvas id="cgpaChart" height="200"></canvas>
                 </div>
             </div>
 
-            <!-- Box 4: Semester-wise GPA Graph -->
+            <!-- Box 4: Semester-wise GPA Graph with Performance -->
             <div class="box">
-                <h3>Semester-wise GPA</h3>
+                <h3>Semester-wise GPA & Performance</h3>
                 <div class="chart-container">
                     <canvas id="semesterGpaChart" height="200"></canvas>
                 </div>
@@ -278,6 +274,18 @@
                     <tbody id="eligibleCompaniesBody"></tbody>
                 </table>
             </div>
+
+            <!-- Box 6: Suggestions -->
+            <div class="box">
+                <h3>CGPA Improvement Suggestions</h3>
+                <div class="suggestions" id="suggestions">
+                    <p>Current CGPA: <span id="currentCgpa">-</span></p>
+                    <p>Target SGPA for Next Semester: <span id="targetSgpa">-</span></p>
+                    <p>Projected CGPA After Improvement: <span id="projectedCgpa">-</span></p>
+                    <p>Companies You Can Target After Improvement:</p>
+                    <ul id="targetCompaniesList"></ul>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -289,56 +297,66 @@
         const menuToggle = document.getElementById('menuToggle');
         const navbar = document.getElementById('navbar');
         let studentData = {};
+        let allStudents = [];
         let companies = [];
 
-        // Sample student data (to be replaced with actual data from students.csv)
-        const sampleStudent = {
-            rollNumber: "2021CSAI001",
-            email: "student@nsut.ac.in",
-            personalEmail: "student@gmail.com",
-            gender: "Male",
-            dob: "2002-05-15",
-            contactNumber: "9876543210",
-            alternateContact: "9123456789",
-            presentAddress: "NSUT Campus, Delhi",
-            permanentAddress: "123, Main Street, Delhi",
-            category: "General",
-            campus: "Main",
-            pwd: "No",
-            bloodGroup: "O+",
-            branch: "CSAI",
-            batch: "2021",
-            degree: "B.Tech",
-            cgpa10th: 8.5,
-            cgpa12th: 9.0,
-            cgpa: 8.8,
-            cgpaBeforeDrop: 8.6,
-            graduationGpa: 8.7,
-            backlogs: 0,
-            sem1Gpa: 8.2,
-            sem2Gpa: 8.4,
-            sem3Gpa: 8.6,
-            sem4Gpa: 8.8,
-            sem5Gpa: 9.0,
-            sem6Gpa: 8.9
-        };
+        // Get roll number from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const rollNumber = urlParams.get('roll');
 
         // Fetch student data from students.csv
         Papa.parse('https://raw.githubusercontent.com/avashx/nsutgod/main/students.csv', {
             download: true,
             header: true,
             complete: function(results) {
-                const students = results.data;
-                // For demo, use the first student; in a real app, match by roll number or user ID
-                studentData = students[0] || sampleStudent;
+                allStudents = results.data;
+                studentData = allStudents.find(student => student.rollNumber === rollNumber) || {};
+                if (!studentData.rollNumber) {
+                    console.error('Student not found for roll number:', rollNumber);
+                    studentData = {
+                        rollNumber: "Not Found",
+                        email: "-",
+                        personalEmail: "-",
+                        gender: "-",
+                        dob: "-",
+                        contactNumber: "-",
+                        alternateContact: "-",
+                        presentAddress: "-",
+                        permanentAddress: "-",
+                        category: "-",
+                        campus: "-",
+                        pwd: "-",
+                        bloodGroup: "-",
+                        branch: "-",
+                        batch: "-",
+                        degree: "-",
+                        cgpa10th: 0,
+                        cgpa12th: 0,
+                        cgpa: 0,
+                        cgpaBeforeDrop: 0,
+                        graduationGpa: 0,
+                        backlogs: 0,
+                        sem1Gpa: 0,
+                        sem2Gpa: 0,
+                        sem3Gpa: 0,
+                        sem4Gpa: 0,
+                        sem5Gpa: 0,
+                        sem6Gpa: 0
+                    };
+                }
                 displayStudentData();
                 renderCharts();
+                provideSuggestions();
             },
             error: function(error) {
                 console.error('Error fetching students CSV:', error);
-                studentData = sampleStudent;
+                studentData = {
+                    rollNumber: "Error",
+                    cgpa: 0
+                };
                 displayStudentData();
                 renderCharts();
+                provideSuggestions();
             }
         });
 
@@ -353,6 +371,7 @@
                     'Cutoff CGPA': parseFloat(company['Cutoff CGPA']) || 0
                 }));
                 displayEligibleCompanies();
+                provideSuggestions();
             },
             error: function(error) {
                 console.error('Error fetching companies CSV:', error);
@@ -397,20 +416,29 @@
 
         // Render CGPA and Semester GPA charts
         function renderCharts() {
-            // CGPA Chart
+            // Compute averages and highest CGPAs
+            const branchStudents = allStudents.filter(s => s.branch === studentData.branch);
+            const branchAvgCgpa = branchStudents.length ? branchStudents.reduce((sum, s) => sum + (parseFloat(s.cgpa) || 0), 0) / branchStudents.length : 0;
+            const universityAvgCgpa = allStudents.length ? allStudents.reduce((sum, s) => sum + (parseFloat(s.cgpa) || 0), 0) / allStudents.length : 0;
+            const branchHighestCgpa = branchStudents.length ? Math.max(...branchStudents.map(s => parseFloat(s.cgpa) || 0)) : 0;
+            const universityHighestCgpa = allStudents.length ? Math.max(...allStudents.map(s => parseFloat(s.cgpa) || 0)) : 0;
+
+            // CGPA Comparison Histogram
             const cgpaChartCtx = document.getElementById('cgpaChart').getContext('2d');
             new Chart(cgpaChartCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['10th', '12th', 'Current'],
+                    labels: ['Branch Avg', 'University Avg', 'Branch Highest', 'University Highest', 'Your CGPA'],
                     datasets: [{
                         label: 'CGPA',
                         data: [
-                            studentData.cgpa10th || 0,
-                            studentData.cgpa12th || 0,
+                            branchAvgCgpa.toFixed(2),
+                            universityAvgCgpa.toFixed(2),
+                            branchHighestCgpa.toFixed(2),
+                            universityHighestCgpa.toFixed(2),
                             studentData.cgpa || 0
                         ],
-                        backgroundColor: '#2c3038'
+                        backgroundColor: ['#888e95', '#888e95', '#888e95', '#888e95', '#2c3038']
                     }]
                 },
                 options: {
@@ -428,31 +456,50 @@
                         x: {
                             title: {
                                 display: true,
-                                text: 'Level'
+                                text: 'Category'
                             }
                         }
                     }
                 }
             });
 
-            // Semester-wise GPA Chart
+            // Semester-wise GPA Chart with Performance Trend
             const semesterGpaChartCtx = document.getElementById('semesterGpaChart').getContext('2d');
             new Chart(semesterGpaChartCtx, {
                 type: 'bar',
                 data: {
                     labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6'],
-                    datasets: [{
-                        label: 'Semester GPA',
-                        data: [
-                            studentData.sem1Gpa || 0,
-                            studentData.sem2Gpa || 0,
-                            studentData.sem3Gpa || 0,
-                            studentData.sem4Gpa || 0,
-                            studentData.sem5Gpa || 0,
-                            studentData.sem6Gpa || 0
-                        ],
-                        backgroundColor: '#2c3038'
-                    }]
+                    datasets: [
+                        {
+                            type: 'bar',
+                            label: 'Semester GPA',
+                            data: [
+                                studentData.sem1Gpa || 0,
+                                studentData.sem2Gpa || 0,
+                                studentData.sem3Gpa || 0,
+                                studentData.sem4Gpa || 0,
+                                studentData.sem5Gpa || 0,
+                                studentData.sem6Gpa || 0
+                            ],
+                            backgroundColor: '#2c3038'
+                        },
+                        {
+                            type: 'line',
+                            label: 'Performance Trend',
+                            data: [
+                                studentData.sem1Gpa || 0,
+                                studentData.sem2Gpa || 0,
+                                studentData.sem3Gpa || 0,
+                                studentData.sem4Gpa || 0,
+                                studentData.sem5Gpa || 0,
+                                studentData.sem6Gpa || 0
+                            ],
+                            borderColor: '#ff0000',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.1
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
@@ -464,6 +511,46 @@
                             title: {
                                 display: true,
                                 text: 'GPA'
+                            },
+                            grid: {
+                                drawBorder: true,
+                                drawOnChartArea: true
+                            },
+                            afterFit: (scale) => {
+                                scale.paddingTop = 20;
+                            },
+                            afterDataLimits: (scale) => {
+                                scale.max = Math.max(scale.max, 10);
+                            },
+                            afterBuildTicks: (scale) => {
+                                const cgpa = parseFloat(studentData.cgpa) || 0;
+                                const cgpaBeforeDrop = parseFloat(studentData.cgpaBeforeDrop) || 0;
+                                scale.ticks.push({ value: cgpa, label: `CGPA (${cgpa.toFixed(2)})` });
+                                scale.ticks.push({ value: cgpaBeforeDrop, label: `CGPA Before Drop (${cgpaBeforeDrop.toFixed(2)})` });
+                                scale.ticks = scale.ticks.filter((tick, index, self) =>
+                                    index === self.findIndex(t => t.value === tick.value)
+                                );
+                            },
+                            gridLines: {
+                                color: (context) => {
+                                    const cgpa = parseFloat(studentData.cgpa) || 0;
+                                    const cgpaBeforeDrop = parseFloat(studentData.cgpaBeforeDrop) || 0;
+                                    if (context.tick.value === cgpa) return '#00ff00';
+                                    if (context.tick.value === cgpaBeforeDrop) return '#0000ff';
+                                    return '#e5e7eb';
+                                },
+                                lineWidth: (context) => {
+                                    const cgpa = parseFloat(studentData.cgpa) || 0;
+                                    const cgpaBeforeDrop = parseFloat(studentData.cgpaBeforeDrop) || 0;
+                                    if (context.tick.value === cgpa || context.tick.value === cgpaBeforeDrop) return 2;
+                                    return 1;
+                                },
+                                borderDash: (context) => {
+                                    const cgpa = parseFloat(studentData.cgpa) || 0;
+                                    const cgpaBeforeDrop = parseFloat(studentData.cgpaBeforeDrop) || 0;
+                                    if (context.tick.value === cgpa || context.tick.value === cgpaBeforeDrop) return [5, 5];
+                                    return [];
+                                }
                             }
                         },
                         x: {
@@ -501,6 +588,59 @@
                 `;
                 tbody.appendChild(row);
             });
+        }
+
+        // Provide CGPA improvement suggestions
+        function provideSuggestions() {
+            const currentCgpa = parseFloat(studentData.cgpa) || 0;
+            const currentSemester = 6; // Assuming the student is in the 6th semester (based on data)
+            const remainingSemesters = 8 - currentSemester; // Assuming 8 semesters total for B.Tech
+            const creditsPerSemester = 20; // Assumption: 20 credits per semester
+            const totalCreditsSoFar = currentSemester * creditsPerSemester;
+            const totalCredits = 8 * creditsPerSemester; // Total credits for the degree
+
+            // Display current CGPA
+            document.getElementById('currentCgpa').textContent = currentCgpa.toFixed(2);
+
+            // Suggest a realistic target SGPA
+            // Aim to increase CGPA by 0.5 to 1.0 points, depending on current CGPA
+            let targetImprovement = currentCgpa < 7.5 ? 1.0 : 0.5;
+            let targetCgpa = Math.min(currentCgpa + targetImprovement, 10.0);
+
+            // Calculate required SGPA for the next semester
+            const currentPoints = currentCgpa * totalCreditsSoFar;
+            const remainingCredits = remainingSemesters * creditsPerSemester;
+            const requiredPoints = targetCgpa * totalCredits - currentPoints;
+            const targetSgpa = requiredPoints / remainingCredits;
+
+            // Ensure target SGPA is realistic (between 0 and 10)
+            const adjustedTargetSgpa = Math.min(Math.max(targetSgpa, currentCgpa + 0.5), 10.0);
+            document.getElementById('targetSgpa').textContent = adjustedTargetSgpa.toFixed(2);
+
+            // Calculate projected CGPA after achieving the target SGPA
+            const projectedPoints = currentPoints + (adjustedTargetSgpa * creditsPerSemester * remainingSemesters);
+            const projectedCgpa = projectedPoints / totalCredits;
+            document.getElementById('projectedCgpa').textContent = projectedCgpa.toFixed(2);
+
+            // Find companies the student can target after improving CGPA
+            const targetCompanies = companies
+                .filter(company => {
+                    const cutoff = parseFloat(company['Cutoff CGPA']) || 0;
+                    return cutoff > currentCgpa && cutoff <= projectedCgpa;
+                })
+                .sort((a, b) => b['CTC (LPA)'] - a['CTC (LPA)']);
+
+            const targetCompaniesList = document.getElementById('targetCompaniesList');
+            targetCompaniesList.innerHTML = '';
+            if (targetCompanies.length === 0) {
+                targetCompaniesList.innerHTML = '<li>No additional companies available.</li>';
+            } else {
+                targetCompanies.forEach(company => {
+                    const li = document.createElement('li');
+                    li.textContent = `${company.Company} (CTC: ${company['CTC (LPA)']} LPA, Cutoff: ${company['Cutoff CGPA']})`;
+                    targetCompaniesList.appendChild(li);
+                });
+            }
         }
 
         // Toggle navbar on mobile
