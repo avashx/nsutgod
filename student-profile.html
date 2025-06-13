@@ -65,6 +65,10 @@
             overflow: hidden;
         }
 
+        .personal-info-box {
+            grid-column: span 2;
+        }
+
         .box {
             position: relative;
             padding: 5%;
@@ -89,6 +93,7 @@
 
         .info-grid p {
             margin: 5px 0;
+            word-break: break-word;
         }
 
         .info-grid p span {
@@ -101,48 +106,53 @@
             height: 220px;
         }
 
-        .company-table {
+        .company-table, .suggestions-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
+            font-size: 14px;
+            max-height: 200px;
+            display: block;
+            overflow-y: auto;
         }
 
-        .company-table th, .company-table td {
+        .company-table thead, .suggestions-table thead {
+            position: sticky;
+            top: 0;
+            background-color: #f9fafb;
+        }
+
+        .company-table th, .company-table td,
+        .suggestions-table th, .suggestions-table td {
             padding: 8px;
             text-align: left;
             border-bottom: 1px solid #e5e7eb;
             font-size: 14px;
         }
 
-        .company-table th {
+        .company-table th, .suggestions-table th {
             background-color: #f9fafb;
             font-weight: 500;
             color: #4b5563;
         }
 
-        .suggestions {
-            margin-top: 20px;
-            font-size: 14px;
-        }
-
-        .suggestions ul {
-            list-style-type: disc;
-            margin-left: 20px;
-            max-height: 100px;
-            overflow-y: auto;
-        }
-
-        .semester-table {
-            width: 100%;
-            border-collapse: collapse;
+        .semester-grid {
+            display: grid;
+            grid-template-columns: repeat(8, minmax(60px, 1fr));
+            gap: 5px;
             margin-top: 10px;
             font-size: 14px;
+            text-align: center;
         }
 
-        .semester-table th, .semester-table td {
-            padding: 6px;
-            text-align: left;
+        .semester-grid div {
+            padding: 4px;
             border-bottom: 1px solid #e5e7eb;
+        }
+
+        .semester-grid div:first-child {
+            font-weight: 500;
+            color: #4b5563;
         }
 
         .tag {
@@ -151,6 +161,12 @@
             font-size: 12px;
             font-weight: 500;
             display: inline-block;
+        }
+
+        @media (max-width: 1024px) {
+            .personal-info-box {
+                grid-column: span 1;
+            }
         }
 
         @media (max-width: 768px) {
@@ -164,6 +180,9 @@
             .elements {
                 grid-template-columns: 1fr;
             }
+            .personal-info-box {
+                grid-column: span 1;
+            }
         }
 
         @media (max-width: 480px) {
@@ -173,13 +192,13 @@
             .content {
                 padding: 12px;
             }
-            .company-table th, .company-table td {
+            .company-table th, .company-table td,
+            .suggestions-table th, .suggestions-table td {
                 font-size: 12px;
                 padding: 6px;
             }
-            .semester-table th, .semester-table td {
-                font-size: 12px;
-                padding: 4px;
+            .semester-grid {
+                grid-template-columns: repeat(4, minmax(60px, 1fr));
             }
         }
     </style>
@@ -231,7 +250,7 @@
 
         <div class="elements">
             <!-- Box 1: Personal Information -->
-            <div class="box">
+            <div class="box personal-info-box">
                 <h3>Personal Information</h3>
                 <div class="info-grid" id="personalInfo">
                     <p>Roll Number: <span id="rollNumber">-</span></p>
@@ -264,24 +283,24 @@
                     <p>Graduation GPA: <span id="graduationGpa">-</span></p>
                     <p>Backlogs: <span id="backlogs">-</span></p>
                 </div>
-                <table class="semester-table" id="semesterGpaTable">
-                    <thead>
-                        <tr>
-                            <th>Semester</th>
-                            <th>SGPA</th>
-                        </tr>
-                    </thead>
-                    <tbody id="semesterGpaBody">
-                        <tr><td>Semester 1</td><td id="sem1Gpa">-</td></tr>
-                        <tr><td>Semester 2</td><td id="sem2Gpa">-</td></tr>
-                        <tr><td>Semester 3</td><td id="sem3Gpa">-</td></tr>
-                        <tr><td>Semester 4</td><td id="sem4Gpa">-</td></tr>
-                        <tr><td>Semester 5</td><td id="sem5Gpa">-</td></tr>
-                        <tr><td>Semester 6</td><td id="sem6Gpa">-</td></tr>
-                        <tr><td>Semester 7</td><td id="sem7Gpa">-</td></tr>
-                        <tr><td>Semester 8</td><td id="sem8Gpa">-</td></tr>
-                    </tbody>
-                </table>
+                <div class="semester-grid" id="semesterGpaGrid">
+                    <div>Semester 1</div>
+                    <div>Semester 2</div>
+                    <div>Semester 3</div>
+                    <div>Semester 4</div>
+                    <div>Semester 5</div>
+                    <div>Semester 6</div>
+                    <div>Semester 7</div>
+                    <div>Semester 8</div>
+                    <div id="sem1Gpa">-</div>
+                    <div id="sem2Gpa">-</div>
+                    <div id="sem3Gpa">-</div>
+                    <div id="sem4Gpa">-</div>
+                    <div id="sem5Gpa">-</div>
+                    <div id="sem6Gpa">-</div>
+                    <div id="sem7Gpa">-</div>
+                    <div id="sem8Gpa">-</div>
+                </div>
             </div>
 
             <!-- Box 3: CGPA Comparison Histogram -->
@@ -323,7 +342,16 @@
                     <p>Target SGPA for Next Semester: <span id="targetSgpa">-</span></p>
                     <p>Projected CGPA After Improvement: <span id="projectedCgpa">-</span></p>
                     <p>Companies You Can Target After Improvement:</p>
-                    <ul id="targetCompaniesList"></ul>
+                    <table class="suggestions-table" id="targetCompaniesTable">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>CTC (LPA)</th>
+                                <th>Cutoff CGPA</th>
+                            </tr>
+                        </thead>
+                        <tbody id="targetCompaniesBody"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -344,7 +372,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const rollNumber = urlParams.get('roll');
 
-        // Branch and Gender color mapping (consistent with index.html)
+        // Branch, Gender, and Category color mapping (consistent with index.html)
         const branchColors = {
             'CSAI': '#bfdbfe',
             'CSE': '#93c5fd',
@@ -421,35 +449,35 @@
                     console.error('Student not found for roll number:', rollNumber);
                     studentData = {
                         rollNumber: "Not Found",
+                        branch: "-",
                         email: "-",
                         personal_email: "-",
-                        gender: "-",
-                        dob: "-",
-                        contact_number: "-",
-                        alternate_contact: "-",
-                        present_address: "-",
-                        permanent_address: "-",
-                        category: "-",
-                        campus: "-",
-                        pwd: "-",
-                        blood_group: "-",
-                        branch: "-",
-                        batch: "-",
                         degree: "-",
-                        percentage_10th: "-",
-                        percentage_12th: "-",
+                        campus: "-",
+                        gender: "-",
+                        contact_number: "-",
+                        alt_contact_number: "-",
+                        cgpa_12th: "-",
+                        cgpa_10th: "-",
                         cgpa: 0,
                         cgpa_before_drop: 0,
-                        graduation_gpa: "-",
+                        sem1_gpa: 0,
+                        sem2_gpa: 0,
+                        sem3_gpa: 0,
+                        sem4_gpa: 0,
+                        sem5_gpa: 0,
+                        sem6_gpa: 0,
+                        sem7_gpa: 0,
+                        sem8_gpa: 0,
                         backlogs: "-",
-                        sem1: 0,
-                        sem2: 0,
-                        sem3: 0,
-                        sem4: 0,
-                        sem5: 0,
-                        sem6: 0,
-                        sem7: 0,
-                        sem8: 0
+                        blood_group: "-",
+                        present_address: "-",
+                        perm_address: "-",
+                        category: "-",
+                        pwd: "-",
+                        graduation_gpa: "-",
+                        dob: "-",
+                        batch: "-"
                     };
                 }
                 displayStudentData();
@@ -500,9 +528,9 @@
             }
             document.getElementById('dob').textContent = studentData.dob || '-';
             document.getElementById('contactNumber').textContent = studentData.contact_number || '-';
-            document.getElementById('alternateContact').textContent = studentData.alternate_contact || '-';
+            document.getElementById('alternateContact').textContent = studentData.alt_contact_number || '-';
             document.getElementById('presentAddress').textContent = studentData.present_address || '-';
-            document.getElementById('permanentAddress').textContent = studentData.permanent_address || '-';
+            document.getElementById('permanentAddress').textContent = studentData.perm_address || '-';
             const categorySpan = document.getElementById('category');
             categorySpan.textContent = studentData.category || '-';
             if (studentData.category) {
@@ -520,20 +548,20 @@
             }
             document.getElementById('batch').textContent = studentData.batch || '-';
             document.getElementById('degree').textContent = studentData.degree || '-';
-            document.getElementById('cgpa10th').textContent = studentData.percentage_10th || '-';
-            document.getElementById('cgpa12th').textContent = studentData.percentage_12th || '-';
+            document.getElementById('cgpa10th').textContent = studentData.cgpa_10th || '-';
+            document.getElementById('cgpa12th').textContent = studentData.cgpa_12th || '-';
             document.getElementById('cgpa').textContent = studentData.cgpa || '-';
             document.getElementById('cgpaBeforeDrop').textContent = studentData.cgpa_before_drop || '-';
             document.getElementById('graduationGpa').textContent = studentData.graduation_gpa || '-';
             document.getElementById('backlogs').textContent = studentData.backlogs || '-';
-            document.getElementById('sem1Gpa').textContent = studentData.sem1 || '-';
-            document.getElementById('sem2Gpa').textContent = studentData.sem2 || '-';
-            document.getElementById('sem3Gpa').textContent = studentData.sem3 || '-';
-            document.getElementById('sem4Gpa').textContent = studentData.sem4 || '-';
-            document.getElementById('sem5Gpa').textContent = studentData.sem5 || '-';
-            document.getElementById('sem6Gpa').textContent = studentData.sem6 || '-';
-            document.getElementById('sem7Gpa').textContent = studentData.sem7 || '-';
-            document.getElementById('sem8Gpa').textContent = studentData.sem8 || '-';
+            document.getElementById('sem1Gpa').textContent = studentData.sem1_gpa || '-';
+            document.getElementById('sem2Gpa').textContent = studentData.sem2_gpa || '-';
+            document.getElementById('sem3Gpa').textContent = studentData.sem3_gpa || '-';
+            document.getElementById('sem4Gpa').textContent = studentData.sem4_gpa || '-';
+            document.getElementById('sem5Gpa').textContent = studentData.sem5_gpa || '-';
+            document.getElementById('sem6Gpa').textContent = studentData.sem6_gpa || '-';
+            document.getElementById('sem7Gpa').textContent = studentData.sem7_gpa || '-';
+            document.getElementById('sem8Gpa').textContent = studentData.sem8_gpa || '-';
         }
 
         // Render CGPA and Semester GPA charts
@@ -630,14 +658,14 @@
                             type: 'bar',
                             label: 'Semester GPA',
                             data: [
-                                studentData.sem1 || 0,
-                                studentData.sem2 || 0,
-                                studentData.sem3 || 0,
-                                studentData.sem4 || 0,
-                                studentData.sem5 || 0,
-                                studentData.sem6 || 0,
-                                studentData.sem7 || 0,
-                                studentData.sem8 || 0
+                                studentData.sem1_gpa || 0,
+                                studentData.sem2_gpa || 0,
+                                studentData.sem3_gpa || 0,
+                                studentData.sem4_gpa || 0,
+                                studentData.sem5_gpa || 0,
+                                studentData.sem6_gpa || 0,
+                                studentData.sem7_gpa || 0,
+                                studentData.sem8_gpa || 0
                             ],
                             backgroundColor: '#2c3038'
                         },
@@ -645,14 +673,14 @@
                             type: 'line',
                             label: 'Performance Trend',
                             data: [
-                                studentData.sem1 || 0,
-                                studentData.sem2 || 0,
-                                studentData.sem3 || 0,
-                                studentData.sem4 || 0,
-                                studentData.sem5 || 0,
-                                studentData.sem6 || 0,
-                                studentData.sem7 || 0,
-                                studentData.sem8 || 0
+                                studentData.sem1_gpa || 0,
+                                studentData.sem2_gpa || 0,
+                                studentData.sem3_gpa || 0,
+                                studentData.sem4_gpa || 0,
+                                studentData.sem5_gpa || 0,
+                                studentData.sem6_gpa || 0,
+                                studentData.sem7_gpa || 0,
+                                studentData.sem8_gpa || 0
                             ],
                             borderColor: '#ff0000',
                             borderWidth: 2,
@@ -754,9 +782,16 @@
         // Provide CGPA improvement suggestions with realistic target SGPA
         function provideSuggestions() {
             const currentCgpa = parseFloat(studentData.cgpa) || 0;
-            const semesters = [studentData.sem1, studentData.sem2, studentData.sem3, studentData.sem4, studentData.sem5, studentData.sem6, studentData.sem7, studentData.sem8]
-                .map(parseFloat)
-                .filter(val => !isNaN(val) && val > 0);
+            const semesters = [
+                studentData.sem1_gpa,
+                studentData.sem2_gpa,
+                studentData.sem3_gpa,
+                studentData.sem4_gpa,
+                studentData.sem5_gpa,
+                studentData.sem6_gpa,
+                studentData.sem7_gpa,
+                studentData.sem8_gpa
+            ].map(parseFloat).filter(val => !isNaN(val) && val > 0);
             const currentSemester = semesters.length; // Number of semesters with valid SGPAs
             const remainingSemesters = 8 - currentSemester; // Assuming 8 semesters total for B.Tech
             const creditsPerSemester = 20; // Assumption: 20 credits per semester
@@ -801,20 +836,20 @@
                 })
                 .sort((a, b) => b['CTC (LPA)'] - a['CTC (LPA)']);
 
-            const targetCompaniesList = document.getElementById('targetCompaniesList');
-            targetCompaniesList.innerHTML = '';
+            const targetCompaniesBody = document.getElementById('targetCompaniesBody');
+            targetCompaniesBody.innerHTML = '';
             if (targetCompanies.length === 0) {
-                targetCompaniesList.innerHTML = '<li>No additional companies available.</li>';
+                targetCompaniesBody.innerHTML = '<tr><td colspan="3">No additional companies available.</td></tr>';
             } else {
                 targetCompanies.forEach(company => {
                     const companyType = getCompanyType(company.Company);
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <span class="tag" style="background-color: ${companyTypeColors[companyType]}">${company.Company}</span> 
-                        (CTC: <span class="tag" style="background-color: ${getCtcColor(company['CTC (LPA)'])}">${company['CTC (LPA)']} LPA</span>, 
-                        Cutoff: <span class="tag" style="background-color: ${getCutoffColor(company['Cutoff CGPA'])}">${company['Cutoff CGPA']}</span>)
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><span class="tag" style="background-color: ${companyTypeColors[companyType]}">${company.Company}</span></td>
+                        <td><span class="tag" style="background-color: ${getCtcColor(company['CTC (LPA)'])}">${company['CTC (LPA)']} LPA</span></td>
+                        <td><span class="tag" style="background-color: ${getCutoffColor(company['Cutoff CGPA'])}">${company['Cutoff CGPA']}</span></td>
                     `;
-                    targetCompaniesList.appendChild(li);
+                    targetCompaniesBody.appendChild(row);
                 });
             }
         }
