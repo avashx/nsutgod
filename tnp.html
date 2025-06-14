@@ -23,6 +23,15 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             margin-top: 16px;
         }
+        .realtime-list-container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-top: 16px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
         .table-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -43,15 +52,11 @@
             position: relative;
             cursor: pointer;
             white-space: nowrap;
-            width: auto; /* Adjust to content in expanded state */
-        }
-        .company-table th.jobtitle-header {
-            width: 80px; /* Specific width for Job Title in expanded state */
+            max-width: 120px;
             min-width: 80px;
         }
-        .company-table th.info-header {
-            width: auto;
-            min-width: 200px; /* Minimum width for 'Info' column in expanded state */
+        .company-table th[data-sort="jobtitle"] {
+            width: 120px;
         }
         .company-table th:hover {
             background-color: #f5f5f5;
@@ -76,37 +81,16 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            height: 30px; /* Default height for expanded state */
+            height: 30px;
             line-height: 30px;
-            width: auto; /* Adjust to content in expanded state */
-        }
-        .company-table td.jobtitle-column {
-            width: 80px; /* Specific width for Job Title in expanded state */
-            min-width: 80px;
+            max-width: 120px;
         }
         .company-table td.info-column {
-            width: auto;
-            min-width: 200px; /* Minimum width for 'Info' column in expanded state */
-        }
-        /* Collapsed state styles */
-        .company-table.collapsed th,
-        .company-table.collapsed td {
-            padding: 2px 4px; /* Reduced padding for collapsed state */
-            height: 20px; /* Reduced height for collapsed state */
-            line-height: 20px;
-            width: 80px; /* Uniform smaller width for collapsed state */
-            max-width: 120px; /* Maximum width for any column in collapsed state */
-            font-size: 12px; /* Slightly smaller font size */
-        }
-        .company-table.collapsed th.jobtitle-header,
-        .company-table.collapsed td.jobtitle-column {
-            width: 80px; /* Maintain Job Title width in collapsed state */
-            max-width: 80px;
-        }
-        .company-table.collapsed th.info-header,
-        .company-table.collapsed td.info-column {
-            width: 120px; /* Smaller width for 'Info' column in collapsed state */
             max-width: 120px;
+        }
+        .company-table th.resized, .company-table td.resized {
+            width: auto !important;
+            max-width: none !important;
         }
         .company-table .sort-icon {
             display: inline-block;
@@ -142,18 +126,6 @@
         }
         .action-btn:hover {
             background-color: #374151;
-        }
-        .collapse-btn {
-            padding: 4px 8px;
-            background-color: #6b7280;
-            color: #fff;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-            transition: background-color 0.2s ease;
-        }
-        .collapse-btn:hover {
-            background-color: #4b5563;
         }
         .network-log {
             margin-top: 16px;
@@ -213,10 +185,6 @@
             }
             .navbar {
                 width: 200px;
-            }
-            /* Hide navbar by default on mobile */
-            .navbar {
-                transform: translateX(-100%);
             }
         }
         @media (max-width: 480px) {
@@ -328,7 +296,6 @@
                         <option value="200">Fetch 200</option>
                         <option value="500">Fetch 500</option>
                     </select>
-                    <button id="show-companies" class="action-btn hidden">Show Companies</button>
                     <button id="export-csv" class="action-btn hidden">Export to CSV</button>
                 </div>
                 <div class="flex flex-wrap gap-2 filter-group">
@@ -357,14 +324,17 @@
                 </div>
             </div>
 
+            <!-- Real-time Company List -->
+            <div class="realtime-list-container" id="realtime-list">
+                <h3 class="text-lg font-semibold mb-4">Fetching Companies...</h3>
+                <ul id="realtime-list-body" class="space-y-2"></ul>
+            </div>
+
             <!-- Company Recruitment Table -->
             <div class="company-table-container">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold">Company Recruitment</h3>
-                    <button id="collapse-table" class="collapse-btn">Expand</button>
-                </div>
+                <h3 class="text-lg font-semibold mb-4">Company Recruitment</h3>
                 <div class="table-wrapper">
-                    <table class="company-table collapsed" id="company-table">
+                    <table class="company-table" id="company-table">
                         <thead>
                             <tr>
                                 <th data-sort="serial">Serial No <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
@@ -373,11 +343,10 @@
                                 <th>View <div class="resize-handle"></div></th>
                                 <th data-sort="company_category">Category <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="year">Year <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="jobtitle" class="jobtitle-header">Job Title <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="jobtitle">Job Title <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="category">Event Category <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="stipend">Stipend (INR) <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="duration">Duration <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="placeOfPosting">Location <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="type">Type <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="graduation_cgpa">Graduation CGPA <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="degree">Degree <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
@@ -390,6 +359,7 @@
                                 <th data-sort="backlogs">Backlogs <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="branches_allowed">Branches Allowed <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="lastDate">Deadline <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="placeOfPosting">Location <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="degrees_allowed">Degrees <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="apc">POC <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="placement_interviews">Placement Interviews <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
@@ -398,7 +368,7 @@
                                 <th data-sort="createdAt">Created At <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="updatedAt">Updated At <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="event_id">Event ID <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="info" class="info-header">Info <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="info">Info <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                             </tr>
                         </thead>
                         <tbody id="company-table-body"></tbody>
@@ -421,7 +391,6 @@
         // DOM Elements
         const fetchButton = document.getElementById('fetch-companies');
         const fetchLimit = document.getElementById('fetch-limit');
-        const showCompaniesButton = document.getElementById('show-companies');
         const exportCsvButton = document.getElementById('export-csv');
         const tableBody = document.getElementById('company-table-body');
         const networkLogBody = document.getElementById('network-log-body');
@@ -431,18 +400,13 @@
         const typeFilter = document.getElementById('type-filter');
         const cgpaFilter = document.getElementById('cgpa-filter');
         const nameFilter = document.getElementById('name-filter');
-        const collapseButton = document.getElementById('collapse-table');
-        const companyTable = document.getElementById('company-table');
+        const realtimeListBody = document.getElementById('realtime-list-body');
 
         // State
         let companyData = [];
         let filteredData = [];
         let sortColumn = null;
-        let sortDirection = 1; // 1 for ascending, -1 for descending
-        let isTableCollapsed = true;
-        let fetchedCompanies = [];
-        const CACHE_KEY = 'fetchedCompaniesCache';
-        const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+        let sortDirection = 1;
 
         // Bearer Token
         const bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc0Nzk3MzA5MywiZXhwIjoxNzUwNTY1MDkzfQ.oDgKeLGpRDz4w7zKWBUHS-trIyiJI2qp3GIs8qTBGsE";
@@ -475,42 +439,36 @@
         };
 
         const eventCategoryColors = {
-            'tech': '#bfdbfe', // Light blue
-            'default': '#e5e7eb' // Gray for others
-        };
-
-        const typeColors = {
-            'Placement': '#d1fae5', // Light green
-            'Internship': '#ffedd5', // Light orange
+            'tech': '#bfdbfe',
             'default': '#e5e7eb'
         };
 
-        const statusColors = {
-            'Open': '#d1fae5', // Light green
-            'Closed': '#fee2e2', // Light red
-            'default': '#e5e7eb' // Gray for others
+        const typeColors = {
+            'Placement': '#d1fae5',
+            'Internship': '#ffedd5',
+            'default': '#e5e7eb'
         };
 
         function getStipendColor(stipend) {
             const value = parseFloat(stipend) || 0;
-            if (value < 500000) return '#fee2e2'; // Red for low stipend
-            if (value <= 2000000) return '#fef9c3'; // Yellow for medium
-            return '#d1fae5'; // Green for high
+            if (value < 500000) return '#fee2e2';
+            if (value <= 2000000) return '#fef9c3';
+            return '#d1fae5';
         }
 
         const locationColors = {
-            'Bangalore': '#bfdbfe', // Light blue
-            'Hyderabad': '#d1fae5', // Light green
-            'Pune': '#ffedd5', // Light orange
-            'Gurgaon': '#fef9c3', // Light yellow
-            'Delhi': '#fce7f3', // Light pink
-            'default': '#e5e7eb' // Gray for others
+            'Bangalore': '#bfdbfe',
+            'Hyderabad': '#d1fae5',
+            'Pune': '#ffedd5',
+            'Gurgaon': '#fef9c3',
+            'Delhi': '#fce7f3',
+            'default': '#e5e7eb'
         };
 
         function getLocationColor(location) {
             if (!location) return locationColors.default;
             const cities = location.split(',').map(city => city.trim());
-            const firstCity = cities[0].split('/')[0]; // Handle "Bangalore/Hyderabad" by taking first city
+            const firstCity = cities[0].split('/')[0];
             return locationColors[firstCity] || locationColors.default;
         }
 
@@ -522,56 +480,12 @@
             return '#d1fae5';
         }
 
-        // Cache Management
-        function getCachedData() {
-            const cached = localStorage.getItem(CACHE_KEY);
-            if (!cached) return null;
-            const { data, timestamp } = JSON.parse(cached);
-            if (Date.now() - timestamp > CACHE_DURATION) {
-                localStorage.removeItem(CACHE_KEY);
-                return null;
-            }
-            return data;
-        }
-
-        function setCachedData(data) {
-            const cacheEntry = {
-                data,
-                timestamp: Date.now()
-            };
-            localStorage.setItem(CACHE_KEY, JSON.stringify(cacheEntry));
-        }
-
-        // Fetch with Timeout and Retry
-        async function fetchWithTimeout(url, options, timeout = 5000) {
-            const controller = new AbortController();
-            const id = setTimeout(() => controller.abort(), timeout);
-            try {
-                const response = await fetch(url, { ...options, signal: controller.signal });
-                clearTimeout(id);
-                return response;
-            } catch (error) {
-                clearTimeout(id);
-                throw error;
-            }
-        }
-
-        async function fetchWithRetry(url, options, retries = 3, delay = 1000) {
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const response = await fetchWithTimeout(url, options);
-                    return response;
-                } catch (error) {
-                    if (i === retries - 1) throw error;
-                    if (error.name === 'AbortError') {
-                        throw new Error(`Request to ${url} timed out after 5 seconds`);
-                    }
-                    if (error.message.includes('ERR_NAME_NOT_RESOLVED')) {
-                        throw new Error(`DNS resolution failed for ${url}. The server may be down or unreachable.`);
-                    }
-                    await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
-                }
-            }
+        // Update real-time company list
+        function updateRealtimeList(company) {
+            const listItem = document.createElement('li');
+            listItem.textContent = `Fetched: ${company.name || 'Unknown'} (ID: ${company.id})`;
+            listItem.className = 'text-sm text-gray-600';
+            realtimeListBody.insertBefore(listItem, realtimeListBody.firstChild);
         }
 
         // Fetch list of companies
@@ -579,7 +493,7 @@
             const url = 'https://api.tnpnsut.in/companies';
             const startTime = performance.now();
             try {
-                const response = await fetchWithRetry(url, { headers });
+                const response = await fetch(url, { headers });
                 const endTime = performance.now();
                 const size = response.headers.get('content-length') || 'Unknown';
                 logNetworkActivity(url, response.status, size, endTime - startTime, 'fetch');
@@ -605,7 +519,7 @@
             const url = `https://api.tnpnsut.in/companies/${companyId}`;
             const startTime = performance.now();
             try {
-                const response = await fetchWithRetry(url, { headers });
+                const response = await fetch(url, { headers });
                 const endTime = performance.now();
                 const size = response.headers.get('content-length') || 'Unknown';
                 logNetworkActivity(url, response.status, size, endTime - startTime, 'fetch');
@@ -635,24 +549,10 @@
             loading.classList.remove('hidden');
             errorMessage.classList.add('hidden');
             networkLogBody.innerHTML = '';
+            realtimeListBody.innerHTML = '';
             companyData = [];
             filteredData = [];
-            fetchedCompanies = [];
             exportCsvButton.classList.add('hidden');
-            showCompaniesButton.classList.add('hidden');
-
-            // Check for cached data
-            const cachedData = getCachedData();
-            if (cachedData) {
-                fetchedCompanies = cachedData;
-                companyData = [...fetchedCompanies];
-                filteredData = [...companyData];
-                applyFilters();
-                showCompaniesButton.classList.remove('hidden');
-                loading.classList.add('hidden');
-                showError('Using cached data due to previous successful fetch. Click "Show Companies" to display.');
-                return;
-            }
 
             try {
                 const companies = await fetchCompaniesList();
@@ -660,37 +560,11 @@
                     throw new Error('No companies found in the API response.');
                 }
 
-                showCompaniesButton.classList.remove('hidden');
-            } catch (error) {
-                showError(error.message);
-                loading.classList.add('hidden');
-            }
-        }
-
-        // Show companies in real-time
-        async function showCompanies() {
-            loading.classList.remove('hidden');
-            showCompaniesButton.classList.add('hidden');
-            tableBody.innerHTML = '';
-
-            // Check if we already have fetchedCompanies (from cache or previous fetch)
-            if (fetchedCompanies.length > 0) {
-                companyData = [...fetchedCompanies];
-                filteredData = [...companyData];
-                applyFilters();
-                exportCsvButton.classList.remove('hidden');
-                loading.classList.add('hidden');
-                return;
-            }
-
-            try {
-                const companies = await fetchCompaniesList();
                 for (const company of companies) {
                     try {
+                        updateRealtimeList(company);
                         const details = await fetchCompanyDetails(company.id);
-                        const companyEntry = { id: company.id, name: company.name, details };
-                        fetchedCompanies.push(companyEntry);
-                        companyData = [...fetchedCompanies];
+                        companyData.push({ id: company.id, name: company.name, details });
                         filteredData = [...companyData];
                         applyFilters();
                         await new Promise(resolve => setTimeout(resolve, 100));
@@ -703,8 +577,6 @@
                     throw new Error('No company details fetched. Please check the API or token.');
                 }
 
-                // Cache the fetched data
-                setCachedData(fetchedCompanies);
                 exportCsvButton.classList.remove('hidden');
             } catch (error) {
                 showError(error.message);
@@ -792,15 +664,14 @@
                     <td><button class="view-btn" onclick="window.open('company-profile.html?id=${details._id}', '_blank')">View</button></td>
                     <td><span class="tag" style="background-color: ${categoryColors[details.company_category] || categoryColors.default}">${details.company_category || '-'}</span></td>
                     <td><span class="tag" style="background-color: ${yearColors[details.year] || '#e5e7eb'}">${details.year || '-'}</span></td>
-                    <td class="jobtitle-column">${event.jobtitle || '-'}</td>
+                    <td>${event.jobtitle || '-'}</td>
                     <td><span class="tag" style="background-color: ${eventCategoryColors[event.category] || eventCategoryColors.default}">${event.category || '-'}</span></td>
                     <td><span class="tag" style="background-color: ${getStipendColor(event.stipend)}">${event.stipend !== undefined ? event.stipend : '-'}</span></td>
                     <td>${event.duration || '-'}</td>
-                    <td><span class="tag" style="background-color: ${getLocationColor(event.placeOfPosting)}">${event.placeOfPosting || '-'}</span></td>
                     <td><span class="tag" style="background-color: ${typeColors[event.type] || typeColors.default}">${event.type || '-'}</span></td>
                     <td><span class="tag" style="background-color: ${getCgpaColor(event.graduation_cgpa)}">${event.graduation_cgpa !== undefined ? event.graduation_cgpa : '-'}</span></td>
                     <td>${event.degree || '-'}</td>
-                    <td><span class="tag" style="background-color: ${statusColors[event.status] || statusColors.default}">${event.status || '-'}</span></td>
+                    <td>${event.status || '-'}</td>
                     <td>${event.optional_criteria !== undefined ? event.optional_criteria : '-'}</td>
                     <td>${event.cgpa_10th !== undefined ? event.cgpa_10th : '-'}</td>
                     <td>${event.cgpa_12th !== undefined ? event.cgpa_12th : '-'}</td>
@@ -809,6 +680,7 @@
                     <td>${event.backlogs !== undefined ? event.backlogs : '-'}</td>
                     <td>${branchesAllowed || '-'}</td>
                     <td>${event.lastDate || '-'}</td>
+                    <td><span class="tag" style="background-color: ${getLocationColor(event.placeOfPosting)}">${event.placeOfPosting || '-'}</span></td>
                     <td>${(event.degrees_allowed || []).join(', ') || '-'}</td>
                     <td>${event.apc || '-'}</td>
                     <td>${details.placement_interviews && details.placement_interviews.length > 0 ? details.placement_interviews.length : 'None'}</td>
@@ -827,10 +699,10 @@
         function exportToCsv() {
             const headers = [
                 'Serial No', 'ID', 'Name', 'View', 'Category', 'Year', 'Job Title', 'Event Category', 
-                'Stipend (INR)', 'Duration', 'Location', 'Type', 'Graduation CGPA', 'Degree', 'Status', 
-                'Optional Criteria', 'CGPA 10th', 'CGPA 12th', 'Stipend Info', 'Campus', 'Backlogs', 
-                'Branches Allowed', 'Deadline', 'Degrees', 'POC', 'Placement Interviews', 
-                'Internship Shortlists', 'Published At', 'Created At', 'Updated At', 'Event ID', 'Info'
+                'Stipend (INR)', 'Duration', 'Type', 'Graduation CGPA', 'Degree', 'Status', 'Optional Criteria', 
+                'CGPA 10th', 'CGPA 12th', 'Stipend Info', 'Campus', 'Backlogs', 'Branches Allowed', 'Deadline', 
+                'Location', 'Degrees', 'POC', 'Placement Interviews', 'Internship Shortlists', 'Published At', 
+                'Created At', 'Updated At', 'Event ID', 'Info'
             ];
             const rows = filteredData.map((company, index) => {
                 const details = company.details || {};
@@ -840,14 +712,13 @@
                     index + 1,
                     details._id || '-',
                     `"${(details.Name || company.name || '-').replace(/"/g, '""')}"`,
-                    'View', // Placeholder for View button
+                    'View',
                     details.company_category || '-',
                     details.year || '-',
                     `"${(event.jobtitle || '-').replace(/"/g, '""')}"`,
                     event.category || '-',
                     event.stipend !== undefined ? event.stipend : '-',
                     `"${(event.duration || '-').replace(/"/g, '""')}"`,
-                    event.placeOfPosting || '-',
                     event.type || '-',
                     event.graduation_cgpa !== undefined ? event.graduation_cgpa : '-',
                     event.degree || '-',
@@ -860,6 +731,7 @@
                     event.backlogs !== undefined ? event.backlogs : '-',
                     branchesAllowed || '-',
                     event.lastDate || '-',
+                    event.placeOfPosting || '-',
                     (event.degrees_allowed || []).join(', ') || '-',
                     `"${(event.apc || '-').replace(/"/g, '""')}"`,
                     details.placement_interviews && details.placement_interviews.length > 0 ? details.placement_interviews.length : 'None',
@@ -894,18 +766,6 @@
             loading.classList.add('hidden');
         }
 
-        // Toggle table collapse/expand
-        collapseButton.addEventListener('click', () => {
-            isTableCollapsed = !isTableCollapsed;
-            if (isTableCollapsed) {
-                companyTable.classList.add('collapsed');
-                collapseButton.textContent = 'Expand';
-            } else {
-                companyTable.classList.remove('collapsed');
-                collapseButton.textContent = 'Collapse';
-            }
-        });
-
         // Column resizing
         document.querySelectorAll('.resize-handle').forEach(handle => {
             handle.addEventListener('mousedown', (e) => {
@@ -915,7 +775,13 @@
 
                 const onMouseMove = (e) => {
                     const newWidth = startWidth + (e.pageX - startX);
-                    th.style.width = `${Math.min(Math.max(80, newWidth), 1000)}px`; // Limit max width to 1000px
+                    th.style.width = `${Math.max(80, newWidth)}px`;
+                    th.classList.add('resized');
+                    const index = Array.from(th.parentElement.children).indexOf(th);
+                    document.querySelectorAll(`#company-table tbody tr td:nth-child(${index + 1})`).forEach(td => {
+                        td.style.width = `${Math.max(80, newWidth)}px`;
+                        td.classList.add('resized');
+                    });
                 };
 
                 const onMouseUp = () => {
@@ -961,7 +827,6 @@
 
         // Event Listeners
         fetchButton.addEventListener('click', fetchAllCompanies);
-        showCompaniesButton.addEventListener('click', showCompanies);
         exportCsvButton.addEventListener('click', exportToCsv);
 
         // Filter event listeners
