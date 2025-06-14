@@ -3,47 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Company Data Viewer</title>
+    <title>Company</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for Notion-like table */
+        .notion-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+        }
+        .notion-table th, .notion-table td {
+            border-right: 1px solid #e1e1e1;
+            border-bottom: 1px solid #e1e1e1;
+            padding: 8px 12px;
+            text-align: left;
+            vertical-align: middle;
+        }
+        .notion-table th {
+            background-color: #f6f6f6;
+            font-weight: 500;
+            color: #37352f;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .notion-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        .notion-table .sort-icon {
+            display: inline-block;
+            margin-left: 4px;
+            font-size: 12px;
+        }
+        .text-clip {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .network-log-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+        .network-log-table th, .network-log-table td {
+            border: 1px solid #e1e1e1;
+            padding: 8px;
+            text-align: left;
+        }
+        .network-log-table th {
+            background-color: #f6f6f6;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 font-sans">
-    <div class="container mx-auto p-4">
-        <h1 class="text-3xl font-bold mb-4 text-center">Company Data Viewer</h1>
+<body class="bg-gray-50 font-sans">
+    <div class="container mx-auto p-6">
+        <h1 class="text-2xl font-semibold mb-6 text-gray-800">Company</h1>
 
-        <!-- Input for Bearer Token -->
+        <!-- Fetch Button and Filters -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
+            <button id="fetch-companies" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">Fetch Companies</button>
+            <div class="flex flex-wrap gap-4">
+                <div>
+                    <label for="year-filter" class="text-sm text-gray-600 mr-2">Year:</label>
+                    <select id="year-filter" class="border border-gray-300 rounded px-2 py-1">
+                        <option value="">All</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                        <option value="2027">2027</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="type-filter" class="text-sm text-gray-600 mr-2">Type:</label>
+                    <input id="type-filter" type="text" placeholder="e.g., tech" class="border border-gray-300 rounded px-2 py-1">
+                </div>
+                <div>
+                    <label for="cgpa-filter" class="text-sm text-gray-600 mr-2">CGPA:</label>
+                    <input id="cgpa-filter" type="number" placeholder="e.g., 8" step="0.1" class="border border-gray-300 rounded px-2 py-1 w-24">
+                </div>
+                <div>
+                    <label for="name-filter" class="text-sm text-gray-600 mr-2">Name:</label>
+                    <input id="name-filter" type="text" placeholder="e.g., Google" class="border border-gray-300 rounded px-2 py-1">
+                </div>
+            </div>
+        </div>
+
+        <!-- Collapse Button -->
         <div class="mb-4">
-            <label for="bearer-token" class="block text-sm font-medium text-gray-700">Bearer Token:</label>
-            <input type="text" id="bearer-token" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="Enter Bearer Token" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc0Nzk3MzA5MywiZXhwIjoxNzUwNTY1MDkzfQ.oDgKeLGpRDz4w7zKWBUHS-trIyiJI2qp3GIs8qTBGsE">
+            <button id="collapse-toggle" class="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 transition">Collapse Rows</button>
         </div>
 
         <!-- Table to Display Data -->
-        <div class="overflow-x-auto">
-            <table id="company-table" class="min-w-full bg-white border border-gray-200">
+        <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-sm">
+            <table id="company-table" class="notion-table">
                 <thead>
-                    <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                        <th class="py-3 px-6 text-left">ID</th>
-                        <th class="p-3">Name</th>
-                        <th class="p-3">Info</th>
-                        <th class="p-3">Category</th>
-                        <th class="p-3">Year</th>
-                        <th class="p-3">Type</th>
-                        <th class="p-3">Degree</th>
-                        <th class="p-3">Status</th>
-                        <th class="p-3">CGPA</th>
-                        <th class="p-3">Published At</th>
+                    <tr>
+                        <th class="w-16 cursor-pointer" data-sort="serial">Serial No <span class="sort-icon">↕</span></th>
+                        <th class="w-48 cursor-pointer" data-sort="id">ID <span class="sort-icon">↕</span></th>
+                        <th class="w-48 cursor-pointer" data-sort="name">Name <span class="sort-icon">↕</span></th>
+                        <th class="w-64 cursor-pointer" data-sort="info">Info <span class="sort-icon">↕</span></th>
+                        <th class="w-32 cursor-pointer" data-sort="company_category">Category <span class="sort-icon">↕</span></th>
+                        <th class="w-24 cursor-pointer" data-sort="year">Year <span class="sort-icon">↕</span></th>
+                        <th class="w-24 cursor-pointer" data-sort="category">Type <span class="sort-icon">↕</span></th>
+                        <th class="w-24 cursor-pointer" data-sort="degree">Degree <span class="sort-icon">↕</span></th>
+                        <th class="w-24 cursor-pointer" data-sort="status">Status <span class="sort-icon">↕</span></th>
+                        <th class="w-24 cursor-pointer" data-sort="graduation_cgpa">CGPA <span class="sort-icon">↕</span></th>
+                        <th class="w-48 cursor-pointer" data-sort="published_at">Published At <span class="sort-icon">↕</span></th>
                     </tr>
                 </thead>
-                <tbody id="company-table-body" class="text-gray-600 text-sm font-light">
+                <tbody id="company-table-body" class="text-gray-600 text-sm">
                     <!-- Rows will be populated dynamically -->
                 </tbody>
             </table>
         </div>
 
-        <!-- Pagination Controls -->
-        <div class="flex justify-between items-center mt-4">
-            <button id="prev-page" class="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-300" disabled>Previous</button>
-            <span id="page-info" class="text-gray-700">Page 1</span>
-            <button id="next-page" class="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-300" disabled>Next</button>
+        <!-- Network Activity Log -->
+        <div class="mt-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-2">Network Activity</h2>
+            <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-sm">
+                <table class="network-log-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Size</th>
+                            <th>Time</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody id="network-log-body" class="text-gray-600 text-sm">
+                        <!-- Network logs will be populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Loading Indicator -->
@@ -54,113 +146,208 @@
     </div>
 
     <script>
-        // Company IDs from 2023.json and 2024.json
-        const companies = [
-            // 2023.json
-            {"id":"649f3bdc1111ea02b0451a22","name":"IBM"},{"id":"649f3c031111ea02b0451a23","name":"Amazon"},{"id":"649f3c741111ea02b0451a24","name":"Apple Inc."},{"id":"649f3ca11111ea02b0451a25","name":"Microsoft"},{"id":"649f3cd61111ea02b0451a26","name":"Google"},{"id":"64c13aced0de0d20783cfb60","name":"Sprinklr"},{"id":"64c13b3ad0de0d20783cfb61","name":"Winzo"},{"id":"64c13e8cd0de0d20783cfb68","name":"Zomato"},{"id":"64c37fc9fa0272cfbb937427","name":"Unicommerce"},{"id":"64eb2cacfa0272cfbb9374e7","name":"Thorogood"},{"id":"64eb610cfa0272cfbb9375af","name":"NewGenesis"},{"id":"64eb77effa0272cfbb937603","name":"Probo"},{"id":"64ec6466249ec9516a48097d","name":"EY"},{"id":"64ee5e74249ec9516a480b70","name":"Morphle Labs"},{"id":"64f32792249ec9516a480e14","name":"DunnHumby"},{"id":"64f32a54249ec9516a480e2e","name":"FNZ"},{"id":"64f336b1249ec9516a480ed8","name":"Siemens EDA"},{"id":"64f5efe1249ec9516a481101","name":"Home Center (Landmark Group)"},{"id":"64f5f31b249ec9516a481125","name":"Octro"},{"id":"64f5fed6249ec9516a4811af","name":"Scry Analytics"},{"id":"64f6e9225a3423bd3efa800f","name":"Recur Club"},{"id":"64f97afd30a16cc75b29111d","name":"Wells Fargo"},{"id":"64f9ebb7eca13ae9866f575a","name":"Nvidia"},{"id":"64fa1643eca13ae9866f5837","name":"Sirovate Technologies"},{"id":"64fa28c4eca13ae9866f5868","name":"Acuvon Consulting"},{"id":"6501418534c310f49be28280","name":"UiPath"},{"id":"65015baf34c310f49be28319","name":"Samsung R&D Noida"},{"id":"6501a28c34c310f49be28414","name":"Incedo"},{"id":"6501daab2bb93e1517ab9e9c","name":"AM Docs"},{"id":"6503e91608f79b1bcbc88254","name":"Hughes Systique"},{"id":"65044456c828d5240533ea2e","name":"VERIZON"},{"id":"6505340bc828d5240533ea7b","name":"Siemens EDA"},{"id":"65053b90c828d5240533ea8d","name":"Amantya Technologies"},{"id":"6507de63c828d5240533eccb","name":"TransOrg Analytics"},{"id":"65096b52c8efe43853560bb7","name":"Synaptic"},{"id":"650af78cc8efe43853560e46","name":"Pharmeasy"},{"id":"650c20fac8efe43853560f8e","name":"Qbit Labs Pvt Ltd"},{"id":"650c2a26c8efe43853560fa3","name":"Greyorange"},{"id":"650f834ec8efe43853561284","name":"Structured"},{"id":"650ff85ec8efe43853561388","name":"Nation with Namo"},{"id":"650ffcb8c8efe43853561391","name":"Truminds"},{"id":"6512a4d1c8efe438535618f4","name":"ARM"},{"id":"6512e2c3c8efe43853561985","name":"Sun Life Global Solutions"},{"id":"6513eb4bf37b2baf977220fe","name":"Galytix Analytics Pvt. Ltd."},{"id":"65164b7098b7d0bc5397160f","name":"HLS Asia"},{"id":"6516660898b7d0bc53971643","name":"C-DOT"},{"id":"6517d0ac98b7d0bc53971739","name":"McKinsey"},{"id":"651a8957d0937fd85b8278c3","name":"Case New Holland"},{"id":"651bd556d0937fd85b827ce0","name":"Fundwave"},{"id":"651c1df42bb761e94d7a5a76","name":"WTW"},{"id":"651c58772bb761e94d7a5c54","name":"Contlo"},{"id":"651cfcf32bb761e94d7a5e03","name":"CYNLR"},{"id":"651f88902bb761e94d7a60ae","name":"Gan Studio(Gan.Ai)"},{"id":"651fca9b2bb761e94d7a6116","name":"ZS Associates"},{"id":"651fd52c2bb761e94d7a61e8","name":"Technip Energies"},{"id":"651fde502bb761e94d7a6225","name":"S&P Global"},{"id":"651fed682bb761e94d7a6261","name":"Remfry & Sagar"},{"id":"6521a17a2bb761e94d7a6523","name":"Hero MotoCorp Limited"},{"id":"6521a2d22bb761e94d7a6524","name":"AccioJob"},{"id":"6521a9342bb761e94d7a656a","name":"Tata Power – Delhi Distribution Limited"},{"id":"6521bb3f2bb761e94d7a65c8","name":"Twilio"},{"id":"65224d6f2bb761e94d7a67b7","name":"Paynearby"},{"id":"6524eb3d2bb761e94d7a700a","name":"Samsung Research Bangalore"},{"id":"652560752bb761e94d7a7328","name":"Aye Finance"},{"id":"652595fa2bb761e94d7a73d5","name":"MiQ Digital"},{"id":"6526cf3d2bb761e94d7a75bc","name":"Armorcode India Private Limited"},{"id":"6526e0c92bb761e94d7a7664","name":"DotPe Pvt Ltd"},{"id":"6527dfee2bb761e94d7a780f","name":"Quizizz Inc"},{"id":"652844662bb761e94d7a79ac","name":"Wreken"},{"id":"652bda912bb761e94d7a7e32","name":"Google "},{"id":"652d692332f051641d8cbb6e","name":"Axis Bank"},{"id":"652e053432f051641d8cbc2d","name":"Cubastion Consulting"},{"id":"652f82e4c92e5d6e2c301ace","name":"Rubrik"},{"id":"652fe4f2c92e5d6e2c301c19","name":"Nike"},{"id":"6530f77fc92e5d6e2c302004","name":"SMC Global"},{"id":"65311b8ec92e5d6e2c3020a2","name":"Transcurators (TC Group of Companies)"},{"id":"65326aa7c92e5d6e2c302334","name":"Stanza Living"},{"id":"6533576307bda3947657e8ab","name":"Geekster"},{"id":"65338ac907bda3947657ea23","name":"United Airlines"},{"id":"653561b31c7bf19d4b81b434","name":"SLB"},{"id":"65364ac31c7bf19d4b81b6e0","name":"TechLang"},{"id":"653661cf1c7bf19d4b81b754","name":"Statcon Electronics"},{"id":"6536b4721c7bf19d4b81b8a2","name":"Salesforce"},{"id":"6538cc2f1c7bf19d4b81b9de","name":"Aditya Birla Finance Ltd. "},{"id":"6538ccc91c7bf19d4b81b9df","name":"Aditya Birla Finance"},{"id":"653a06b01c7bf19d4b81ba5c","name":"Yamaha"},{"id":"653a06ee1c7bf19d4b81ba5d","name":"Yamaha"},{"id":"653a84871c7bf19d4b81bb7c","name":"Havells India Ltd."},{"id":"653d17eb1c7bf19d4b81bc13","name":"Marsh McLennan Global Services"},{"id":"653f698d1c7bf19d4b81bf09","name":"EXL Service"},{"id":"653fc1811c7bf19d4b81bfa9","name":"Collegedunia"},{"id":"653ff79e1c7bf19d4b81c005","name":"Perfetti Van Mille"},{"id":"6540f1171c7bf19d4b81c0ae","name":"FunctionUp"},{"id":"65420dd31c7bf19d4b81c1e4","name":"Black N Green"},{"id":"654255301c7bf19d4b81c2c5","name":"HFCL Limited"},{"id":"654323fe1c7bf19d4b81c33b","name":"RNF Technologies"},{"id":"654330541c7bf19d4b81c365","name":"Niva Bupa"},{"id":"6543af6b1c7bf19d4b81c531","name":"MiQ Digital"},{"id":"6544ad951c7bf19d4b81c76c","name":"QuickSell"},{"id":"6548d1971c7bf19d4b81ca7b","name":"NeenOpal"},{"id":"655353fd1c7bf19d4b81cc32","name":"Godaddy"},{"id":"6553e2041c7bf19d4b81cc38","name":"Bechtel India "},{"id":"655494311c7bf19d4b81cc3e","name":"ZAVYA"},{"id":"6554c21d1c7bf19d4b81cc43","name":"ANAND Group India"},{"id":"6555aaad1c7bf19d4b81cc52","name":"Macquarie"},{"id":"655b9b74730cfc9e7119eaf9","name":"Physics Wallah"},{"id":"655deeec730cfc9e7119eaff","name":"BeGig"},{"id":"65625824730cfc9e7119eb96","name":"Kimbal Technologies"},{"id":"6566f7a1730cfc9e7119ed27","name":"Genaxy Scientific Pvt. Ltd."},{"id":"6568d360730cfc9e7119edb4","name":"Coforge"},{"id":"65691246730cfc9e7119ee73","name":"Fab Hotels (Travelplus)"},{"id":"656b9a09730cfc9e7119f38e","name":"Spree AI"},{"id":"656ee0f0730cfc9e7119f693","name":"Groww"},{"id":"65717ea2730cfc9e7119f78c","name":"Snapdeal"},{"id":"6571dfcf730cfc9e7119f8c1","name":"Pristyn Care"},{"id":"6571e624730cfc9e7119f8cd","name":"Pregrad"},{"id":"657715b5730cfc9e7119fb57","name":"Hiimpact Consultant Pvt. Ltd."},{"id":"657836671ecaafce47db3bb4","name":"BaaziGames"},{"id":"6579de141ecaafce47db3dc5","name":"Unbundl (Infinite Creations Pvt Ltd)"},{"id":"658007331ecaafce47db3e44","name":"Tata Digital"},{"id":"65805b8e1ecaafce47db3f1d","name":"IFFCO TOKIO"},{"id":"65805b8e1ecaafce47db3f1e","name":"IFFCO TOKIO"},{"id":"65812d6f1ecaafce47db4131","name":"Leverage Edu"},{"id":"658152bc1ecaafce47db41c0","name":"SOLV"},{"id":"6582b6231ecaafce47db4354","name":"GOODSPACE"},{"id":"658801051ecaafce47db453e","name":"GAIL"},{"id":"6589383b1ecaafce47db4603","name":"Gocricit"},{"id":"658a53c61ecaafce47db4705","name":"A&M"},{"id":"658a9b491ecaafce47db47fd","name":"Wheels Eye"},{"id":"658abec01ecaafce47db4955","name":"McKinley Rice"},{"id":"658ac8a31ecaafce47db49a2","name":"Intellect Partners"},{"id":"658bcc311ecaafce47db4cb5","name":"Box Pay"},{"id":"658c204c1ecaafce47db4e7b","name":"Bigpocket"},{"id":"658d57651ecaafce47db4ee7","name":"Ericsson India Pvt. Ltd."},{"id":"659027fa1ecaafce47db5281","name":"Titan"},
-            // 2024.json
-            {"id":"6592fedd1ecaafce47db536d","name":"Ken Research"},{"id":"6593dd681ecaafce47db53aa","name":"Indian PAC Consulting Pvt. Ltd."},{"id":"659420e51ecaafce47db5474","name":"First Edu India Ltd"},{"id":"65959ae91ecaafce47db55b3","name":"Nucleus Software"},{"id":"6597ea131ecaafce47db5a24","name":"IDEMITSU"},{"id":"65983ac71ecaafce47db5aac","name":"Air Liquide"},{"id":"659920291ecaafce47db5b9d","name":"Digit Insurance"},{"id":"6599aa7d1ecaafce47db5c1f","name":"Arms 4 AI Pvt Ltd"},{"id":"659a3c281ecaafce47db5cb5","name":"Tradeshala - Internship Opportunity"},{"id":"659d3b1c1ecaafce47db5ddc","name":"Hatch Engineering"},{"id":"659d54741ecaafce47db5de0","name":"Bookee"},{"id":"659d779e1ecaafce47db5de1","name":"Wayspire Ed-Tech Pvt Ltd"},{"id":"659d8f3a1ecaafce47db5e3d","name":"UpsideDownLabs"},{"id":"659e74571ecaafce47db5ed6","name":"Samsung Research & Development Institute"},{"id":"659e9c9e1ecaafce47db5ee0","name":"UniCommerce"},{"id":"659f69bd1ecaafce47db6138","name":"ACT21"},{"id":"659f930f1ecaafce47db6173","name":"Johnson Controls India"},{"id":"65a25230e2dda65558a41e49","name":"Lifelong Online"},{"id":"65a2560de2dda65558a41e4a","name":"DeltaX"},{"id":"65a578f6e2dda65558a42106","name":"Cosmo Sunshield "},{"id":"65a631b0e2dda65558a42125","name":"My Analytics School "},{"id":"65a7a403e2dda65558a42210","name":"AtkinsRéalis"},{"id":"65a7de7fe2dda65558a4226e","name":"Prepify"},{"id":"65a80e2e4d86938ebe21bd41","name":"Nagarro"},{"id":"65a8137b4d86938ebe21bd4c","name":"Peakpals"},{"id":"65aa82e1793366902acd5e98","name":"Grey Orange"},{"id":"65aa83f6793366902acd5e9a","name":"The Grey Dots"},{"id":"65aaad37793366902acd5ebb","name":"UOLO Edtech Pvt Ltd"},{"id":"65aab498793366902acd5eed","name":"Bitgo"},{"id":"65b0f802d3077cd1530481aa","name":"JUSTDIAL LTD."},{"id":"65b21b79d3077cd1530481b3","name":"Predii India "},{"id":"65b9296267e4f10de5f3ca66","name":"ENS Enterprises"},{"id":"65b92e2367e4f10de5f3ca67","name":"Justdial"},{"id":"65b9590c67e4f10de5f3ca6b","name":"Qualcomm"},{"id":"65ba37fc67e4f10de5f3cbdf","name":"Spares Superhero"},{"id":"65ba3dd267e4f10de5f3cc11","name":"Flynovate "},{"id":"65be509267e4f10de5f3cfdc","name":"InternsElite Edutech Private Limited"},{"id":"65c3c22167e4f10de5f3d102","name":"BlackLight Studios"},{"id":"65c4d2b3c3d5b3730769a021","name":"Infosys"},{"id":"65cb7093c3d5b3730769a242","name":"NIS MARKETING PVT LTD "},{"id":"65cc68d9c3d5b3730769a27b","name":"Big Bulls"},{"id":"65cf2c85c3d5b3730769a36f","name":"IMS Learning Resources Pvt Ltd"},{"id":"65e04ed0c3d5b3730769a460","name":"Expand My Business (EMB)-Consulting"},{"id":"65e0e6eac3d5b3730769a498","name":"DLF"},{"id":"65e61c95c3d5b3730769a5bb","name":"AlphaSense"},{"id":"65e7501ac3d5b3730769a5ed","name":"Wishfin Placement Opportunity"},{"id":"65ed6942c3d5b3730769a60f","name":"FNZ Technology"},{"id":"65efe402c3d5b3730769a759","name":"RBL Bank"},{"id":"65efe52cc3d5b3730769a75e","name":"RBL Bank-2025"},{"id":"65f7ec60c3d5b3730769aa8e","name":"Ajna Capital"},{"id":"65fc24da34102869ecc50d00","name":"Paisa Bazaar"},{"id":"6603d6462dc069bfd4692945","name":"Fast Retailing "},{"id":"660527692dc069bfd4692ae5","name":"ALT DIGITAL"},{"id":"660c7cb82dc069bfd4692bcd","name":"Avishkaar"},{"id":"660d65792dc069bfd4692bd3","name":"MIndcase"},{"id":"660d65d62dc069bfd4692bd4","name":"Mindcase"},{"id":"661001a32dc069bfd4692d96","name":"Zenskar"},{"id":"6613b8c62dc069bfd4692daf","name":"CELEB AI"},{"id":"661647582dc069bfd4692dc7","name":"WARNER BROS. DISCOVERY "},{"id":"662002c62dc069bfd4692f29","name":"Apraava Energy"},{"id":"66221edf2dc069bfd4692f93","name":"Wayfair"},{"id":"662f8d3a2dc069bfd4692fac","name":"GSTN"},{"id":"663106b62dc069bfd4693070","name":"Alphasense"},{"id":"6635d4b92dc069bfd469335f","name":"Collegedunia "},{"id":"663cca9f2dc069bfd469344e","name":"GoMassive"},{"id":"66405aa92dc069bfd4693593","name":"Inhouse.so"},{"id":"664c9fc42dc069bfd4693758","name":"Paisa Bazaar"},{"id":"6662e299fd984c20924c5129","name":"Info Edge"},{"id":"668784760699565812c3a770","name":"Google"},{"id":"66893d7d0699565812c3b176","name":"Arcesium"},{"id":"668cdfae0699565812c3cea1","name":"test_2024"},{"id":"6690d806c589311e08eeda72","name":"Info Edge"},{"id":"6696776c9ee45905ad41f937","name":"CollegeDunia "},{"id":"669e860251639a055d451ad6","name":"Helios Tech Solutions"},{"id":"66acd09de6586cb5479facfc","name":"ZS Associates"},{"id":"66b360b7c6f4b5cf0b53d571","name":"Axxela"},{"id":"66baf4ef0c87d71155044e71","name":"Unify Apps"},{"id":"66c4be2192f9a6ac009ad764","name":"Zinnia"},{"id":"66c4cfc292f9a6ac009ad813","name":"Walmart"},{"id":"66d162f26d3d3151eaa6c1a7","name":"Bluekaktus"},{"id":"66dbf1edaa95c58d29f483d7","name":"Morgan Stanley"},{"id":"66dbffa3aa95c58d29f48532","name":"DREAM IT"},{"id":"66f310d25a2991ed1835e9a6","name":"Bechtel"},{"id":"671550c9bbfcca117f05a856","name":"test2025"},{"id":"671e3dfef50be371d6573cfd","name":"SMC Global"},{"id":"673371333da0d09469785659","name":"BlozumAI"},{"id":"67337e9c584f22be840a819c","name":"Blozum_AI"},{"id":"674e7c104fb4fd9cdf8ac2ac","name":"Sharang Shakti Pvt Limited"},{"id":"674e7c544fb4fd9cdf8ac2ad","name":"Sharang Shakti"},{"id":"6752ceeaac14da714616f075","name":"Astrovega Aviation"},{"id":"675811917c91c3dc83069f30","name":"Battery Smart"}
-        ];
-
-        // Pagination settings
-        const rowsPerPage = 500;
-        let currentPage = 1;
-        let companyData = [];
-
         // DOM Elements
+        const fetchButton = document.getElementById('fetch-companies');
         const tableBody = document.getElementById('company-table-body');
-        const prevButton = document.getElementById('prev-page');
-        const nextButton = document.getElementById('next-page');
-        const pageInfo = document.getElementById('page-info');
+        const networkLogBody = document.getElementById('network-log-body');
         const loading = document.getElementById('loading');
         const errorMessage = document.getElementById('error-message');
+        const collapseToggle = document.getElementById('collapse-toggle');
+        const yearFilter = document.getElementById('year-filter');
+        const typeFilter = document.getElementById('type-filter');
+        const cgpaFilter = document.getElementById('cgpa-filter');
+        const nameFilter = document.getElementById('name-filter');
 
-        // Fetch company data from API
-        async function fetchCompanyData() {
-            const bearerToken = document.getElementById('bearer-token').value.trim();
-            if (!bearerToken) {
-                showError('Please provide a Bearer Token.');
-                return;
+        // State
+        let companyData = [];
+        let filteredData = [];
+        let isCollapsed = false;
+        let sortColumn = null;
+        let sortDirection = 1; // 1 for ascending, -1 for descending
+
+        // Bearer Token (pre-filled, can be updated by user if needed)
+        const bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc0Nzk3MzA5MywiZXhwIjoxNzUwNTY1MDkzfQ.oDgKeLGpRDz4w7zKWBUHS-trIyiJI2qp3GIs8qTBGsE";
+
+        // Headers for API requests
+        const headers = {
+            "Authorization": `Bearer ${bearerToken}`,
+            "connection": "keep-alive",
+            "host": "api.tnpnsut.in",
+            "origin": "https://admin.tnpnsut.in",
+            "referer": "https://admin.tnpnsut.in/",
+            "sec-ch-ua": '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": '"macOS"',
+            "sec-fetch-dest": "empty"
+        };
+
+        // Fetch list of companies
+        async function fetchCompaniesList() {
+            const url = 'https://api.tnpnsut.in/companies';
+            const startTime = performance.now();
+            try {
+                const response = await fetch(url, { headers });
+                const endTime = performance.now();
+                const size = response.headers.get('content-length') || 'Unknown';
+                logNetworkActivity(url, response.status, size, endTime - startTime, 'fetch');
+                
+                if (response.ok) {
+                    return await response.json();
+                } else {
+                    throw new Error(`Failed to fetch companies list - Status: ${response.status}`);
+                }
+            } catch (error) {
+                logNetworkActivity(url, 'Failed', '0', performance.now() - startTime, 'fetch');
+                throw error;
             }
+        }
 
+        // Fetch company details
+        async function fetchCompanyDetails(companyId) {
+            const url = `https://api.tnpnsut.in/companies/${companyId}`;
+            const startTime = performance.now();
+            try {
+                const response = await fetch(url, { headers });
+                const endTime = performance.now();
+                const size = response.headers.get('content-length') || 'Unknown';
+                logNetworkActivity(url, response.status, size, endTime - startTime, 'fetch');
+                
+                if (response.ok) {
+                    return await response.json();
+                } else {
+                    throw new Error(`Failed to fetch data for company ID ${companyId} - Status: ${response.status}`);
+                }
+            } catch (error) {
+                logNetworkActivity(url, 'Failed', '0', performance.now() - startTime, 'fetch');
+                throw error;
+            }
+        }
+
+        // Log network activity
+        function logNetworkActivity(name, status, size, time, type) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${name}</td>
+                <td>${status}</td>
+                <td>${size} bytes</td>
+                <td>${time.toFixed(2)} ms</td>
+                <td>${type}</td>
+            `;
+            networkLogBody.appendChild(row);
+        }
+
+        // Fetch all company data
+        async function fetchAllCompanies() {
             loading.classList.remove('hidden');
             errorMessage.classList.add('hidden');
+            networkLogBody.innerHTML = '';
             companyData = [];
+            filteredData = [];
 
-            const headers = {
-                "Authorization": `Bearer ${bearerToken}`,
-                "connection": "keep-alive",
-                "host": "api.tnpnsut.in",
-                "origin": "https://admin.tnpnsut.in",
-                "referer": "https://admin.tnpnsut.in/",
-                "sec-ch-ua": '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
-                "sec-ch-ua-mobile": "?0",
-                "sec-ch-ua-platform": '"macOS"',
-                "sec-fetch-dest": "empty"
-            };
-
-            for (const company of companies) {
-                const url = `https://api.tnpnsut.in/companies/${company.id}`;
-                try {
-                    const response = await fetch(url, { headers });
-                    if (response.ok) {
-                        const data = await response.json();
-                        companyData.push({ id: company.id, name: company.name, details: data });
-                    } else {
-                        console.error(`Failed to fetch data for ${company.name} (ID: ${company.id}) - Status: ${response.status}`);
-                    }
-                } catch (error) {
-                    console.error(`Error fetching data for ${company.name} (ID: ${company.id}) - Error: ${error.message}`);
+            try {
+                // Step 1: Fetch the list of companies
+                const companies = await fetchCompaniesList();
+                if (!Array.isArray(companies) || companies.length === 0) {
+                    throw new Error('No companies found in the API response.');
                 }
-                // Add a small delay to avoid rate limiting
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
 
-            loading.classList.add('hidden');
-            if (companyData.length === 0) {
-                showError('No data fetched. Please check the Bearer Token or API availability.');
-                return;
-            }
+                // Step 2: Fetch details for each company
+                for (const company of companies) {
+                    try {
+                        const details = await fetchCompanyDetails(company.id);
+                        companyData.push({ id: company.id, name: company.name, details });
+                        // Add a small delay to avoid rate limiting
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    } catch (error) {
+                        console.error(error.message);
+                    }
+                }
 
-            // Render the first page
-            renderTable();
-            updatePagination();
+                if (companyData.length === 0) {
+                    throw new Error('No company details fetched. Please check the API or token.');
+                }
+
+                filteredData = [...companyData];
+                applyFilters();
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                loading.classList.add('hidden');
+            }
         }
 
-        // Render the table for the current page
+        // Apply filters
+        function applyFilters() {
+            const year = yearFilter.value;
+            const type = typeFilter.value.toLowerCase();
+            const cgpa = parseFloat(cgpaFilter.value) || null;
+            const name = nameFilter.value.toLowerCase();
+
+            filteredData = companyData.filter(company => {
+                const details = company.details || {};
+                const matchesYear = year ? details.year === year : true;
+                const matchesType = type ? (details.category || '').toLowerCase().includes(type) : true;
+                const matchesCgpa = cgpa !== null ? (details.graduation_cgpa || 0) >= cgpa : true;
+                const matchesName = name ? (details.name || company.name || '').toLowerCase().includes(name) : true;
+                return matchesYear && matchesType && matchesCgpa && matchesName;
+            });
+
+            sortData();
+            renderTable();
+        }
+
+        // Sort data
+        function sortData() {
+            if (!sortColumn) return;
+
+            filteredData.sort((a, b) => {
+                const detailsA = a.details || {};
+                const detailsB = b.details || {};
+                let valueA, valueB;
+
+                if (sortColumn === 'serial') {
+                    valueA = companyData.indexOf(a);
+                    valueB = companyData.indexOf(b);
+                } else if (sortColumn === 'name') {
+                    valueA = (detailsA.name || a.name || '').toLowerCase();
+                    valueB = (detailsB.name || b.name || '').toLowerCase();
+                } else if (sortColumn === 'graduation_cgpa') {
+                    valueA = detailsA.graduation_cgpa || 0;
+                    valueB = detailsB.graduation_cgpa || 0;
+                } else {
+                    valueA = (detailsA[sortColumn] || '').toLowerCase();
+                    valueB = (detailsB[sortColumn] || '').toLowerCase();
+                }
+
+                if (valueA < valueB) return -1 * sortDirection;
+                if (valueA > valueB) return 1 * sortDirection;
+                return 0;
+            });
+        }
+
+        // Render the table
         function renderTable() {
             tableBody.innerHTML = '';
-            const start = (currentPage - 1) * rowsPerPage;
-            const end = Math.min(start + rowsPerPage, companyData.length);
-            const pageData = companyData.slice(start, end);
-
-            for (const company of pageData) {
+            filteredData.forEach((company, index) => {
                 const details = company.details || {};
                 const row = document.createElement('tr');
-                row.className = 'border-b border-gray-200 hover:bg-gray-100';
+                row.className = isCollapsed ? 'text-clip' : '';
+                row.style.height = isCollapsed ? '40px' : 'auto';
                 row.innerHTML = `
-                    <td class="py-3 px-6 text-left">${company.id || '-'}</td>
-                    <td class="p-3">${details.name || company.name || '-'}</td>
-                    <td class="p-3">${details.info || '-'}</td>
-                    <td class="p-3">${details.company_category || '-'}</td>
-                    <td class="p-3">${details.year || '-'}</td>
-                    <td class="p-3">${details.category || '-'}</td>
-                    <td class="p-3">${details.degree || '-'}</td>
-                    <td class="p-3">${details.status || '-'}</td>
-                    <td class="p-3">${details.graduation_cgpa || '-'}</td>
-                    <td class="p-3">${details.published_at || '-'}</td>
+                    <td class="w-16">${index + 1}</td>
+                    <td class="w-48 ${isCollapsed ? 'text-clip' : ''}">${company.id || '-'}</td>
+                    <td class="w-48 ${isCollapsed ? 'text-clip' : ''}">${details.name || company.name || '-'}</td>
+                    <td class="w-64 ${isCollapsed ? 'text-clip' : ''}">${details.info || '-'}</td>
+                    <td class="w-32 ${isCollapsed ? 'text-clip' : ''}">${details.company_category || '-'}</td>
+                    <td class="w-24">${details.year || '-'}</td>
+                    <td class="w-24">${details.category || '-'}</td>
+                    <td class="w-24">${details.degree || '-'}</td>
+                    <td class="w-24">${details.status || '-'}</td>
+                    <td class="w-24">${details.graduation_cgpa || '-'}</td>
+                    <td class="w-48 ${isCollapsed ? 'text-clip' : ''}">${details.published_at || '-'}</td>
                 `;
                 tableBody.appendChild(row);
-            }
-        }
-
-        // Update pagination controls
-        function updatePagination() {
-            const totalPages = Math.ceil(companyData.length / rowsPerPage);
-            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-
-            prevButton.disabled = currentPage === 1;
-            nextButton.disabled = currentPage === totalPages;
+            });
         }
 
         // Show error message
@@ -170,26 +357,40 @@
             loading.classList.add('hidden');
         }
 
-        // Event Listeners for Pagination
-        prevButton.addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                renderTable();
-                updatePagination();
-            }
+        // Event Listeners
+        fetchButton.addEventListener('click', fetchAllCompanies);
+
+        collapseToggle.addEventListener('click', () => {
+            isCollapsed = !isCollapsed;
+            collapseToggle.textContent = isCollapsed ? 'Expand Rows' : 'Collapse Rows';
+            renderTable();
         });
 
-        nextButton.addEventListener('click', () => {
-            const totalPages = Math.ceil(companyData.length / rowsPerPage);
-            if (currentPage < totalPages) {
-                currentPage++;
-                renderTable();
-                updatePagination();
-            }
-        });
+        // Filter event listeners
+        yearFilter.addEventListener('change', applyFilters);
+        typeFilter.addEventListener('input', applyFilters);
+        cgpaFilter.addEventListener('input', applyFilters);
+        nameFilter.addEventListener('input', applyFilters);
 
-        // Fetch data on page load
-        window.onload = fetchCompanyData;
+        // Sort event listeners
+        document.querySelectorAll('th[data-sort]').forEach(header => {
+            header.addEventListener('click', () => {
+                const column = header.dataset.sort;
+                if (sortColumn === column) {
+                    sortDirection *= -1;
+                } else {
+                    sortColumn = column;
+                    sortDirection = 1;
+                }
+                document.querySelectorAll('.sort-icon').forEach(icon => {
+                    icon.textContent = '↕';
+                });
+                const icon = header.querySelector('.sort-icon');
+                icon.textContent = sortDirection === 1 ? '↑' : '↓';
+                sortData();
+                renderTable();
+            });
+        });
     </script>
 </body>
 </html>
