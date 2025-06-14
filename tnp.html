@@ -23,34 +23,63 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             margin-top: 16px;
         }
-        .realtime-list-container {
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .realtime-list-container, .network-log {
             background-color: #fff;
             border-radius: 8px;
-            padding: 16px;
+            padding: 12px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            margin-top: 16px;
             max-height: 200px;
             overflow-y: auto;
         }
-        .realtime-list-container h3 {
-            font-size: 14px;
+        .realtime-list-container h3, .network-log h3 {
+            font-size: 13px;
+            margin-bottom: 8px;
         }
-        .realtime-list-container li {
-            font-size: 12px;
+        .realtime-list-container li, .network-log div {
+            font-size: 11px;
         }
-        .progress-bar-container {
+        .network-log .status {
+            color: #dc2626;
+            font-weight: 500;
+        }
+        .network-log .time {
+            color: #16a34a;
+            font-weight: 500;
+        }
+        .circular-progress-container {
+            width: 50px;
+            height: 50px;
+            position: relative;
+            margin: 8px 0;
+        }
+        .circular-progress {
             width: 100%;
-            background-color: #e5e7eb;
-            border-radius: 4px;
-            height: 8px;
-            margin-top: 8px;
-        }
-        .progress-bar {
             height: 100%;
-            background-color: #10b981;
-            border-radius: 4px;
-            width: 0%;
-            transition: width 0.3s ease;
+            border-radius: 50%;
+            background: conic-gradient(#10b981 0% 0%, #e5e7eb 0% 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .circular-progress::before {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: #fff;
+            border-radius: 50%;
+        }
+        .circular-progress span {
+            position: relative;
+            font-size: 12px;
+            color: #4b5563;
         }
         .table-wrapper {
             overflow-x: auto;
@@ -164,25 +193,17 @@
         .expand-btn:hover {
             background-color: #4b5563;
         }
-        .network-log {
-            margin-top: 16px;
-            background-color: #fff;
-            border-radius: 8px;
-            padding: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            font-size: 11px;
-            color: #1f2937;
-            line-height: 1.5;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .network-log .status {
-            color: #dc2626;
+        .pause-btn {
+            padding: 6px 12px;
+            background-color: #ef4444;
+            color: #fff;
+            border-radius: 6px;
+            font-size: 13px;
             font-weight: 500;
+            transition: background-color 0.2s ease;
         }
-        .network-log .time {
-            color: #16a34a;
-            font-weight: 500;
+        .pause-btn:hover {
+            background-color: #dc2626;
         }
         .navbar {
             width: 220px;
@@ -224,11 +245,17 @@
                 height: 40px;
                 line-height: 20px;
             }
-            .action-btn, .expand-btn {
+            .action-btn, .expand-btn, .pause-btn {
                 padding: 5px 10px;
                 font-size: 12px;
             }
-            .network-log {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+            .realtime-list-container h3, .network-log h3 {
+                font-size: 12px;
+            }
+            .realtime-list-container li, .network-log div {
                 font-size: 10px;
             }
             .navbar {
@@ -255,7 +282,7 @@
                 height: 36px;
                 line-height: 18px;
             }
-            .action-btn, .expand-btn {
+            .action-btn, .expand-btn, .pause-btn {
                 padding: 4px 8px;
                 font-size: 11px;
             }
@@ -270,7 +297,10 @@
             .filter-group select {
                 width: 100%;
             }
-            .network-log {
+            .realtime-list-container h3, .network-log h3 {
+                font-size: 11px;
+            }
+            .realtime-list-container li, .network-log div {
                 font-size: 9px;
             }
             .navbar {
@@ -290,7 +320,7 @@
     </div>
 
     <!-- Left Sidebar Navbar -->
-    <div id="navbar" class="navbar hidden md:block">
+    <div id="navbar" class="navbar">
         <div class="flex items-center mb-6">
             <img src="https://raw.githubusercontent.com/avashx/nsutgod/refs/heads/main/src/logo.png" alt="NSUTGod Logo" class="h-10 w-10 mr-2">
             <h2 class="text-xl font-bold text-gray-800">NSUTGod</h2>
@@ -359,6 +389,7 @@
                     </select>
                     <button id="export-csv" class="action-btn hidden">Export to CSV</button>
                     <button id="expand-table" class="expand-btn">Expand</button>
+                    <button id="pause-fetch" class="pause-btn hidden">Pause</button>
                 </div>
                 <div class="flex flex-wrap gap-2 filter-group">
                     <div>
@@ -386,13 +417,20 @@
                 </div>
             </div>
 
-            <!-- Real-time Company List -->
-            <div class="realtime-list-container" id="realtime-list">
-                <h3 class="font-semibold mb-4">Fetching Companies...</h3>
-                <div class="progress-bar-container">
-                    <div class="progress-bar" id="progress-bar"></div>
+            <!-- Grid for Realtime List and Network Log -->
+            <div class="grid-container">
+                <div class="realtime-list-container" id="realtime-list">
+                    <h3 class="font-semibold mb-4">Fetching Companies...</h3>
+                    <div class="circular-progress-container">
+                        <div class="circular-progress" id="circular-progress">
+                            <span id="progress-text">0%</span>
+                        </div>
+                    </div>
+                    <ul id="realtime-list-body" class="space-y-2 mt-4"></ul>
                 </div>
-                <ul id="realtime-list-body" class="space-y-2 mt-4"></ul>
+                <div class="network-log" id="network-log-body">
+                    <h3 class="font-semibold mb-4">Network Activity Log</h3>
+                </div>
             </div>
 
             <!-- Company Recruitment Table -->
@@ -441,9 +479,6 @@
                 </div>
             </div>
 
-            <!-- Network Activity Log -->
-            <div class="network-log" id="network-log-body"></div>
-
             <!-- Loading Indicator -->
             <div id="loading" class="text-center text-gray-500 mt-4 hidden">Loading...</div>
 
@@ -458,6 +493,7 @@
         const fetchLimit = document.getElementById('fetch-limit');
         const exportCsvButton = document.getElementById('export-csv');
         const expandButton = document.getElementById('expand-table');
+        const pauseButton = document.getElementById('pause-fetch');
         const tableBody = document.getElementById('company-table-body');
         const companyTable = document.getElementById('company-table');
         const networkLogBody = document.getElementById('network-log-body');
@@ -468,7 +504,8 @@
         const cgpaFilter = document.getElementById('cgpa-filter');
         const nameFilter = document.getElementById('name-filter');
         const realtimeListBody = document.getElementById('realtime-list-body');
-        const progressBar = document.getElementById('progress-bar');
+        const circularProgress = document.getElementById('circular-progress');
+        const progressText = document.getElementById('progress-text');
 
         // State
         let companyData = [];
@@ -476,6 +513,8 @@
         let sortColumn = null;
         let sortDirection = 1;
         let isExpanded = false;
+        let isPaused = false;
+        let fetchController = null;
 
         // Bearer Token
         const bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc0Nzk3MzA5MywiZXhwIjoxNzUwNTY1MDkzfQ.oDgKeLGpRDz4w7zKWBUHS-trIyiJI2qp3GIs8qTBGsE";
@@ -549,16 +588,17 @@
             return '#d1fae5';
         }
 
-        // Update real-time company list and progress bar
+        // Update real-time company list and circular progress
         function updateRealtimeList(company, currentCount, totalCount) {
             const listItem = document.createElement('li');
             listItem.textContent = `Fetched: ${company.name || 'Unknown'} (ID: ${company.id})`;
             listItem.className = 'text-gray-600';
             realtimeListBody.insertBefore(listItem, realtimeListBody.firstChild);
 
-            // Update progress bar (900 companies = 100%)
+            // Update circular progress (900 companies = 100%)
             const progress = Math.min((currentCount / 900) * 100, 100);
-            progressBar.style.width = `${progress}%`;
+            circularProgress.style.background = `conic-gradient(#10b981 0% ${progress}%, #e5e7eb ${progress}% 100%)`;
+            progressText.textContent = `${Math.round(progress)}%`;
         }
 
         // Fetch list of companies
@@ -566,7 +606,8 @@
             const url = 'https://api.tnpnsut.in/companies';
             const startTime = performance.now();
             try {
-                const response = await fetch(url, { headers });
+                fetchController = new AbortController();
+                const response = await fetch(url, { headers, signal: fetchController.signal });
                 const endTime = performance.now();
                 const size = response.headers.get('content-length') || 'Unknown';
                 logNetworkActivity(url, response.status, size, endTime - startTime, 'fetch');
@@ -582,8 +623,12 @@
                     throw new Error(`Failed to fetch companies list - Status: ${response.status}`);
                 }
             } catch (error) {
-                logNetworkActivity(url, 'Failed', '0', performance.now() - startTime, 'fetch');
-                throw error;
+                if (error.name === 'AbortError') {
+                    logNetworkActivity(url, 'Paused', '0', performance.now() - startTime, 'fetch');
+                } else {
+                    logNetworkActivity(url, 'Failed', '0', performance.now() - startTime, 'fetch');
+                    throw error;
+                }
             }
         }
 
@@ -592,7 +637,7 @@
             const url = `https://api.tnpnsut.in/companies/${companyId}`;
             const startTime = performance.now();
             try {
-                const response = await fetch(url, { headers });
+                const response = await fetch(url, { headers, signal: fetchController.signal });
                 const endTime = performance.now();
                 const size = response.headers.get('content-length') || 'Unknown';
                 logNetworkActivity(url, response.status, size, endTime - startTime, 'fetch');
@@ -605,8 +650,12 @@
                     throw new Error(`Failed to fetch data for company ID ${companyId} - Status: ${response.status}`);
                 }
             } catch (error) {
-                logNetworkActivity(url, 'Failed', '0', performance.now() - startTime, 'fetch');
-                throw error;
+                if (error.name === 'AbortError') {
+                    logNetworkActivity(url, 'Paused', '0', performance.now() - startTime, 'fetch');
+                } else {
+                    logNetworkActivity(url, 'Failed', '0', performance.now() - startTime, 'fetch');
+                    throw error;
+                }
             }
         }
 
@@ -624,10 +673,14 @@
             errorMessage.classList.add('hidden');
             networkLogBody.innerHTML = '';
             realtimeListBody.innerHTML = '';
-            progressBar.style.width = '0%';
+            circularProgress.style.background = `conic-gradient(#10b981 0% 0%, #e5e7eb 0% 100%)`;
+            progressText.textContent = '0%';
             companyData = [];
             filteredData = [];
             exportCsvButton.classList.add('hidden');
+            pauseButton.classList.remove('hidden');
+            isPaused = false;
+            pauseButton.textContent = 'Pause';
 
             try {
                 const companies = await fetchCompaniesList();
@@ -637,6 +690,16 @@
 
                 let currentCount = 0;
                 for (const company of companies) {
+                    if (isPaused) {
+                        await new Promise(resolve => {
+                            const checkPause = setInterval(() => {
+                                if (!isPaused) {
+                                    clearInterval(checkPause);
+                                    resolve();
+                                }
+                            }, 100);
+                        });
+                    }
                     try {
                         currentCount++;
                         updateRealtimeList(company, currentCount, companies.length);
@@ -646,7 +709,9 @@
                         applyFilters();
                         await new Promise(resolve => setTimeout(resolve, 100));
                     } catch (error) {
-                        console.error(error.message);
+                        if (error.name !== 'AbortError') {
+                            console.error(error.message);
+                        }
                     }
                 }
 
@@ -656,9 +721,13 @@
 
                 exportCsvButton.classList.remove('hidden');
             } catch (error) {
-                showError(error.message);
+                if (error.name !== 'AbortError') {
+                    showError(error.message);
+                }
             } finally {
                 loading.classList.add('hidden');
+                pauseButton.classList.add('hidden');
+                fetchController = null;
             }
         }
 
@@ -848,6 +917,15 @@
             isExpanded = !isExpanded;
             companyTable.classList.toggle('expanded');
             expandButton.textContent = isExpanded ? 'Collapse' : 'Expand';
+        });
+
+        // Pause/Resume fetching
+        pauseButton.addEventListener('click', () => {
+            isPaused = !isPaused;
+            pauseButton.textContent = isPaused ? 'Resume' : 'Pause';
+            if (isPaused && fetchController) {
+                fetchController.abort();
+            }
         });
 
         // Column resizing
