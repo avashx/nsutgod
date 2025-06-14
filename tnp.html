@@ -22,6 +22,7 @@
             padding: 16px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             margin-top: 16px;
+            display: none; /* Hidden by default until "Show Companies" is clicked */
         }
         .table-wrapper {
             overflow-x: auto;
@@ -43,11 +44,9 @@
             position: relative;
             cursor: pointer;
             white-space: nowrap;
-            width: 100px; /* Default width for expanded state */
-            max-width: 1000px; /* Maximum width for any column */
         }
         .company-table th.jobtitle-header {
-            width: 80px; /* Specific width for Job Title in expanded state */
+            width: 120px; /* Default width for Job Title in expanded state */
         }
         .company-table th.info-header {
             width: 200px; /* Default width for 'Info' column in expanded state */
@@ -77,11 +76,9 @@
             text-overflow: ellipsis;
             height: 30px; /* Default height for expanded state */
             line-height: 30px;
-            width: 100px; /* Default width for expanded state */
-            max-width: 1000px; /* Maximum width for any column */
         }
         .company-table td.jobtitle-column {
-            width: 80px; /* Specific width for Job Title in expanded state */
+            width: 120px; /* Default width for Job Title in expanded state */
         }
         .company-table td.info-column {
             width: 200px; /* Default width for 'Info' column in expanded state */
@@ -93,15 +90,33 @@
             height: 20px; /* Reduced height for collapsed state */
             line-height: 20px;
             width: 80px; /* Uniform smaller width for collapsed state */
+            max-width: 120px; /* Maximum width for any column in collapsed state */
             font-size: 12px; /* Slightly smaller font size */
         }
         .company-table.collapsed th.jobtitle-header,
         .company-table.collapsed td.jobtitle-column {
-            width: 80px; /* Maintain Job Title width in collapsed state */
+            width: 80px; /* Specific width for Job Title in collapsed state */
+            max-width: 80px;
         }
         .company-table.collapsed th.info-header,
         .company-table.collapsed td.info-column {
             width: 120px; /* Smaller width for 'Info' column in collapsed state */
+            max-width: 120px;
+        }
+        /* Expanded state: let browser adjust width to content */
+        .company-table:not(.collapsed) th,
+        .company-table:not(.collapsed) td {
+            width: auto; /* Let browser adjust to content */
+        }
+        .company-table:not(.collapsed) th.jobtitle-header,
+        .company-table:not(.collapsed) td.jobtitle-column {
+            width: auto;
+            min-width: 120px; /* Minimum width for Job Title in expanded state */
+        }
+        .company-table:not(.collapsed) th.info-header,
+        .company-table:not(.collapsed) td.info-column {
+            width: auto;
+            min-width: 200px; /* Minimum width for Info in expanded state */
         }
         .company-table .sort-icon {
             display: inline-block;
@@ -323,8 +338,8 @@
                         <option value="200">Fetch 200</option>
                         <option value="500">Fetch 500</option>
                     </select>
-                    <button id="show-companies" class="action-btn hidden">Show Companies</button>
                     <button id="export-csv" class="action-btn hidden">Export to CSV</button>
+                    <button id="show-companies" class="action-btn hidden">Show Companies</button>
                 </div>
                 <div class="flex flex-wrap gap-2 filter-group">
                     <div>
@@ -353,7 +368,7 @@
             </div>
 
             <!-- Company Recruitment Table -->
-            <div class="company-table-container">
+            <div class="company-table-container" id="company-table-container">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-semibold">Company Recruitment</h3>
                     <button id="collapse-table" class="collapse-btn">Expand</button>
@@ -416,8 +431,8 @@
         // DOM Elements
         const fetchButton = document.getElementById('fetch-companies');
         const fetchLimit = document.getElementById('fetch-limit');
-        const showCompaniesButton = document.getElementById('show-companies');
         const exportCsvButton = document.getElementById('export-csv');
+        const showCompaniesButton = document.getElementById('show-companies');
         const tableBody = document.getElementById('company-table-body');
         const networkLogBody = document.getElementById('network-log-body');
         const loading = document.getElementById('loading');
@@ -428,14 +443,14 @@
         const nameFilter = document.getElementById('name-filter');
         const collapseButton = document.getElementById('collapse-table');
         const companyTable = document.getElementById('company-table');
+        const companyTableContainer = document.getElementById('company-table-container');
 
         // State
         let companyData = [];
         let filteredData = [];
         let sortColumn = null;
         let sortDirection = 1; // 1 for ascending, -1 for descending
-        let isTableCollapsed = true;
-        let fetchedCompanies = [];
+        let isTableCollapsed = true; // Start in collapsed mode
 
         // Bearer Token
         const bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc0Nzk3MzA5MywiZXhwIjoxNzUwNTY1MDkzfQ.oDgKeLGpRDz4w7zKWBUHS-trIyiJI2qp3GIs8qTBGsE";
@@ -479,10 +494,15 @@
         };
 
         const statusColors = {
-            'Open': '#d1fae5', // Light green
-            'Closed': '#fee2e2', // Light red
-            'default': '#e5e7eb' // Gray for others
+            'open': '#d1fae5', // Green
+            'closed': '#fee2e2', // Red
+            'ongoing': '#fef9c3', // Yellow
+            'default': '#e5e7eb' // Gray
         };
+
+        function getStatusColor(status) {
+            return statusColors[status?.toLowerCase()] || statusColors.default;
+        }
 
         function getStipendColor(stipend) {
             const value = parseFloat(stipend) || 0;
@@ -578,9 +598,9 @@
             networkLogBody.innerHTML = '';
             companyData = [];
             filteredData = [];
-            fetchedCompanies = [];
             exportCsvButton.classList.add('hidden');
             showCompaniesButton.classList.add('hidden');
+            companyTableContainer.classList.add('hidden'); // Ensure table is hidden
 
             try {
                 const companies = await fetchCompaniesList();
@@ -588,29 +608,10 @@
                     throw new Error('No companies found in the API response.');
                 }
 
-                showCompaniesButton.classList.remove('hidden');
-            } catch (error) {
-                showError(error.message);
-                loading.classList.add('hidden');
-            }
-        }
-
-        // Show companies in real-time
-        async function showCompanies() {
-            loading.classList.remove('hidden');
-            showCompaniesButton.classList.add('hidden');
-            tableBody.innerHTML = '';
-
-            try {
-                const companies = await fetchCompaniesList();
                 for (const company of companies) {
                     try {
                         const details = await fetchCompanyDetails(company.id);
-                        const companyEntry = { id: company.id, name: company.name, details };
-                        fetchedCompanies.push(companyEntry);
-                        companyData = [...fetchedCompanies];
-                        filteredData = [...companyData];
-                        applyFilters();
+                        companyData.push({ id: company.id, name: company.name, details });
                         await new Promise(resolve => setTimeout(resolve, 100));
                     } catch (error) {
                         console.error(error.message);
@@ -621,12 +622,22 @@
                     throw new Error('No company details fetched. Please check the API or token.');
                 }
 
+                filteredData = [...companyData];
+                applyFilters();
+                showCompaniesButton.classList.remove('hidden'); // Show the "Show Companies" button
                 exportCsvButton.classList.remove('hidden');
             } catch (error) {
                 showError(error.message);
             } finally {
                 loading.classList.add('hidden');
             }
+        }
+
+        // Show companies in the table
+        function showCompanies() {
+            companyTableContainer.classList.remove('hidden'); // Show the table
+            showCompaniesButton.classList.add('hidden'); // Hide the "Show Companies" button
+            renderTable(); // Render the table with fetched data
         }
 
         // Apply filters
@@ -647,7 +658,9 @@
             });
 
             sortData();
-            renderTable();
+            if (!companyTableContainer.classList.contains('hidden')) {
+                renderTable(); // Only render if the table is visible
+            }
         }
 
         // Sort data
@@ -716,7 +729,7 @@
                     <td><span class="tag" style="background-color: ${typeColors[event.type] || typeColors.default}">${event.type || '-'}</span></td>
                     <td><span class="tag" style="background-color: ${getCgpaColor(event.graduation_cgpa)}">${event.graduation_cgpa !== undefined ? event.graduation_cgpa : '-'}</span></td>
                     <td>${event.degree || '-'}</td>
-                    <td><span class="tag" style="background-color: ${statusColors[event.status] || statusColors.default}">${event.status || '-'}</span></td>
+                    <td><span class="tag" style="background-color: ${getStatusColor(event.status)}">${event.status || '-'}</span></td>
                     <td>${event.optional_criteria !== undefined ? event.optional_criteria : '-'}</td>
                     <td>${event.cgpa_10th !== undefined ? event.cgpa_10th : '-'}</td>
                     <td>${event.cgpa_12th !== undefined ? event.cgpa_12th : '-'}</td>
@@ -831,7 +844,7 @@
 
                 const onMouseMove = (e) => {
                     const newWidth = startWidth + (e.pageX - startX);
-                    th.style.width = `${Math.min(Math.max(80, newWidth), 1000)}px`; // Limit max width to 1000px
+                    th.style.width = `${Math.max(80, newWidth)}px`;
                 };
 
                 const onMouseUp = () => {
@@ -902,7 +915,9 @@
                 const icon = header.querySelector('.sort-icon');
                 icon.textContent = sortDirection === 1 ? '↑' : '↓';
                 sortData();
-                renderTable();
+                if (!companyTableContainer.classList.contains('hidden')) {
+                    renderTable();
+                }
             });
         });
     </script>
