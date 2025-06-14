@@ -29,7 +29,7 @@
         .company-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 2000px; /* Ensure table is wide enough for all columns */
+            min-width: 2000px;
         }
         .company-table th {
             padding: 4px 8px;
@@ -67,6 +67,11 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+        .company-table td.info-column {
+            width: 200px;
+            white-space: normal;
+            word-wrap: break-word;
+        }
         .company-table .sort-icon {
             display: inline-block;
             margin-left: 4px;
@@ -77,6 +82,18 @@
             border-radius: 4px;
             font-size: 12px;
             font-weight: 500;
+        }
+        .view-btn {
+            padding: 4px 8px;
+            background-color: #10b981;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        .view-btn:hover {
+            background-color: #059669;
         }
         .action-btn {
             padding: 6px 12px;
@@ -210,25 +227,25 @@
                                 <th data-sort="internship_shortlists">Internship Shortlists <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="id">ID <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="name">Name <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="info">Info <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th>View <div class="resize-handle"></div></th>
                                 <th data-sort="company_category">Category <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="year">Year <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="jobtitle">Job Title <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="category">Event Category <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="stipend">Stipend (INR) <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="duration">Duration <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="type">Type <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="graduation_cgpa">Graduation CGPA <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="published_at">Published At <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="createdAt">Created At <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="updatedAt">Updated At <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="event_id">Event ID <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="jobtitle">Job Title <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="category">Event Category <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="type">Type <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="degree">Degree <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="status">Status <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="optional_criteria">Optional Criteria <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="cgpa_10th">CGPA 10th <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="cgpa_12th">CGPA 12th <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="graduation_cgpa">Graduation CGPA <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="stipend">Stipend (INR) <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="stipend_info">Stipend Info <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="duration">Duration <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="campus">Campus <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="backlogs">Backlogs <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="branches_allowed">Branches Allowed <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
@@ -236,6 +253,7 @@
                                 <th data-sort="placeOfPosting">Location <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="degrees_allowed">Degrees <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="apc">POC <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="info">Info <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                             </tr>
                         </thead>
                         <tbody id="company-table-body"></tbody>
@@ -303,6 +321,40 @@
             '2025': '#bfdbfe',
             '2026': '#fce7f3'
         };
+
+        const eventCategoryColors = {
+            'tech': '#bfdbfe', // Light blue
+            'default': '#e5e7eb' // Gray for others
+        };
+
+        const typeColors = {
+            'Placement': '#d1fae5', // Light green
+            'Internship': '#ffedd5', // Light orange
+            'default': '#e5e7eb'
+        };
+
+        function getStipendColor(stipend) {
+            const value = parseFloat(stipend) || 0;
+            if (value < 500000) return '#fee2e2'; // Red for low stipend
+            if (value <= 2000000) return '#fef9c3'; // Yellow for medium
+            return '#d1fae5'; // Green for high
+        }
+
+        const locationColors = {
+            'Bangalore': '#bfdbfe', // Light blue
+            'Hyderabad': '#d1fae5', // Light green
+            'Pune': '#ffedd5', // Light orange
+            'Gurgaon': '#fef9c3', // Light yellow
+            'Delhi': '#fce7f3', // Light pink
+            'default': '#e5e7eb' // Gray for others
+        };
+
+        function getLocationColor(location) {
+            if (!location) return locationColors.default;
+            const cities = location.split(',').map(city => city.trim());
+            const firstCity = cities[0].split('/')[0]; // Handle "Bangalore/Hyderabad" by taking first city
+            return locationColors[firstCity] || locationColors.default;
+        }
 
         function getCgpaColor(cgpa) {
             const value = parseFloat(cgpa);
@@ -485,32 +537,33 @@
                     <td>${details.internship_shortlists && details.internship_shortlists.length > 0 ? details.internship_shortlists.length : 'None'}</td>
                     <td>${details._id || '-'}</td>
                     <td>${details.Name || company.name || '-'}</td>
-                    <td>${details.info || '-'}</td>
+                    <td><button class="view-btn" onclick="window.location.href='company-profile.html?id=${details._id}'">View</button></td>
                     <td><span class="tag" style="background-color: ${categoryColors[details.company_category] || categoryColors.default}">${details.company_category || '-'}</span></td>
                     <td><span class="tag" style="background-color: ${yearColors[details.year] || '#e5e7eb'}">${details.year || '-'}</span></td>
+                    <td>${event.jobtitle || '-'}</td>
+                    <td><span class="tag" style="background-color: ${eventCategoryColors[event.category] || eventCategoryColors.default}">${event.category || '-'}</span></td>
+                    <td><span class="tag" style="background-color: ${getStipendColor(event.stipend)}">${event.stipend !== undefined ? event.stipend : '-'}</span></td>
+                    <td>${event.duration || '-'}</td>
+                    <td><span class="tag" style="background-color: ${typeColors[event.type] || typeColors.default}">${event.type || '-'}</span></td>
+                    <td><span class="tag" style="background-color: ${getCgpaColor(event.graduation_cgpa)}">${event.graduation_cgpa !== undefined ? event.graduation_cgpa : '-'}</span></td>
                     <td>${details.published_at || '-'}</td>
                     <td>${details.createdAt || '-'}</td>
                     <td>${details.updatedAt || '-'}</td>
                     <td>${event._id || '-'}</td>
-                    <td>${event.jobtitle || '-'}</td>
-                    <td>${event.category || '-'}</td>
-                    <td>${event.type || '-'}</td>
                     <td>${event.degree || '-'}</td>
                     <td>${event.status || '-'}</td>
                     <td>${event.optional_criteria !== undefined ? event.optional_criteria : '-'}</td>
                     <td>${event.cgpa_10th !== undefined ? event.cgpa_10th : '-'}</td>
                     <td>${event.cgpa_12th !== undefined ? event.cgpa_12th : '-'}</td>
-                    <td><span class="tag" style="background-color: ${getCgpaColor(event.graduation_cgpa)}">${event.graduation_cgpa !== undefined ? event.graduation_cgpa : '-'}</span></td>
-                    <td>${event.stipend !== undefined ? event.stipend : '-'}</td>
                     <td>${event.stipend_info || '-'}</td>
-                    <td>${event.duration || '-'}</td>
                     <td>${(event.campus || []).join(', ') || '-'}</td>
                     <td>${event.backlogs !== undefined ? event.backlogs : '-'}</td>
                     <td>${branchesAllowed || '-'}</td>
                     <td>${event.lastDate || '-'}</td>
-                    <td>${event.placeOfPosting || '-'}</td>
+                    <td><span class="tag" style="background-color: ${getLocationColor(event.placeOfPosting)}">${event.placeOfPosting || '-'}</span></td>
                     <td>${(event.degrees_allowed || []).join(', ') || '-'}</td>
                     <td>${event.apc || '-'}</td>
+                    <td class="info-column">${details.info || '-'}</td>
                 `;
                 tableBody.appendChild(row);
             });
@@ -519,11 +572,11 @@
         // Export to CSV
         function exportToCsv() {
             const headers = [
-                'Serial No', 'Placement Interviews', 'Internship Shortlists', 'ID', 'Name', 'Info', 'Category', 
-                'Year', 'Published At', 'Created At', 'Updated At', 'Event ID', 'Job Title', 'Event Category', 
-                'Type', 'Degree', 'Status', 'Optional Criteria', 'CGPA 10th', 'CGPA 12th', 'Graduation CGPA', 
-                'Stipend (INR)', 'Stipend Info', 'Duration', 'Campus', 'Backlogs', 'Branches Allowed', 'Deadline', 
-                'Location', 'Degrees', 'POC'
+                'Serial No', 'Placement Interviews', 'Internship Shortlists', 'ID', 'Name', 'View', 'Category', 
+                'Year', 'Job Title', 'Event Category', 'Stipend (INR)', 'Duration', 'Type', 'Graduation CGPA', 
+                'Published At', 'Created At', 'Updated At', 'Event ID', 'Degree', 'Status', 'Optional Criteria', 
+                'CGPA 10th', 'CGPA 12th', 'Stipend Info', 'Campus', 'Backlogs', 'Branches Allowed', 'Deadline', 
+                'Location', 'Degrees', 'POC', 'Info'
             ];
             const rows = filteredData.map((company, index) => {
                 const details = company.details || {};
@@ -535,32 +588,33 @@
                     details.internship_shortlists && details.internship_shortlists.length > 0 ? details.internship_shortlists.length : 'None',
                     details._id || '-',
                     `"${(details.Name || company.name || '-').replace(/"/g, '""')}"`,
-                    `"${(details.info || '-').replace(/"/g, '""')}"`,
+                    'View', // Placeholder for View button
                     details.company_category || '-',
                     details.year || '-',
+                    `"${(event.jobtitle || '-').replace(/"/g, '""')}"`,
+                    event.category || '-',
+                    event.stipend !== undefined ? event.stipend : '-',
+                    `"${(event.duration || '-').replace(/"/g, '""')}"`,
+                    event.type || '-',
+                    event.graduation_cgpa !== undefined ? event.graduation_cgpa : '-',
                     details.published_at || '-',
                     details.createdAt || '-',
                     details.updatedAt || '-',
                     event._id || '-',
-                    `"${(event.jobtitle || '-').replace(/"/g, '""')}"`,
-                    event.category || '-',
-                    event.type || '-',
                     event.degree || '-',
                     event.status || '-',
                     event.optional_criteria !== undefined ? event.optional_criteria : '-',
                     event.cgpa_10th !== undefined ? event.cgpa_10th : '-',
                     event.cgpa_12th !== undefined ? event.cgpa_12th : '-',
-                    event.graduation_cgpa !== undefined ? event.graduation_cgpa : '-',
-                    event.stipend !== undefined ? event.stipend : '-',
                     `"${(event.stipend_info || '-').replace(/"/g, '""')}"`,
-                    `"${(event.duration || '-').replace(/"/g, '""')}"`,
                     (event.campus || []).join(', ') || '-',
                     event.backlogs !== undefined ? event.backlogs : '-',
                     branchesAllowed || '-',
                     event.lastDate || '-',
                     event.placeOfPosting || '-',
                     (event.degrees_allowed || []).join(', ') || '-',
-                    `"${(event.apc || '-').replace(/"/g, '""')}"`
+                    `"${(event.apc || '-').replace(/"/g, '""')}"`,
+                    `"${(details.info || '-').replace(/"/g, '""')}"`
                 ];
             });
 
