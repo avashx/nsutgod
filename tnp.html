@@ -5,35 +5,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Company</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* Custom styles for Notion-like table */
-        .notion-table {
-            border-collapse: separate;
-            border-spacing: 0;
+        body {
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            color: #4b5563;
+            background-color: #f3f4f6;
+        }
+        .sidebar {
+            width: 240px;
+            background-color: #fff;
+            border-right: 1px solid #e5e7eb;
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar-hidden {
+            transform: translateX(-100%);
+        }
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            background-color: #f3f4f6;
+        }
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+        .data-table {
             width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
         }
-        .notion-table th, .notion-table td {
-            border-right: 1px solid #e1e1e1;
-            border-bottom: 1px solid #e1e1e1;
-            padding: 8px 12px;
+        .data-table th {
+            background-color: #f1f1f1;
+            padding: 10px 12px;
             text-align: left;
-            vertical-align: middle;
+            border-bottom: 1px solid #ddd;
+            font-weight: bold;
+            color: #333;
+            white-space: nowrap;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
         }
-        .notion-table th {
-            background-color: #f6f6f6;
-            font-weight: 500;
-            color: #37352f;
-            position: sticky;
+        .data-table th:hover {
+            background-color: #e8e8e8;
+        }
+        .data-table th .resize-handle {
+            position: absolute;
             top: 0;
-            z-index: 10;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            cursor: col-resize;
+            background-color: transparent;
         }
-        .notion-table tr:hover {
-            background-color: #f5f5f5;
+        .data-table th .resize-handle:hover {
+            background-color: #d1d5db;
         }
-        .notion-table .sort-icon {
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .data-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        .data-table .sort-icon {
             display: inline-block;
             margin-left: 4px;
             font-size: 12px;
+        }
+        .data-table .view-profile {
+            background-color: #007bff;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        .data-table .view-profile:hover {
+            background-color: #0056b3;
         }
         .text-clip {
             white-space: nowrap;
@@ -44,110 +100,176 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 16px;
+            background-color: #fff;
         }
         .network-log-table th, .network-log-table td {
-            border: 1px solid #e1e1e1;
+            border: 1px solid #e5e7eb;
             padding: 8px;
             text-align: left;
         }
         .network-log-table th {
-            background-color: #f6f6f6;
+            background-color: #f1f1f1;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            body {
+                font-size: 12px;
+            }
+            .main-content {
+                padding: 1rem;
+            }
+            .card {
+                padding: 1rem;
+            }
+            .data-table th, .data-table td {
+                padding: 8px 10px;
+            }
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100%;
+                z-index: 20;
+            }
+        }
+        @media (max-width: 480px) {
+            body {
+                font-size: 11px;
+            }
+            .data-table th, .data-table td {
+                padding: 6px 8px;
+            }
+            .data-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-50 font-sans">
-    <div class="container mx-auto p-6">
-        <h1 class="text-2xl font-semibold mb-6 text-gray-800">Company</h1>
-
-        <!-- Fetch Button and Filters -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
-            <button id="fetch-companies" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">Fetch Companies</button>
-            <div class="flex flex-wrap gap-4">
-                <div>
-                    <label for="year-filter" class="text-sm text-gray-600 mr-2">Year:</label>
-                    <select id="year-filter" class="border border-gray-300 rounded px-2 py-1">
-                        <option value="">All</option>
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
-                        <option value="2026">2026</option>
-                        <option value="2027">2027</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="type-filter" class="text-sm text-gray-600 mr-2">Type:</label>
-                    <input id="type-filter" type="text" placeholder="e.g., tech" class="border border-gray-300 rounded px-2 py-1">
-                </div>
-                <div>
-                    <label for="cgpa-filter" class="text-sm text-gray-600 mr-2">CGPA:</label>
-                    <input id="cgpa-filter" type="number" placeholder="e.g., 8" step="0.1" class="border border-gray-300 rounded px-2 py-1 w-24">
-                </div>
-                <div>
-                    <label for="name-filter" class="text-sm text-gray-600 mr-2">Name:</label>
-                    <input id="name-filter" type="text" placeholder="e.g., Google" class="border border-gray-300 rounded px-2 py-1">
-                </div>
+<body>
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar">
+            <div class="p-4">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Navigation</h2>
+                <ul class="space-y-2">
+                    <li><a href="#" class="text-gray-600 hover:text-gray-800">Companies</a></li>
+                    <li><a href="#" class="text-gray-600 hover:text-gray-800">Settings</a></li>
+                </ul>
             </div>
         </div>
 
-        <!-- Collapse Button -->
-        <div class="mb-4">
-            <button id="collapse-toggle" class="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 transition">Collapse Rows</button>
-        </div>
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="card">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-xl font-semibold text-gray-800">Company</h1>
+                    <button id="toggle-sidebar" class="md:hidden bg-gray-200 text-gray-700 px-3 py-1 rounded hover:bg-gray-300">☰</button>
+                </div>
 
-        <!-- Table to Display Data -->
-        <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-sm">
-            <table id="company-table" class="notion-table">
-                <thead>
-                    <tr>
-                        <th class="w-16 cursor-pointer" data-sort="serial">Serial No <span class="sort-icon">↕</span></th>
-                        <th class="w-48 cursor-pointer" data-sort="id">ID <span class="sort-icon">↕</span></th>
-                        <th class="w-48 cursor-pointer" data-sort="name">Name <span class="sort-icon">↕</span></th>
-                        <th class="w-64 cursor-pointer" data-sort="info">Info <span class="sort-icon">↕</span></th>
-                        <th class="w-32 cursor-pointer" data-sort="company_category">Category <span class="sort-icon">↕</span></th>
-                        <th class="w-24 cursor-pointer" data-sort="year">Year <span class="sort-icon">↕</span></th>
-                        <th class="w-24 cursor-pointer" data-sort="category">Type <span class="sort-icon">↕</span></th>
-                        <th class="w-24 cursor-pointer" data-sort="degree">Degree <span class="sort-icon">↕</span></th>
-                        <th class="w-24 cursor-pointer" data-sort="status">Status <span class="sort-icon">↕</span></th>
-                        <th class="w-24 cursor-pointer" data-sort="graduation_cgpa">CGPA <span class="sort-icon">↕</span></th>
-                        <th class="w-48 cursor-pointer" data-sort="published_at">Published At <span class="sort-icon">↕</span></th>
-                    </tr>
-                </thead>
-                <tbody id="company-table-body" class="text-gray-600 text-sm">
-                    <!-- Rows will be populated dynamically -->
-                </tbody>
-            </table>
-        </div>
+                <!-- Fetch Options and Filters -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
+                    <div class="flex space-x-3">
+                        <button id="fetch-companies" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">Fetch Companies</button>
+                        <select id="fetch-limit" class="border border-gray-300 rounded px-2 py-2">
+                            <option value="all">Fetch All</option>
+                            <option value="500">Fetch 500</option>
+                        </select>
+                        <button id="export-csv" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition hidden">Export to CSV</button>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <div>
+                            <label for="year-filter" class="text-sm text-gray-600 mr-2">Year:</label>
+                            <select id="year-filter" class="border border-gray-300 rounded px-2 py-1">
+                                <option value="">All</option>
+                                <option value="2023">2023</option>
+                                <option value="2024">2024</option>
+                                <option value="2025">2025</option>
+                                <option value="2026">2026</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="type-filter" class="text-sm text-gray-600 mr-2">Type:</label>
+                            <input id="type-filter" type="text" placeholder="e.g., tech" class="border border-gray-300 rounded px-2 py-1">
+                        </div>
+                        <div>
+                            <label for="cgpa-filter" class="text-sm text-gray-600 mr-2">CGPA:</label>
+                            <input id="cgpa-filter" type="number" placeholder="e.g., 8" step="0.1" class="border border-gray-300 rounded px-2 py-1 w-20">
+                        </div>
+                        <div>
+                            <label for="name-filter" class="text-sm text-gray-600 mr-2">Name:</label>
+                            <input id="name-filter" type="text" placeholder="e.g., Google" class="border border-gray-300 rounded px-2 py-1">
+                        </div>
+                    </div>
+                </div>
 
-        <!-- Network Activity Log -->
-        <div class="mt-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-2">Network Activity</h2>
-            <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-sm">
-                <table class="network-log-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Status</th>
-                            <th>Size</th>
-                            <th>Time</th>
-                            <th>Type</th>
-                        </tr>
-                    </thead>
-                    <tbody id="network-log-body" class="text-gray-600 text-sm">
-                        <!-- Network logs will be populated dynamically -->
-                    </tbody>
-                </table>
+                <!-- Collapse Button -->
+                <div class="mb-4">
+                    <button id="collapse-toggle" class="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 transition">Collapse Rows</button>
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table id="company-table" class="data-table">
+                        <thead>
+                            <tr>
+                                <th data-sort="serial">Serial No <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="id">ID <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="name">Name <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="info">Info <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="company_category">Category <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="year">Year <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="category">Type <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="degree">Degree <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="status">Status <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="graduation_cgpa">CGPA <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="published_at">Published At <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="deadline">Deadline <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="stipend">Stipend (INR) <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="location">Location <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="degrees">Degrees <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="poc">POC <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th>View Profile</th>
+                            </tr>
+                        </thead>
+                        <tbody id="company-table-body"></tbody>
+                    </table>
+                </div>
+
+                <!-- Network Activity Log -->
+                <div class="mt-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2">Network Activity</h2>
+                    <div class="overflow-x-auto">
+                        <table class="network-log-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Status</th>
+                                    <th>Size</th>
+                                    <th>Time</th>
+                                    <th>Type</th>
+                                </tr>
+                            </thead>
+                            <tbody id="network-log-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div id="loading" class="text-center text-gray-500 mt-4 hidden">Loading...</div>
+
+                <!-- Error Message -->
+                <div id="error-message" class="text-center text-red-500 mt-4 hidden"></div>
             </div>
         </div>
-
-        <!-- Loading Indicator -->
-        <div id="loading" class="text-center text-gray-500 mt-4 hidden">Loading...</div>
-
-        <!-- Error Message -->
-        <div id="error-message" class="text-center text-red-500 mt-4 hidden"></div>
     </div>
 
     <script>
         // DOM Elements
         const fetchButton = document.getElementById('fetch-companies');
+        const fetchLimit = document.getElementById('fetch-limit');
+        const exportCsvButton = document.getElementById('export-csv');
         const tableBody = document.getElementById('company-table-body');
         const networkLogBody = document.getElementById('network-log-body');
         const loading = document.getElementById('loading');
@@ -157,6 +279,8 @@
         const typeFilter = document.getElementById('type-filter');
         const cgpaFilter = document.getElementById('cgpa-filter');
         const nameFilter = document.getElementById('name-filter');
+        const toggleSidebar = document.getElementById('toggle-sidebar');
+        const sidebar = document.getElementById('sidebar');
 
         // State
         let companyData = [];
@@ -165,7 +289,7 @@
         let sortColumn = null;
         let sortDirection = 1; // 1 for ascending, -1 for descending
 
-        // Bearer Token (pre-filled, can be updated by user if needed)
+        // Bearer Token
         const bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc0Nzk3MzA5MywiZXhwIjoxNzUwNTY1MDkzfQ.oDgKeLGpRDz4w7zKWBUHS-trIyiJI2qp3GIs8qTBGsE";
 
         // Headers for API requests
@@ -192,7 +316,12 @@
                 logNetworkActivity(url, response.status, size, endTime - startTime, 'fetch');
                 
                 if (response.ok) {
-                    return await response.json();
+                    let companies = await response.json();
+                    // Apply fetch limit
+                    if (fetchLimit.value === '500') {
+                        companies = companies.slice(0, 500);
+                    }
+                    return companies;
                 } else {
                     throw new Error(`Failed to fetch companies list - Status: ${response.status}`);
                 }
@@ -213,7 +342,10 @@
                 logNetworkActivity(url, response.status, size, endTime - startTime, 'fetch');
                 
                 if (response.ok) {
-                    return await response.json();
+                    const data = await response.json();
+                    // Log the full response to inspect available fields
+                    console.log(`API Response for ${companyId}:`, data);
+                    return data;
                 } else {
                     throw new Error(`Failed to fetch data for company ID ${companyId} - Status: ${response.status}`);
                 }
@@ -243,6 +375,7 @@
             networkLogBody.innerHTML = '';
             companyData = [];
             filteredData = [];
+            exportCsvButton.classList.add('hidden');
 
             try {
                 // Step 1: Fetch the list of companies
@@ -269,6 +402,7 @@
 
                 filteredData = [...companyData];
                 applyFilters();
+                exportCsvButton.classList.remove('hidden');
             } catch (error) {
                 showError(error.message);
             } finally {
@@ -314,6 +448,9 @@
                 } else if (sortColumn === 'graduation_cgpa') {
                     valueA = detailsA.graduation_cgpa || 0;
                     valueB = detailsB.graduation_cgpa || 0;
+                } else if (sortColumn === 'stipend') {
+                    valueA = parseFloat(detailsA.stipend) || 0;
+                    valueB = parseFloat(detailsB.stipend) || 0;
                 } else {
                     valueA = (detailsA[sortColumn] || '').toLowerCase();
                     valueB = (detailsB[sortColumn] || '').toLowerCase();
@@ -332,7 +469,7 @@
                 const details = company.details || {};
                 const row = document.createElement('tr');
                 row.className = isCollapsed ? 'text-clip' : '';
-                row.style.height = isCollapsed ? '40px' : 'auto';
+                row.style.height = isCollapsed ? '36px' : 'auto';
                 row.innerHTML = `
                     <td class="w-16">${index + 1}</td>
                     <td class="w-48 ${isCollapsed ? 'text-clip' : ''}">${company.id || '-'}</td>
@@ -345,9 +482,55 @@
                     <td class="w-24">${details.status || '-'}</td>
                     <td class="w-24">${details.graduation_cgpa || '-'}</td>
                     <td class="w-48 ${isCollapsed ? 'text-clip' : ''}">${details.published_at || '-'}</td>
+                    <td class="w-48 ${isCollapsed ? 'text-clip' : ''}">${details.deadline || '-'}</td>
+                    <td class="w-32">${details.stipend || '-'}</td>
+                    <td class="w-32 ${isCollapsed ? 'text-clip' : ''}">${details.location || '-'}</td>
+                    <td class="w-24">${details.degrees || '-'}</td>
+                    <td class="w-64 ${isCollapsed ? 'text-clip' : ''}">${details.poc || '-'}</td>
+                    <td class="w-32"><a href="#" class="view-profile">View Profile</a></td>
                 `;
                 tableBody.appendChild(row);
             });
+        }
+
+        // Export to CSV
+        function exportToCsv() {
+            const headers = ['Serial No', 'ID', 'Name', 'Info', 'Category', 'Year', 'Type', 'Degree', 'Status', 'CGPA', 'Published At', 'Deadline', 'Stipend (INR)', 'Location', 'Degrees', 'POC'];
+            const rows = filteredData.map((company, index) => {
+                const details = company.details || {};
+                return [
+                    index + 1,
+                    company.id || '-',
+                    `"${(details.name || company.name || '-').replace(/"/g, '""')}"`,
+                    `"${(details.info || '-').replace(/"/g, '""')}"`,
+                    details.company_category || '-',
+                    details.year || '-',
+                    details.category || '-',
+                    details.degree || '-',
+                    details.status || '-',
+                    details.graduation_cgpa || '-',
+                    details.published_at || '-',
+                    details.deadline || '-',
+                    details.stipend || '-',
+                    details.location || '-',
+                    details.degrees || '-',
+                    `"${(details.poc || '-').replace(/"/g, '""')}"`
+                ];
+            });
+
+            const csvContent = [
+                headers.join(','),
+                ...rows.map(row => row.join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'company_data.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         // Show error message
@@ -357,8 +540,31 @@
             loading.classList.add('hidden');
         }
 
+        // Column resizing
+        document.querySelectorAll('.resize-handle').forEach(handle => {
+            handle.addEventListener('mousedown', (e) => {
+                const th = handle.parentElement;
+                const startX = e.pageX;
+                const startWidth = th.offsetWidth;
+
+                const onMouseMove = (e) => {
+                    const newWidth = startWidth + (e.pageX - startX);
+                    th.style.width = `${Math.max(100, newWidth)}px`;
+                };
+
+                const onMouseUp = () => {
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+                };
+
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
+        });
+
         // Event Listeners
         fetchButton.addEventListener('click', fetchAllCompanies);
+        exportCsvButton.addEventListener('click', exportToCsv);
 
         collapseToggle.addEventListener('click', () => {
             isCollapsed = !isCollapsed;
@@ -390,6 +596,11 @@
                 sortData();
                 renderTable();
             });
+        });
+
+        // Sidebar toggle for mobile
+        toggleSidebar.addEventListener('click', () => {
+            sidebar.classList.toggle('sidebar-hidden');
         });
     </script>
 </body>
