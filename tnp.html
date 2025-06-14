@@ -96,11 +96,11 @@
             line-height: 1.5;
         }
         .network-log .status {
-            color: #dc2626; /* Red for status */
+            color: #dc2626;
             font-weight: 500;
         }
         .network-log .time {
-            color: #16a34a; /* Green for time */
+            color: #16a34a;
             font-weight: 500;
         }
         @media (max-width: 768px) {
@@ -156,7 +156,7 @@
 <body class="bg-[#f5f5f5]">
     <!-- Main Content -->
     <div class="main-content">
-        <div class="max-w-6xl mx-auto">
+        <div class="max-w-7xl mx-auto">
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-2xl font-bold text-gray-800">Company</h1>
             </div>
@@ -208,16 +208,24 @@
                         <thead>
                             <tr>
                                 <th data-sort="serial">Serial No <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="placement_interviews">Placement Interviews <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="internship_shortlists">Internship Shortlists <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="id">ID <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="name">Name <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="info">Info <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="company_category">Category <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="year">Year <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="published_at">Published At <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="createdAt">Created At <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="updatedAt">Updated At <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="events">Events <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="category">Type <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="degree">Degree <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="status">Status <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="graduation_cgpa">CGPA <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="published_at">Published At <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="optional_criteria">Optional Criteria <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="cgpa_10th">CGPA 10th <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="cgpa_12th">CGPA 12th <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="graduation_cgpa">Graduation CGPA <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="deadline">Deadline <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="stipend">Stipend (INR) <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="location">Location <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
@@ -277,20 +285,27 @@
             "sec-fetch-dest": "empty"
         };
 
-        // Type colors (light pastel shades)
-        const typeColors = {
-            'Internship': '#fce7f3',
-            'FTE': '#d1fae5',
-            'Internship + FTE': '#a7f3d0'
+        // Tag Colors
+        const categoryColors = {
+            'Dream': '#bfdbfe',
+            'A++': '#fef9c3',
+            'default': '#e5e7eb'
         };
 
-        // Category colors (light pastel shades)
-        const categoryColors = {
-            'Tech': '#e0f2fe',
-            'Core': '#fefce8',
-            'Consulting': '#ffedd5',
-            'Finance': '#d1fae5'
+        const yearColors = {
+            '2023': '#ffedd5',
+            '2024': '#d1fae5',
+            '2025': '#bfdbfe',
+            '2026': '#fce7f3'
         };
+
+        function getCgpaColor(cgpa) {
+            const value = parseFloat(cgpa);
+            if (isNaN(value)) return '#e5e7eb';
+            if (value < 6) return '#fee2e2';
+            if (value <= 8) return '#fef9c3';
+            return '#d1fae5';
+        }
 
         // Fetch list of companies
         async function fetchCompaniesList() {
@@ -304,7 +319,6 @@
                 
                 if (response.ok) {
                     let companies = await response.json();
-                    // Apply fetch limit
                     const limit = fetchLimit.value;
                     if (limit !== 'all') {
                         companies = companies.slice(0, parseInt(limit));
@@ -342,7 +356,7 @@
             }
         }
 
-        // Log network activity (console-like display)
+        // Log network activity
         function logNetworkActivity(name, status, size, time, type) {
             const logEntry = document.createElement('div');
             logEntry.innerHTML = `Request: ${name} | <span class="status">Status: ${status}</span> | Size: ${size} bytes | <span class="time">Time: ${time.toFixed(2)} ms</span> | Type: ${type}`;
@@ -359,18 +373,15 @@
             exportCsvButton.classList.add('hidden');
 
             try {
-                // Step 1: Fetch the list of companies
                 const companies = await fetchCompaniesList();
                 if (!Array.isArray(companies) || companies.length === 0) {
                     throw new Error('No companies found in the API response.');
                 }
 
-                // Step 2: Fetch details for each company
                 for (const company of companies) {
                     try {
                         const details = await fetchCompanyDetails(company.id);
                         companyData.push({ id: company.id, name: company.name, details });
-                        // Add a small delay to avoid rate limiting
                         await new Promise(resolve => setTimeout(resolve, 100));
                     } catch (error) {
                         console.error(error.message);
@@ -426,15 +437,15 @@
                 } else if (sortColumn === 'name') {
                     valueA = (detailsA.name || a.name || '').toLowerCase();
                     valueB = (detailsB.name || b.name || '').toLowerCase();
-                } else if (sortColumn === 'graduation_cgpa') {
-                    valueA = detailsA.graduation_cgpa || 0;
-                    valueB = detailsB.graduation_cgpa || 0;
+                } else if (sortColumn === 'graduation_cgpa' || sortColumn === 'cgpa_10th' || sortColumn === 'cgpa_12th') {
+                    valueA = parseFloat(detailsA[sortColumn]) || 0;
+                    valueB = parseFloat(detailsB[sortColumn]) || 0;
                 } else if (sortColumn === 'stipend') {
                     valueA = parseFloat(detailsA.stipend) || 0;
                     valueB = parseFloat(detailsB.stipend) || 0;
                 } else {
-                    valueA = (detailsA[sortColumn] || '').toLowerCase();
-                    valueB = (detailsB[sortColumn] || '').toLowerCase();
+                    valueA = (detailsA[sortColumn] || '').toString().toLowerCase();
+                    valueB = (detailsB[sortColumn] || '').toString().toLowerCase();
                 }
 
                 if (valueA < valueB) return -1 * sortDirection;
@@ -451,16 +462,24 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td class="w-16">${index + 1}</td>
+                    <td class="w-48">${details.placement_interviews || '-'}</td>
+                    <td class="w-48">${details.internship_shortlists || '-'}</td>
                     <td class="w-48">${company.id || '-'}</td>
                     <td class="w-48">${details.name || company.name || '-'}</td>
                     <td class="w-64">${details.info || '-'}</td>
-                    <td class="w-32"><span class="tag" style="background-color: ${categoryColors[details.company_category] || '#e5e7eb'}">${details.company_category || '-'}</span></td>
-                    <td class="w-24">${details.year || '-'}</td>
-                    <td class="w-24"><span class="tag" style="background-color: ${typeColors[details.category] || '#e5e7eb'}">${details.category || '-'}</span></td>
+                    <td class="w-32"><span class="tag" style="background-color: ${categoryColors[details.company_category] || categoryColors.default}">${details.company_category || '-'}</span></td>
+                    <td class="w-24"><span class="tag" style="background-color: ${yearColors[details.year] || '#e5e7eb'}">${details.year || '-'}</span></td>
+                    <td class="w-48">${details.published_at || '-'}</td>
+                    <td class="w-48">${details.createdAt || '-'}</td>
+                    <td class="w-48">${details.updatedAt || '-'}</td>
+                    <td class="w-64">${details.events || '-'}</td>
+                    <td class="w-24">${details.category || '-'}</td>
                     <td class="w-24">${details.degree || '-'}</td>
                     <td class="w-24">${details.status || '-'}</td>
-                    <td class="w-24">${details.graduation_cgpa || '-'}</td>
-                    <td class="w-48">${details.published_at || '-'}</td>
+                    <td class="w-64">${details.optional_criteria || '-'}</td>
+                    <td class="w-24">${details.cgpa_10th || '-'}</td>
+                    <td class="w-24">${details.cgpa_12th || '-'}</td>
+                    <td class="w-24"><span class="tag" style="background-color: ${getCgpaColor(details.graduation_cgpa)}">${details.graduation_cgpa || '-'}</span></td>
                     <td class="w-48">${details.deadline || '-'}</td>
                     <td class="w-32">${details.stipend || '-'}</td>
                     <td class="w-32">${details.location || '-'}</td>
@@ -473,21 +492,34 @@
 
         // Export to CSV
         function exportToCsv() {
-            const headers = ['Serial No', 'ID', 'Name', 'Info', 'Category', 'Year', 'Type', 'Degree', 'Status', 'CGPA', 'Published At', 'Deadline', 'Stipend (INR)', 'Location', 'Degrees', 'POC'];
+            const headers = [
+                'Serial No', 'Placement Interviews', 'Internship Shortlists', 'ID', 'Name', 'Info', 'Category', 
+                'Year', 'Published At', 'Created At', 'Updated At', 'Events', 'Type', 'Degree', 'Status', 
+                'Optional Criteria', 'CGPA 10th', 'CGPA 12th', 'Graduation CGPA', 'Deadline', 'Stipend (INR)', 
+                'Location', 'Degrees', 'POC'
+            ];
             const rows = filteredData.map((company, index) => {
                 const details = company.details || {};
                 return [
                     index + 1,
+                    details.placement_interviews || '-',
+                    details.internship_shortlists || '-',
                     company.id || '-',
                     `"${(details.name || company.name || '-').replace(/"/g, '""')}"`,
                     `"${(details.info || '-').replace(/"/g, '""')}"`,
                     details.company_category || '-',
                     details.year || '-',
+                    details.published_at || '-',
+                    details.createdAt || '-',
+                    details.updatedAt || '-',
+                    `"${(details.events || '-').toString().replace(/"/g, '""')}"`,
                     details.category || '-',
                     details.degree || '-',
                     details.status || '-',
+                    `"${(details.optional_criteria || '-').toString().replace(/"/g, '""')}"`,
+                    details.cgpa_10th || '-',
+                    details.cgpa_12th || '-',
                     details.graduation_cgpa || '-',
-                    details.published_at || '-',
                     details.deadline || '-',
                     details.stipend || '-',
                     details.location || '-',
