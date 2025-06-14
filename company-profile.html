@@ -3,294 +3,346 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Company</title>
+    <title>Company Profile - NSUTGod</title>
+    <link rel="icon" type="image/png" href="https://github.com/avashx/nsutgod/blob/main/src/logo.png?raw=true">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap");
+
+        :root {
+            --bg: #f8f9fa;
+            --dark: #2c3038;
+            --light: #999;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f5f5f5;
+            font: 400 18px "Manrope", sans-serif;
+            background: var(--bg);
+            color: #666;
         }
-        .main-content {
-            padding: 1.5rem;
-            background-color: #f5f5f5;
-        }
-        .company-table-container {
+
+        .navbar {
+            width: 220px;
             background-color: #fff;
-            border-radius: 8px;
-            padding: 16px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            margin-top: 16px;
+            border-right: 1px solid #e5e7eb;
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 40;
+            transition: transform 0.3s ease-in-out;
         }
-        .table-wrapper {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+
+        .navbar.hidden {
+            transform: translateX(-100%);
         }
-        .company-table {
+
+        .nav-item {
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        .content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .elements {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            overflow: hidden;
+        }
+
+        .basic-info-box {
+            grid-column: span 2;
+        }
+
+        .box {
+            position: relative;
+            padding: 5%;
+            border-radius: 15px;
+            background: #fff;
+            box-shadow: 0px 14px 25px 0px #2c303822;
+        }
+
+        .box h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .info-grid p {
+            margin: 5px 0;
+            word-break: break-word;
+        }
+
+        .info-grid p span {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .list-section ul {
+            list-style-type: disc;
+            margin-left: 20px;
+            font-size: 14px;
+        }
+
+        .list-section ul li {
+            margin: 5px 0;
+        }
+
+        .table-section {
             width: 100%;
             border-collapse: collapse;
-            min-width: 2000px;
+            margin-top: 10px;
+            font-size: 14px;
+            max-height: 200px;
+            display: block;
+            overflow-y: auto;
         }
-        .company-table th {
-            padding: 4px 8px;
-            text-align: left;
-            border-bottom: 2px solid #e5e7eb;
-            font-size: 13px;
-            font-weight: 500;
-            color: #4b5563;
-            background-color: #fafafa;
-            position: relative;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-        .company-table th:hover {
-            background-color: #f5f5f5;
-        }
-        .company-table th .resize-handle {
-            position: absolute;
+
+        .table-section thead {
+            position: sticky;
             top: 0;
-            right: 0;
-            width: 4px;
-            height: 100%;
-            cursor: col-resize;
-            background-color: transparent;
+            background-color: #f9fafb;
         }
-        .company-table th .resize-handle:hover {
-            background-color: #d1d5db;
-        }
-        .company-table td {
-            padding: 4px 8px;
+
+        .table-section th, .table-section td {
+            padding: 8px;
             text-align: left;
             border-bottom: 1px solid #e5e7eb;
-            font-size: 13px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-size: 14px;
         }
-        .company-table td.info-column {
-            width: 200px;
-            white-space: normal;
-            word-wrap: break-word;
+
+        .table-section th {
+            background-color: #f9fafb;
+            font-weight: 500;
+            color: #4b5563;
         }
-        .company-table .sort-icon {
-            display: inline-block;
-            margin-left: 4px;
-            font-size: 12px;
-        }
+
         .tag {
             padding: 2px 6px;
             border-radius: 4px;
             font-size: 12px;
             font-weight: 500;
+            display: inline-block;
         }
-        .view-btn {
-            padding: 4px 8px;
-            background-color: #10b981;
-            color: #fff;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-            transition: background-color 0.2s ease;
-        }
-        .view-btn:hover {
-            background-color: #059669;
-        }
-        .action-btn {
+
+        .back-btn {
             padding: 6px 12px;
             background-color: #2563eb;
             color: #fff;
             border-radius: 6px;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 500;
             transition: background-color 0.2s ease;
         }
-        .action-btn:hover {
+
+        .back-btn:hover {
             background-color: #1e40af;
         }
-        .network-log {
-            margin-top: 16px;
-            background-color: #fff;
-            border-radius: 8px;
-            padding: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            font-size: 11px;
-            color: #1f2937;
-            line-height: 1.5;
+
+        @media (max-width: 1024px) {
+            .basic-info-box {
+                grid-column: span 1;
+            }
         }
-        .network-log .status {
-            color: #dc2626;
-            font-weight: 500;
-        }
-        .network-log .time {
-            color: #16a34a;
-            font-weight: 500;
-        }
+
         @media (max-width: 768px) {
-            .main-content {
-                padding: 1rem;
+            .navbar {
+                width: 200px;
             }
-            .company-table th, .company-table td {
-                font-size: 12px;
+            .content {
+                margin-left: 0 !important;
+                padding: 16px;
             }
-            .action-btn {
-                padding: 5px 10px;
-                font-size: 12px;
+            .elements {
+                grid-template-columns: 1fr;
             }
-            .network-log {
-                font-size: 10px;
+            .basic-info-box {
+                grid-column: span 1;
             }
         }
+
         @media (max-width: 480px) {
-            .main-content {
-                padding: 0.75rem;
+            .navbar {
+                width: 180px;
             }
-            .company-table th, .company-table td {
-                font-size: 11px;
+            .content {
+                padding: 12px;
             }
-            .action-btn {
-                padding: 4px 8px;
-                font-size: 11px;
-            }
-            .filter-group {
-                flex-direction: column;
-                gap: 8px;
-            }
-            .filter-group div {
-                width: 100%;
-            }
-            .filter-group input,
-            .filter-group select {
-                width: 100%;
-            }
-            .network-log {
-                font-size: 9px;
+            .table-section th, .table-section td {
+                font-size: 12px;
+                padding: 6px;
             }
         }
     </style>
 </head>
 <body class="bg-[#f5f5f5]">
+    <!-- Hamburger Menu for Mobile -->
+    <div class="md:hidden fixed top-4 left-4 z-50">
+        <button id="menuToggle" class="p-2 bg-gray-200 rounded-lg">
+            <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Left Navbar -->
+    <div id="navbar" class="navbar">
+        <div class="flex items-center mb-6">
+            <img src="https://github.com/avashx/nsutgod/blob/main/src/logo.png?raw=true" alt="NSUTGod Logo" class="h-10 w-10 mr-2">
+            <h2 class="text-xl font-bold text-gray-800">NSUTGod</h2>
+        </div>
+        <ul class="space-y-2">
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="overview">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                Overview
+            </li>
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg active" data-page="company-profile">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Company Profile
+            </li>
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="analytics">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10"/></svg>
+                Analytics
+            </li>
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="placement">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                Placement
+            </li>
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="notifications">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                Notifications
+                <span class="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded">2</span>
+            </li>
+        </ul>
+    </div>
+
     <!-- Main Content -->
-    <div class="main-content">
-        <div class="max-w-7xl mx-auto">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold text-gray-800">Company</h1>
-            </div>
+    <div class="md:ml-56 p-8 content">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">
+                Company Profile - <span id="companyName">-</span>
+            </h1>
+            <button class="back-btn" onclick="window.location.href='index.html'">Back to Companies</button>
+        </div>
 
-            <!-- Fetch Options and Filters -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
-                <div class="flex space-x-2">
-                    <button id="fetch-companies" class="action-btn">Fetch Companies</button>
-                    <select id="fetch-limit" class="border border-gray-300 rounded px-2 py-1 text-sm">
-                        <option value="all">Fetch All</option>
-                        <option value="100">Fetch 100</option>
-                        <option value="150">Fetch 150</option>
-                        <option value="200">Fetch 200</option>
-                        <option value="500">Fetch 500</option>
-                    </select>
-                    <button id="export-csv" class="action-btn hidden">Export to CSV</button>
-                </div>
-                <div class="flex flex-wrap gap-2 filter-group">
-                    <div>
-                        <label for="year-filter" class="text-sm text-gray-600 mr-2">Year:</label>
-                        <select id="year-filter" class="border border-gray-300 rounded px-2 py-1 text-sm">
-                            <option value="">All</option>
-                            <option value="2023">2023</option>
-                            <option value="2024">2024</option>
-                            <option value="2025">2025</option>
-                            <option value="2026">2026</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="type-filter" class="text-sm text-gray-600 mr-2">Type:</label>
-                        <input id="type-filter" type="text" class="border border-gray-300 rounded px-2 py-1 text-sm">
-                    </div>
-                    <div>
-                        <label for="cgpa-filter" class="text-sm text-gray-600 mr-2">CGPA:</label>
-                        <input id="cgpa-filter" type="number" step="0.1" class="border border-gray-300 rounded px-2 py-1 text-sm w-16">
-                    </div>
-                    <div>
-                        <label for="name-filter" class="text-sm text-gray-600 mr-2">Name:</label>
-                        <input id="name-filter" type="text" class="border border-gray-300 rounded px-2 py-1 text-sm">
-                    </div>
+        <div class="elements">
+            <!-- Box 1: Basic Information -->
+            <div class="box basic-info-box">
+                <h3>Basic Information</h3>
+                <div class="info-grid" id="basicInfo">
+                    <p>ID: <span id="companyId">-</span></p>
+                    <p>Name: <span id="name">-</span></p>
+                    <p>Category: <span id="companyCategory" class="tag">-</span></p>
+                    <p>Year: <span id="year" class="tag">-</span></p>
+                    <p>Info: <span id="info">-</span></p>
+                    <p>Published At: <span id="publishedAt">-</span></p>
+                    <p>Created At: <span id="createdAt">-</span></p>
+                    <p>Updated At: <span id="updatedAt">-</span></p>
+                    <p>Placement Interviews: <span id="placementInterviews">-</span></p>
+                    <p>Internship Shortlists: <span id="internshipShortlists">-</span></p>
                 </div>
             </div>
 
-            <!-- Company Recruitment Table -->
-            <div class="company-table-container">
-                <h3 class="text-lg font-semibold mb-4">Company Recruitment</h3>
-                <div class="table-wrapper">
-                    <table class="company-table" id="company-table">
-                        <thead>
-                            <tr>
-                                <th data-sort="serial">Serial No <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="placement_interviews">Placement Interviews <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="internship_shortlists">Internship Shortlists <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="id">ID <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="name">Name <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th>View <div class="resize-handle"></div></th>
-                                <th data-sort="company_category">Category <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="year">Year <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="jobtitle">Job Title <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="category">Event Category <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="stipend">Stipend (INR) <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="duration">Duration <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="type">Type <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="graduation_cgpa">Graduation CGPA <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="published_at">Published At <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="createdAt">Created At <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="updatedAt">Updated At <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="event_id">Event ID <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="degree">Degree <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="status">Status <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="optional_criteria">Optional Criteria <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="cgpa_10th">CGPA 10th <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="cgpa_12th">CGPA 12th <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="stipend_info">Stipend Info <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="campus">Campus <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="backlogs">Backlogs <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="branches_allowed">Branches Allowed <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="lastDate">Deadline <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="placeOfPosting">Location <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="degrees_allowed">Degrees <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="apc">POC <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="info">Info <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                            </tr>
-                        </thead>
-                        <tbody id="company-table-body"></tbody>
-                    </table>
+            <!-- Box 2: Event Information -->
+            <div class="box">
+                <h3>Event Information</h3>
+                <div class="info-grid" id="eventInfo">
+                    <p>Event ID: <span id="eventId">-</span></p>
+                    <p>Job Title: <span id="jobTitle">-</span></p>
+                    <p>Category: <span id="eventCategory" class="tag">-</span></p>
+                    <p>Type: <span id="type" class="tag">-</span></p>
+                    <p>Degree: <span id="degree">-</span></p>
+                    <p>Status: <span id="status">-</span></p>
+                    <p>Optional Criteria: <span id="optionalCriteria">-</span></p>
+                    <p>Stipend (INR): <span id="stipend" class="tag">-</span></p>
+                    <p>Stipend Info: <span id="stipendInfo">-</span></p>
+                    <p>Duration: <span id="duration">-</span></p>
+                    <p>Location: <span id="placeOfPosting" class="tag">-</span></p>
+                    <p>Deadline: <span id="lastDate">-</span></p>
+                    <p>POC: <span id="apc">-</span></p>
                 </div>
             </div>
 
-            <!-- Network Activity Log -->
-            <div class="network-log" id="network-log-body"></div>
+            <!-- Box 3: Academic Requirements -->
+            <div class="box">
+                <h3>Academic Requirements</h3>
+                <div class="info-grid" id="academicRequirements">
+                    <p>CGPA 10th: <span id="cgpa10th">-</span></p>
+                    <p>CGPA 12th: <span id="cgpa12th">-</span></p>
+                    <p>Graduation CGPA: <span id="graduationCgpa" class="tag">-</span></p>
+                    <p>Backlogs: <span id="backlogs">-</span></p>
+                </div>
+            </div>
 
-            <!-- Loading Indicator -->
-            <div id="loading" class="text-center text-gray-500 mt-4 hidden">Loading...</div>
+            <!-- Box 4: Allowed Details -->
+            <div class="box">
+                <h3>Allowed Details</h3>
+                <div class="info-grid" id="allowedDetails">
+                    <p>Degrees Allowed: <span id="degreesAllowed">-</span></p>
+                    <p>Campus: <span id="campus">-</span></p>
+                </div>
+                <div class="list-section">
+                    <p>Branches Allowed:</p>
+                    <ul id="branchesAllowed"></ul>
+                </div>
+            </div>
 
-            <!-- Error Message -->
-            <div id="error-message" class="text-center text-red-500 mt-4 hidden"></div>
+            <!-- Box 5: Attachments -->
+            <div class="box">
+                <h3>Attachments</h3>
+                <table class="table-section" id="attachmentsTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>URL</th>
+                            <th>Size (KB)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attachmentsBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Box 6: Additional Questions -->
+            <div class="box">
+                <h3>Additional Questions</h3>
+                <table class="table-section" id="additionalQuestionsTable">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Question</th>
+                            <th>Options</th>
+                        </tr>
+                    </thead>
+                    <tbody id="additionalQuestionsBody"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <script>
-        // DOM Elements
-        const fetchButton = document.getElementById('fetch-companies');
-        const fetchLimit = document.getElementById('fetch-limit');
-        const exportCsvButton = document.getElementById('export-csv');
-        const tableBody = document.getElementById('company-table-body');
-        const networkLogBody = document.getElementById('network-log-body');
-        const loading = document.getElementById('loading');
-        const errorMessage = document.getElementById('error-message');
-        const yearFilter = document.getElementById('year-filter');
-        const typeFilter = document.getElementById('type-filter');
-        const cgpaFilter = document.getElementById('cgpa-filter');
-        const nameFilter = document.getElementById('name-filter');
-
-        // State
-        let companyData = [];
-        let filteredData = [];
-        let sortColumn = null;
-        let sortDirection = 1; // 1 for ascending, -1 for descending
+        // Get company ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const companyId = urlParams.get('id');
 
         // Bearer Token
         const bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc0Nzk3MzA5MywiZXhwIjoxNzUwNTY1MDkzfQ.oDgKeLGpRDz4w7zKWBUHS-trIyiJI2qp3GIs8qTBGsE";
@@ -308,7 +360,7 @@
             "sec-fetch-dest": "empty"
         };
 
-        // Tag Colors
+        // Tag Colors (consistent with index.html)
         const categoryColors = {
             'Dream': '#bfdbfe',
             'A++': '#fef9c3',
@@ -323,36 +375,36 @@
         };
 
         const eventCategoryColors = {
-            'tech': '#bfdbfe', // Light blue
-            'default': '#e5e7eb' // Gray for others
+            'tech': '#bfdbfe',
+            'default': '#e5e7eb'
         };
 
         const typeColors = {
-            'Placement': '#d1fae5', // Light green
-            'Internship': '#ffedd5', // Light orange
+            'Placement': '#d1fae5',
+            'Internship': '#ffedd5',
             'default': '#e5e7eb'
         };
 
         function getStipendColor(stipend) {
             const value = parseFloat(stipend) || 0;
-            if (value < 500000) return '#fee2e2'; // Red for low stipend
-            if (value <= 2000000) return '#fef9c3'; // Yellow for medium
-            return '#d1fae5'; // Green for high
+            if (value < 500000) return '#fee2e2';
+            if (value <= 2000000) return '#fef9c3';
+            return '#d1fae5';
         }
 
         const locationColors = {
-            'Bangalore': '#bfdbfe', // Light blue
-            'Hyderabad': '#d1fae5', // Light green
-            'Pune': '#ffedd5', // Light orange
-            'Gurgaon': '#fef9c3', // Light yellow
-            'Delhi': '#fce7f3', // Light pink
-            'default': '#e5e7eb' // Gray for others
+            'Bangalore': '#bfdbfe',
+            'Hyderabad': '#d1fae5',
+            'Pune': '#ffedd5',
+            'Gurgaon': '#fef9c3',
+            'Delhi': '#fce7f3',
+            'default': '#e5e7eb'
         };
 
         function getLocationColor(location) {
             if (!location) return locationColors.default;
             const cities = location.split(',').map(city => city.trim());
-            const firstCity = cities[0].split('/')[0]; // Handle "Bangalore/Hyderabad" by taking first city
+            const firstCity = cities[0].split('/')[0];
             return locationColors[firstCity] || locationColors.default;
         }
 
@@ -364,333 +416,167 @@
             return '#d1fae5';
         }
 
-        // Fetch list of companies
-        async function fetchCompaniesList() {
-            const url = 'https://api.tnpnsut.in/companies';
-            const startTime = performance.now();
-            try {
-                const response = await fetch(url, { headers });
-                const endTime = performance.now();
-                const size = response.headers.get('content-length') || 'Unknown';
-                logNetworkActivity(url, response.status, size, endTime - startTime, 'fetch');
-                
-                if (response.ok) {
-                    let companies = await response.json();
-                    const limit = fetchLimit.value;
-                    if (limit !== 'all') {
-                        companies = companies.slice(0, parseInt(limit));
-                    }
-                    return companies;
-                } else {
-                    throw new Error(`Failed to fetch companies list - Status: ${response.status}`);
-                }
-            } catch (error) {
-                logNetworkActivity(url, 'Failed', '0', performance.now() - startTime, 'fetch');
-                throw error;
-            }
-        }
-
         // Fetch company details
-        async function fetchCompanyDetails(companyId) {
+        async function fetchCompanyDetails() {
+            if (!companyId) {
+                displayError('No company ID provided in the URL.');
+                return;
+            }
+
             const url = `https://api.tnpnsut.in/companies/${companyId}`;
-            const startTime = performance.now();
             try {
                 const response = await fetch(url, { headers });
-                const endTime = performance.now();
-                const size = response.headers.get('content-length') || 'Unknown';
-                logNetworkActivity(url, response.status, size, endTime - startTime, 'fetch');
-                
                 if (response.ok) {
                     const data = await response.json();
-                    console.log(`API Response for ${companyId}:`, data);
-                    return data;
+                    displayCompanyData(data);
                 } else {
-                    throw new Error(`Failed to fetch data for company ID ${companyId} - Status: ${response.status}`);
+                    throw new Error(`Failed to fetch company data - Status: ${response.status}`);
                 }
             } catch (error) {
-                logNetworkActivity(url, 'Failed', '0', performance.now() - startTime, 'fetch');
-                throw error;
+                displayError(error.message);
             }
         }
 
-        // Log network activity
-        function logNetworkActivity(name, status, size, time, type) {
-            const logEntry = document.createElement('div');
-            logEntry.innerHTML = `Request: ${name} | <span class="status">Status: ${status}</span> | Size: ${size} bytes | <span class="time">Time: ${time.toFixed(2)} ms</span> | Type: ${type}`;
-            networkLogBody.appendChild(logEntry);
+        // Display error message
+        function displayError(message) {
+            const content = document.querySelector('.content');
+            content.innerHTML = `<p class="text-red-500 text-center">${message}</p>`;
         }
 
-        // Fetch all company data
-        async function fetchAllCompanies() {
-            loading.classList.remove('hidden');
-            errorMessage.classList.add('hidden');
-            networkLogBody.innerHTML = '';
-            companyData = [];
-            filteredData = [];
-            exportCsvButton.classList.add('hidden');
+        // Display company data
+        function displayCompanyData(data) {
+            const details = data || {};
+            const event = details.events && details.events.length > 0 ? details.events[0] : {};
 
-            try {
-                const companies = await fetchCompaniesList();
-                if (!Array.isArray(companies) || companies.length === 0) {
-                    throw new Error('No companies found in the API response.');
-                }
+            // Basic Information
+            document.getElementById('companyName').textContent = details.Name || '-';
+            document.getElementById('companyId').textContent = details._id || '-';
+            document.getElementById('name').textContent = details.Name || '-';
+            const companyCategorySpan = document.getElementById('companyCategory');
+            companyCategorySpan.textContent = details.company_category || '-';
+            companyCategorySpan.style.backgroundColor = categoryColors[details.company_category] || categoryColors.default;
+            const yearSpan = document.getElementById('year');
+            yearSpan.textContent = details.year || '-';
+            yearSpan.style.backgroundColor = yearColors[details.year] || '#e5e7eb';
+            document.getElementById('info').textContent = details.info || '-';
+            document.getElementById('publishedAt').textContent = details.published_at || '-';
+            document.getElementById('createdAt').textContent = details.createdAt || '-';
+            document.getElementById('updatedAt').textContent = details.updatedAt || '-';
+            document.getElementById('placementInterviews').textContent = details.placement_interviews && details.placement_interviews.length > 0 ? details.placement_interviews.length : 'None';
+            document.getElementById('internshipShortlists').textContent = details.internship_shortlists && details.internship_shortlists.length > 0 ? details.internship_shortlists.length : 'None';
 
-                for (const company of companies) {
-                    try {
-                        const details = await fetchCompanyDetails(company.id);
-                        companyData.push({ id: company.id, name: company.name, details });
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                    } catch (error) {
-                        console.error(error.message);
-                    }
-                }
+            // Event Information
+            document.getElementById('eventId').textContent = event._id || '-';
+            document.getElementById('jobTitle').textContent = event.jobtitle || '-';
+            const eventCategorySpan = document.getElementById('eventCategory');
+            eventCategorySpan.textContent = event.category || '-';
+            eventCategorySpan.style.backgroundColor = eventCategoryColors[event.category] || eventCategoryColors.default;
+            const typeSpan = document.getElementById('type');
+            typeSpan.textContent = event.type || '-';
+            typeSpan.style.backgroundColor = typeColors[event.type] || typeColors.default;
+            document.getElementById('degree').textContent = event.degree || '-';
+            document.getElementById('status').textContent = event.status || '-';
+            document.getElementById('optionalCriteria').textContent = event.optional_criteria !== undefined ? event.optional_criteria : '-';
+            const stipendSpan = document.getElementById('stipend');
+            stipendSpan.textContent = event.stipend !== undefined ? event.stipend : '-';
+            stipendSpan.style.backgroundColor = getStipendColor(event.stipend);
+            document.getElementById('stipendInfo').textContent = event.stipend_info || '-';
+            document.getElementById('duration').textContent = event.duration || '-';
+            const placeOfPostingSpan = document.getElementById('placeOfPosting');
+            placeOfPostingSpan.textContent = event.placeOfPosting || '-';
+            placeOfPostingSpan.style.backgroundColor = getLocationColor(event.placeOfPosting);
+            document.getElementById('lastDate').textContent = event.lastDate || '-';
+            document.getElementById('apc').textContent = event.apc || '-';
 
-                if (companyData.length === 0) {
-                    throw new Error('No company details fetched. Please check the API or token.');
-                }
+            // Academic Requirements
+            document.getElementById('cgpa10th').textContent = event.cgpa_10th !== undefined ? event.cgpa_10th : '-';
+            document.getElementById('cgpa12th').textContent = event.cgpa_12th !== undefined ? event.cgpa_12th : '-';
+            const graduationCgpaSpan = document.getElementById('graduationCgpa');
+            graduationCgpaSpan.textContent = event.graduation_cgpa !== undefined ? event.graduation_cgpa : '-';
+            graduationCgpaSpan.style.backgroundColor = getCgpaColor(event.graduation_cgpa);
+            document.getElementById('backlogs').textContent = event.backlogs !== undefined ? event.backlogs : '-';
 
-                filteredData = [...companyData];
-                applyFilters();
-                exportCsvButton.classList.remove('hidden');
-            } catch (error) {
-                showError(error.message);
-            } finally {
-                loading.classList.add('hidden');
+            // Allowed Details
+            document.getElementById('degreesAllowed').textContent = (event.degrees_allowed || []).join(', ') || '-';
+            document.getElementById('campus').textContent = (event.campus || []).join(', ') || '-';
+            const branchesAllowedList = document.getElementById('branchesAllowed');
+            branchesAllowedList.innerHTML = '';
+            (event.branchesAllowed || []).forEach(branch => {
+                const li = document.createElement('li');
+                li.textContent = `${branch.branch} (${branch.degree})`;
+                branchesAllowedList.appendChild(li);
+            });
+            if (!event.branchesAllowed || event.branchesAllowed.length === 0) {
+                branchesAllowedList.innerHTML = '<li>-</li>';
             }
-        }
 
-        // Apply filters
-        function applyFilters() {
-            const year = yearFilter.value;
-            const type = typeFilter.value.toLowerCase();
-            const cgpa = parseFloat(cgpaFilter.value) || null;
-            const name = nameFilter.value.toLowerCase();
-
-            filteredData = companyData.filter(company => {
-                const details = company.details || {};
-                const event = details.events && details.events.length > 0 ? details.events[0] : {};
-                const matchesYear = year ? details.year === year : true;
-                const matchesType = type ? (event.type || '').toLowerCase().includes(type) : true;
-                const matchesCgpa = cgpa !== null ? (event.graduation_cgpa || 0) >= cgpa : true;
-                const matchesName = name ? (details.Name || company.name || '').toLowerCase().includes(name) : true;
-                return matchesYear && matchesType && matchesCgpa && matchesName;
-            });
-
-            sortData();
-            renderTable();
-        }
-
-        // Sort data
-        function sortData() {
-            if (!sortColumn) return;
-
-            filteredData.sort((a, b) => {
-                const detailsA = a.details || {};
-                const detailsB = b.details || {};
-                const eventA = detailsA.events && detailsA.events.length > 0 ? detailsA.events[0] : {};
-                const eventB = detailsB.events && detailsB.events.length > 0 ? detailsB.events[0] : {};
-                let valueA, valueB;
-
-                if (sortColumn === 'serial') {
-                    valueA = companyData.indexOf(a);
-                    valueB = companyData.indexOf(b);
-                } else if (sortColumn === 'placement_interviews') {
-                    valueA = (detailsA.placement_interviews || []).length;
-                    valueB = (detailsB.placement_interviews || []).length;
-                } else if (sortColumn === 'internship_shortlists') {
-                    valueA = (detailsA.internship_shortlists || []).length;
-                    valueB = (detailsB.internship_shortlists || []).length;
-                } else if (sortColumn === 'name') {
-                    valueA = (detailsA.Name || a.name || '').toLowerCase();
-                    valueB = (detailsB.Name || b.name || '').toLowerCase();
-                } else if (sortColumn === 'graduation_cgpa' || sortColumn === 'cgpa_10th' || sortColumn === 'cgpa_12th' || sortColumn === 'stipend' || sortColumn === 'backlogs') {
-                    valueA = parseFloat(eventA[sortColumn]) || 0;
-                    valueB = parseFloat(eventB[sortColumn]) || 0;
-                } else if (sortColumn === 'event_id') {
-                    valueA = (eventA._id || '').toLowerCase();
-                    valueB = (eventB._id || '').toLowerCase();
-                } else if (sortColumn === 'degrees_allowed' || sortColumn === 'campus' || sortColumn === 'branches_allowed') {
-                    valueA = (eventA[sortColumn] || []).join(', ').toLowerCase();
-                    valueB = (eventB[sortColumn] || []).join(', ').toLowerCase();
-                } else {
-                    valueA = (eventA[sortColumn] || detailsA[sortColumn] || '').toString().toLowerCase();
-                    valueB = (eventB[sortColumn] || detailsB[sortColumn] || '').toString().toLowerCase();
-                }
-
-                if (valueA < valueB) return -1 * sortDirection;
-                if (valueA > valueB) return 1 * sortDirection;
-                return 0;
-            });
-        }
-
-        // Render the table
-        function renderTable() {
-            tableBody.innerHTML = '';
-            filteredData.forEach((company, index) => {
-                const details = company.details || {};
-                const event = details.events && details.events.length > 0 ? details.events[0] : {};
-                const branchesAllowed = (event.branchesAllowed || []).map(b => b.branch).join(', ');
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${details.placement_interviews && details.placement_interviews.length > 0 ? details.placement_interviews.length : 'None'}</td>
-                    <td>${details.internship_shortlists && details.internship_shortlists.length > 0 ? details.internship_shortlists.length : 'None'}</td>
-                    <td>${details._id || '-'}</td>
-                    <td>${details.Name || company.name || '-'}</td>
-                    <td><button class="view-btn" onclick="window.location.href='company-profile.html?id=${details._id}'">View</button></td>
-                    <td><span class="tag" style="background-color: ${categoryColors[details.company_category] || categoryColors.default}">${details.company_category || '-'}</span></td>
-                    <td><span class="tag" style="background-color: ${yearColors[details.year] || '#e5e7eb'}">${details.year || '-'}</span></td>
-                    <td>${event.jobtitle || '-'}</td>
-                    <td><span class="tag" style="background-color: ${eventCategoryColors[event.category] || eventCategoryColors.default}">${event.category || '-'}</span></td>
-                    <td><span class="tag" style="background-color: ${getStipendColor(event.stipend)}">${event.stipend !== undefined ? event.stipend : '-'}</span></td>
-                    <td>${event.duration || '-'}</td>
-                    <td><span class="tag" style="background-color: ${typeColors[event.type] || typeColors.default}">${event.type || '-'}</span></td>
-                    <td><span class="tag" style="background-color: ${getCgpaColor(event.graduation_cgpa)}">${event.graduation_cgpa !== undefined ? event.graduation_cgpa : '-'}</span></td>
-                    <td>${details.published_at || '-'}</td>
-                    <td>${details.createdAt || '-'}</td>
-                    <td>${details.updatedAt || '-'}</td>
-                    <td>${event._id || '-'}</td>
-                    <td>${event.degree || '-'}</td>
-                    <td>${event.status || '-'}</td>
-                    <td>${event.optional_criteria !== undefined ? event.optional_criteria : '-'}</td>
-                    <td>${event.cgpa_10th !== undefined ? event.cgpa_10th : '-'}</td>
-                    <td>${event.cgpa_12th !== undefined ? event.cgpa_12th : '-'}</td>
-                    <td>${event.stipend_info || '-'}</td>
-                    <td>${(event.campus || []).join(', ') || '-'}</td>
-                    <td>${event.backlogs !== undefined ? event.backlogs : '-'}</td>
-                    <td>${branchesAllowed || '-'}</td>
-                    <td>${event.lastDate || '-'}</td>
-                    <td><span class="tag" style="background-color: ${getLocationColor(event.placeOfPosting)}">${event.placeOfPosting || '-'}</span></td>
-                    <td>${(event.degrees_allowed || []).join(', ') || '-'}</td>
-                    <td>${event.apc || '-'}</td>
-                    <td class="info-column">${details.info || '-'}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
-        // Export to CSV
-        function exportToCsv() {
-            const headers = [
-                'Serial No', 'Placement Interviews', 'Internship Shortlists', 'ID', 'Name', 'View', 'Category', 
-                'Year', 'Job Title', 'Event Category', 'Stipend (INR)', 'Duration', 'Type', 'Graduation CGPA', 
-                'Published At', 'Created At', 'Updated At', 'Event ID', 'Degree', 'Status', 'Optional Criteria', 
-                'CGPA 10th', 'CGPA 12th', 'Stipend Info', 'Campus', 'Backlogs', 'Branches Allowed', 'Deadline', 
-                'Location', 'Degrees', 'POC', 'Info'
-            ];
-            const rows = filteredData.map((company, index) => {
-                const details = company.details || {};
-                const event = details.events && details.events.length > 0 ? details.events[0] : {};
-                const branchesAllowed = (event.branchesAllowed || []).map(b => b.branch).join(', ');
-                return [
-                    index + 1,
-                    details.placement_interviews && details.placement_interviews.length > 0 ? details.placement_interviews.length : 'None',
-                    details.internship_shortlists && details.internship_shortlists.length > 0 ? details.internship_shortlists.length : 'None',
-                    details._id || '-',
-                    `"${(details.Name || company.name || '-').replace(/"/g, '""')}"`,
-                    'View', // Placeholder for View button
-                    details.company_category || '-',
-                    details.year || '-',
-                    `"${(event.jobtitle || '-').replace(/"/g, '""')}"`,
-                    event.category || '-',
-                    event.stipend !== undefined ? event.stipend : '-',
-                    `"${(event.duration || '-').replace(/"/g, '""')}"`,
-                    event.type || '-',
-                    event.graduation_cgpa !== undefined ? event.graduation_cgpa : '-',
-                    details.published_at || '-',
-                    details.createdAt || '-',
-                    details.updatedAt || '-',
-                    event._id || '-',
-                    event.degree || '-',
-                    event.status || '-',
-                    event.optional_criteria !== undefined ? event.optional_criteria : '-',
-                    event.cgpa_10th !== undefined ? event.cgpa_10th : '-',
-                    event.cgpa_12th !== undefined ? event.cgpa_12th : '-',
-                    `"${(event.stipend_info || '-').replace(/"/g, '""')}"`,
-                    (event.campus || []).join(', ') || '-',
-                    event.backlogs !== undefined ? event.backlogs : '-',
-                    branchesAllowed || '-',
-                    event.lastDate || '-',
-                    event.placeOfPosting || '-',
-                    (event.degrees_allowed || []).join(', ') || '-',
-                    `"${(event.apc || '-').replace(/"/g, '""')}"`,
-                    `"${(details.info || '-').replace(/"/g, '""')}"`
-                ];
-            });
-
-            const csvContent = [
-                headers.join(','),
-                ...rows.map(row => row.join(','))
-            ].join('\n');
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'company_data.csv');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Show error message
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.classList.remove('hidden');
-            loading.classList.add('hidden');
-        }
-
-        // Column resizing
-        document.querySelectorAll('.resize-handle').forEach(handle => {
-            handle.addEventListener('mousedown', (e) => {
-                const th = handle.parentElement;
-                const startX = e.pageX;
-                const startWidth = th.offsetWidth;
-
-                const onMouseMove = (e) => {
-                    const newWidth = startWidth + (e.pageX - startX);
-                    th.style.width = `${Math.max(80, newWidth)}px`;
-                };
-
-                const onMouseUp = () => {
-                    document.removeEventListener('mousemove', onMouseMove);
-                    document.removeEventListener('mouseup', onMouseUp);
-                };
-
-                document.addEventListener('mousemove', onMouseMove);
-                document.addEventListener('mouseup', onMouseUp);
-            });
-        });
-
-        // Event Listeners
-        fetchButton.addEventListener('click', fetchAllCompanies);
-        exportCsvButton.addEventListener('click', exportToCsv);
-
-        // Filter event listeners
-        yearFilter.addEventListener('change', applyFilters);
-        typeFilter.addEventListener('input', applyFilters);
-        cgpaFilter.addEventListener('input', applyFilters);
-        nameFilter.addEventListener('input', applyFilters);
-
-        // Sort event listeners
-        document.querySelectorAll('th[data-sort]').forEach(header => {
-            header.addEventListener('click', () => {
-                const column = header.dataset.sort;
-                if (sortColumn === column) {
-                    sortDirection *= -1;
-                } else {
-                    sortColumn = column;
-                    sortDirection = 1;
-                }
-                document.querySelectorAll('.sort-icon').forEach(icon => {
-                    icon.textContent = '↕';
+            // Attachments
+            const attachmentsBody = document.getElementById('attachmentsBody');
+            attachmentsBody.innerHTML = '';
+            if (event.attachments && event.attachments.length > 0) {
+                event.attachments.forEach(attachment => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${attachment.name || '-'}</td>
+                        <td><a href="${attachment.url || '#'}" target="_blank" class="text-blue-500 underline">${attachment.url ? 'Link' : '-'}</a></td>
+                        <td>${attachment.size || '-'}</td>
+                    `;
+                    attachmentsBody.appendChild(row);
                 });
-                const icon = header.querySelector('.sort-icon');
-                icon.textContent = sortDirection === 1 ? '↑' : '↓';
-                sortData();
-                renderTable();
+            } else {
+                attachmentsBody.innerHTML = '<tr><td colspan="3">-</td></tr>';
+            }
+
+            // Additional Questions
+            const additionalQuestionsBody = document.getElementById('additionalQuestionsBody');
+            additionalQuestionsBody.innerHTML = '';
+            if (event.additional_ques && event.additional_ques.length > 0) {
+                event.additional_ques.forEach(ques => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${ques.type || '-'}</td>
+                        <td>${ques.ques || '-'}</td>
+                        <td>${(ques.options || []).join(', ') || '-'}</td>
+                    `;
+                    additionalQuestionsBody.appendChild(row);
+                });
+            } else {
+                additionalQuestionsBody.innerHTML = '<tr><td colspan="3">-</td></tr>';
+            }
+        }
+
+        // Toggle navbar on mobile
+        const menuToggle = document.getElementById('menuToggle');
+        const navbar = document.getElementById('navbar');
+        menuToggle.addEventListener('click', () => {
+            navbar.classList.toggle('hidden');
+        });
+
+        // Close navbar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth < 768 && !navbar.contains(e.target) && !menuToggle.contains(e.target)) {
+                navbar.classList.add('hidden');
+            }
+        });
+
+        // Navigation between pages
+        const pages = {
+            'overview': () => window.location.href = 'index.html',
+            'company-profile': () => {},
+            'analytics': () => window.location.href = 'analytics.html',
+            'placement': () => window.location.href = 'placement.html',
+            'notifications': () => window.location.href = 'index.html#notificationsPage'
+        };
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const page = item.getAttribute('data-page');
+                pages[page]();
             });
         });
+
+        // Fetch and display company data on page load
+        fetchCompanyDetails();
     </script>
 </body>
 </html>
