@@ -43,6 +43,10 @@
             position: relative;
             cursor: pointer;
             white-space: nowrap;
+            width: 100px; /* Default width for expanded state */
+        }
+        .company-table th.info-header {
+            width: 200px; /* Default width for 'Info' column in expanded state */
         }
         .company-table th:hover {
             background-color: #f5f5f5;
@@ -67,11 +71,25 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            height: 30px; /* Fixed height for single-line rows */
+            height: 30px; /* Default height for expanded state */
             line-height: 30px;
+            width: 100px; /* Default width for expanded state */
         }
         .company-table td.info-column {
-            width: 200px;
+            width: 200px; /* Default width for 'Info' column in expanded state */
+        }
+        /* Collapsed state styles */
+        .company-table.collapsed th,
+        .company-table.collapsed td {
+            padding: 2px 4px; /* Reduced padding for collapsed state */
+            height: 20px; /* Reduced height for collapsed state */
+            line-height: 20px;
+            width: 80px; /* Uniform smaller width for collapsed state */
+            font-size: 12px; /* Slightly smaller font size */
+        }
+        .company-table.collapsed th.info-header,
+        .company-table.collapsed td.info-column {
+            width: 120px; /* Smaller width for 'Info' column in collapsed state */
         }
         .company-table .sort-icon {
             display: inline-block;
@@ -98,7 +116,7 @@
         }
         .action-btn {
             padding: 6px 12px;
-            background-color: #4b5563; /* Updated color */
+            background-color: #4b5563;
             color: #fff;
             border-radius: 6px;
             font-size: 13px;
@@ -107,6 +125,18 @@
         }
         .action-btn:hover {
             background-color: #374151;
+        }
+        .collapse-btn {
+            padding: 4px 8px;
+            background-color: #6b7280;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        .collapse-btn:hover {
+            background-color: #4b5563;
         }
         .network-log {
             margin-top: 16px;
@@ -166,6 +196,10 @@
             }
             .navbar {
                 width: 200px;
+            }
+            /* Hide navbar by default on mobile */
+            .navbar {
+                transform: translateX(-100%);
             }
         }
         @media (max-width: 480px) {
@@ -307,7 +341,10 @@
 
             <!-- Company Recruitment Table -->
             <div class="company-table-container">
-                <h3 class="text-lg font-semibold mb-4">Company Recruitment</h3>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">Company Recruitment</h3>
+                    <button id="collapse-table" class="collapse-btn">Collapse</button>
+                </div>
                 <div class="table-wrapper">
                     <table class="company-table" id="company-table">
                         <thead>
@@ -343,7 +380,7 @@
                                 <th data-sort="createdAt">Created At <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="updatedAt">Updated At <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="event_id">Event ID <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="info">Info <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="info" class="info-header">Info <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                             </tr>
                         </thead>
                         <tbody id="company-table-body"></tbody>
@@ -375,12 +412,15 @@
         const typeFilter = document.getElementById('type-filter');
         const cgpaFilter = document.getElementById('cgpa-filter');
         const nameFilter = document.getElementById('name-filter');
+        const collapseButton = document.getElementById('collapse-table');
+        const companyTable = document.getElementById('company-table');
 
         // State
         let companyData = [];
         let filteredData = [];
         let sortColumn = null;
         let sortDirection = 1; // 1 for ascending, -1 for descending
+        let isTableCollapsed = false;
 
         // Bearer Token
         const bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc0Nzk3MzA5MywiZXhwIjoxNzUwNTY1MDkzfQ.oDgKeLGpRDz4w7zKWBUHS-trIyiJI2qp3GIs8qTBGsE";
@@ -729,6 +769,18 @@
             errorMessage.classList.remove('hidden');
             loading.classList.add('hidden');
         }
+
+        // Toggle table collapse/expand
+        collapseButton.addEventListener('click', () => {
+            isTableCollapsed = !isTableCollapsed;
+            if (isTableCollapsed) {
+                companyTable.classList.add('collapsed');
+                collapseButton.textContent = 'Expand';
+            } else {
+                companyTable.classList.remove('collapsed');
+                collapseButton.textContent = 'Collapse';
+            }
+        });
 
         // Column resizing
         document.querySelectorAll('.resize-handle').forEach(handle => {
