@@ -441,6 +441,8 @@
         let sortDirection = 1; // 1 for ascending, -1 for descending
         let isTableCollapsed = true;
         let fetchedCompanies = [];
+        const CACHE_KEY = 'fetchedCompaniesCache';
+        const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
         // Bearer Token
         const bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc0Nzk3MzA5MywiZXhwIjoxNzUwNTY1MDkzfQ.oDgKeLGpRDz4w7zKWBUHS-trIyiJI2qp3GIs8qTBGsE";
@@ -520,12 +522,64 @@
             return '#d1fae5';
         }
 
+        // Cache Management
+        function getCachedData() {
+            const cached = localStorage.getItem(CACHE_KEY);
+            if (!cached) return null;
+            const { data, timestamp } = JSON.parse(cached);
+            if (Date.now() - timestamp > CACHE_DURATION) {
+                localStorage.removeItem(CACHE_KEY);
+                return null;
+            }
+            return data;
+        }
+
+        function setCachedData(data) {
+            const cacheEntry = {
+                data,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(CACHE_KEY, JSON.stringify(cacheEntry));
+        }
+
+        // Fetch with Timeout and Retry
+        async function fetchWithTimeout(url, options, timeout = 5000) {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            try {
+                const response = await fetch(url, { ...options, signal: controller.signal });
+                clearTimeout(id);
+                return response;
+            } catch (error) {
+                clearTimeout(id);
+                throw error;
+            }
+        }
+
+        async function fetchWithRetry(url, options, retries = 3, delay = 1000) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetchWithTimeout(url, options);
+                    return response;
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                    if (error.name === 'AbortError') {
+                        throw new Error(`Request to ${url} timed out after 5 seconds`);
+                    }
+                    if (error.message.includes('ERR_NAME_NOT_RESOLVED')) {
+                        throw new Error(`DNS resolution failed for ${url}. The server may be down or unreachable.`);
+                    }
+                    await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
+                }
+            }
+        }
+
         // Fetch list of companies
         async function fetchCompaniesList() {
             const url = 'https://api.tnpnsut.in/companies';
             const startTime = performance.now();
             try {
-                const response = await fetch(url, { headers });
+                const response = await fetchWithRetry(url, { headers });
                 const endTime = performance.now();
                 const size = response.headers.get('content-length') || 'Unknown';
                 logNetworkActivity(url, response.status, size, endTime - startTime, 'fetch');
@@ -551,7 +605,7 @@
             const url = `https://api.tnpnsut.in/companies/${companyId}`;
             const startTime = performance.now();
             try {
-                const response = await fetch(url, { headers });
+                const response = await fetchWithRetry(url, { headers });
                 const endTime = performance.now();
                 const size = response.headers.get('content-length') || 'Unknown';
                 logNetworkActivity(url, response.status, size, endTime - startTime, 'fetch');
@@ -587,6 +641,19 @@
             exportCsvButton.classList.add('hidden');
             showCompaniesButton.classList.add('hidden');
 
+            // Check for cached data
+            const cachedData = getCachedData();
+            if (cachedData) {
+                fetchedCompanies = cachedData;
+                companyData = [...fetchedCompanies];
+                filteredData = [...companyData];
+                applyFilters();
+                showCompaniesButton.classList.remove('hidden');
+                loading.classList.add('hidden');
+                showError('Using cached data due to previous successful fetch. Click "Show Companies" to display.');
+                return;
+            }
+
             try {
                 const companies = await fetchCompaniesList();
                 if (!Array.isArray(companies) || companies.length === 0) {
@@ -605,6 +672,16 @@
             loading.classList.remove('hidden');
             showCompaniesButton.classList.add('hidden');
             tableBody.innerHTML = '';
+
+            // Check if we already have fetchedCompanies (from cache or previous fetch)
+            if (fetchedCompanies.length > 0) {
+                companyData = [...fetchedCompanies];
+                filteredData = [...companyData];
+                applyFilters();
+                exportCsvButton.classList.remove('hidden');
+                loading.classList.add('hidden');
+                return;
+            }
 
             try {
                 const companies = await fetchCompaniesList();
@@ -626,6 +703,8 @@
                     throw new Error('No company details fetched. Please check the API or token.');
                 }
 
+                // Cache the fetched data
+                setCachedData(fetchedCompanies);
                 exportCsvButton.classList.remove('hidden');
             } catch (error) {
                 showError(error.message);
