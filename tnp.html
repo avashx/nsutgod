@@ -32,6 +32,26 @@
             max-height: 200px;
             overflow-y: auto;
         }
+        .realtime-list-container h3 {
+            font-size: 14px;
+        }
+        .realtime-list-container li {
+            font-size: 12px;
+        }
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            height: 8px;
+            margin-top: 8px;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #10b981;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
         .table-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -74,16 +94,21 @@
             background-color: #d1d5db;
         }
         .company-table td {
-            padding: 4px 8px;
+            padding: 2px 8px;
             text-align: left;
             border-bottom: 1px solid #e5e7eb;
             font-size: 13px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            height: 30px;
-            line-height: 30px;
+            height: 24px;
+            line-height: 24px;
             max-width: 120px;
+        }
+        .company-table.expanded td {
+            white-space: normal;
+            height: 48px;
+            line-height: 24px;
         }
         .company-table td.info-column {
             max-width: 120px;
@@ -127,6 +152,18 @@
         .action-btn:hover {
             background-color: #374151;
         }
+        .expand-btn {
+            padding: 6px 12px;
+            background-color: #6b7280;
+            color: #fff;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        .expand-btn:hover {
+            background-color: #4b5563;
+        }
         .network-log {
             margin-top: 16px;
             background-color: #fff;
@@ -136,6 +173,8 @@
             font-size: 11px;
             color: #1f2937;
             line-height: 1.5;
+            max-height: 200px;
+            overflow-y: auto;
         }
         .network-log .status {
             color: #dc2626;
@@ -176,7 +215,16 @@
             .company-table th, .company-table td {
                 font-size: 12px;
             }
-            .action-btn {
+            .company-table td {
+                padding: 1px 6px;
+                height: 20px;
+                line-height: 20px;
+            }
+            .company-table.expanded td {
+                height: 40px;
+                line-height: 20px;
+            }
+            .action-btn, .expand-btn {
                 padding: 5px 10px;
                 font-size: 12px;
             }
@@ -185,6 +233,10 @@
             }
             .navbar {
                 width: 200px;
+                transform: translateX(-100%);
+            }
+            .navbar.visible {
+                transform: translateX(0);
             }
         }
         @media (max-width: 480px) {
@@ -194,7 +246,16 @@
             .company-table th, .company-table td {
                 font-size: 11px;
             }
-            .action-btn {
+            .company-table td {
+                padding: 1px 4px;
+                height: 18px;
+                line-height: 18px;
+            }
+            .company-table.expanded td {
+                height: 36px;
+                line-height: 18px;
+            }
+            .action-btn, .expand-btn {
                 padding: 4px 8px;
                 font-size: 11px;
             }
@@ -229,7 +290,7 @@
     </div>
 
     <!-- Left Sidebar Navbar -->
-    <div id="navbar" class="navbar">
+    <div id="navbar" class="navbar hidden md:block">
         <div class="flex items-center mb-6">
             <img src="https://raw.githubusercontent.com/avashx/nsutgod/refs/heads/main/src/logo.png" alt="NSUTGod Logo" class="h-10 w-10 mr-2">
             <h2 class="text-xl font-bold text-gray-800">NSUTGod</h2>
@@ -297,6 +358,7 @@
                         <option value="500">Fetch 500</option>
                     </select>
                     <button id="export-csv" class="action-btn hidden">Export to CSV</button>
+                    <button id="expand-table" class="expand-btn">Expand</button>
                 </div>
                 <div class="flex flex-wrap gap-2 filter-group">
                     <div>
@@ -326,8 +388,11 @@
 
             <!-- Real-time Company List -->
             <div class="realtime-list-container" id="realtime-list">
-                <h3 class="text-lg font-semibold mb-4">Fetching Companies...</h3>
-                <ul id="realtime-list-body" class="space-y-2"></ul>
+                <h3 class="font-semibold mb-4">Fetching Companies...</h3>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <ul id="realtime-list-body" class="space-y-2 mt-4"></ul>
             </div>
 
             <!-- Company Recruitment Table -->
@@ -392,7 +457,9 @@
         const fetchButton = document.getElementById('fetch-companies');
         const fetchLimit = document.getElementById('fetch-limit');
         const exportCsvButton = document.getElementById('export-csv');
+        const expandButton = document.getElementById('expand-table');
         const tableBody = document.getElementById('company-table-body');
+        const companyTable = document.getElementById('company-table');
         const networkLogBody = document.getElementById('network-log-body');
         const loading = document.getElementById('loading');
         const errorMessage = document.getElementById('error-message');
@@ -401,12 +468,14 @@
         const cgpaFilter = document.getElementById('cgpa-filter');
         const nameFilter = document.getElementById('name-filter');
         const realtimeListBody = document.getElementById('realtime-list-body');
+        const progressBar = document.getElementById('progress-bar');
 
         // State
         let companyData = [];
         let filteredData = [];
         let sortColumn = null;
         let sortDirection = 1;
+        let isExpanded = false;
 
         // Bearer Token
         const bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc0Nzk3MzA5MywiZXhwIjoxNzUwNTY1MDkzfQ.oDgKeLGpRDz4w7zKWBUHS-trIyiJI2qp3GIs8qTBGsE";
@@ -480,12 +549,16 @@
             return '#d1fae5';
         }
 
-        // Update real-time company list
-        function updateRealtimeList(company) {
+        // Update real-time company list and progress bar
+        function updateRealtimeList(company, currentCount, totalCount) {
             const listItem = document.createElement('li');
             listItem.textContent = `Fetched: ${company.name || 'Unknown'} (ID: ${company.id})`;
-            listItem.className = 'text-sm text-gray-600';
+            listItem.className = 'text-gray-600';
             realtimeListBody.insertBefore(listItem, realtimeListBody.firstChild);
+
+            // Update progress bar (900 companies = 100%)
+            const progress = Math.min((currentCount / 900) * 100, 100);
+            progressBar.style.width = `${progress}%`;
         }
 
         // Fetch list of companies
@@ -542,6 +615,7 @@
             const logEntry = document.createElement('div');
             logEntry.innerHTML = `Request: ${name} | <span class="status">Status: ${status}</span> | Size: ${size} bytes | <span class="time">Time: ${time.toFixed(2)} ms</span> | Type: ${type}`;
             networkLogBody.appendChild(logEntry);
+            networkLogBody.scrollTop = networkLogBody.scrollHeight;
         }
 
         // Fetch all company data
@@ -550,6 +624,7 @@
             errorMessage.classList.add('hidden');
             networkLogBody.innerHTML = '';
             realtimeListBody.innerHTML = '';
+            progressBar.style.width = '0%';
             companyData = [];
             filteredData = [];
             exportCsvButton.classList.add('hidden');
@@ -560,9 +635,11 @@
                     throw new Error('No companies found in the API response.');
                 }
 
+                let currentCount = 0;
                 for (const company of companies) {
                     try {
-                        updateRealtimeList(company);
+                        currentCount++;
+                        updateRealtimeList(company, currentCount, companies.length);
                         const details = await fetchCompanyDetails(company.id);
                         companyData.push({ id: company.id, name: company.name, details });
                         filteredData = [...companyData];
@@ -766,6 +843,13 @@
             loading.classList.add('hidden');
         }
 
+        // Toggle table expansion
+        expandButton.addEventListener('click', () => {
+            isExpanded = !isExpanded;
+            companyTable.classList.toggle('expanded');
+            expandButton.textContent = isExpanded ? 'Collapse' : 'Expand';
+        });
+
         // Column resizing
         document.querySelectorAll('.resize-handle').forEach(handle => {
             handle.addEventListener('mousedown', (e) => {
@@ -798,13 +882,13 @@
         const menuToggle = document.getElementById('menuToggle');
         const navbar = document.getElementById('navbar');
         menuToggle.addEventListener('click', () => {
-            navbar.classList.toggle('hidden');
+            navbar.classList.toggle('visible');
         });
 
         // Close navbar when clicking outside on mobile
         document.addEventListener('click', (e) => {
             if (window.innerWidth < 768 && !navbar.contains(e.target) && !menuToggle.contains(e.target)) {
-                navbar.classList.add('hidden');
+                navbar.classList.remove('visible');
             }
         });
 
