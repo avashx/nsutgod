@@ -181,7 +181,7 @@
             background-color: #fff;
             border-radius: 8px;
             width: 90%;
-            max-width: 800px;
+            max-width: 1000px;
             max-height: 80vh;
             overflow-y: auto;
             padding: 24px;
@@ -213,43 +213,63 @@
             color: #1f2937;
             margin-bottom: 16px;
         }
-        .popup-content .section {
-            margin-bottom: 24px;
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 16px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            color: #4b5563;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .tab.active {
+            color: #1f2937;
+            border-bottom-color: #4b5563;
+        }
+        .tab-content {
+            display: none;
+            padding: 16px;
             border: 1px solid #e5e7eb;
             border-radius: 6px;
-            padding: 16px;
             background-color: #fff;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
-        .popup-content .section h3 {
+        .tab-content.active {
+            display: block;
+        }
+        .tab-content h3 {
             font-size: 18px;
             font-weight: 500;
             color: #374151;
             margin-bottom: 12px;
         }
-        .popup-content .section p {
+        .tab-content p {
             font-size: 14px;
             color: #4b5563;
             margin-bottom: 8px;
         }
-        .popup-content .section table {
+        .tab-content table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 8px;
         }
-        .popup-content .section table th,
-        .popup-content .section table td {
+        .tab-content table th,
+        .tab-content table td {
             border: 1px solid #e5e7eb;
             padding: 8px;
             font-size: 13px;
             text-align: left;
         }
-        .popup-content .section table th {
+        .tab-content table th {
             background-color: #fafafa;
             font-weight: 500;
             color: #4b5563;
         }
-        .popup-content .section table td {
+        .tab-content table td {
             background-color: #fff;
         }
         @media (max-width: 768px) {
@@ -282,6 +302,7 @@
             }
             .popup-content {
                 width: 95%;
+                max-width: 95%;
                 padding: 16px;
             }
         }
@@ -641,7 +662,82 @@
                 <span>View in Full Page</span>
             </div>
             <h2>Student Details</h2>
-            <div id="studentDetailsContent"></div>
+            <div class="tabs">
+                <div class="tab active" data-tab="personal">Personal Information</div>
+                <div class="tab" data-tab="academic">Academic Details</div>
+                <div class="tab" data-tab="resume">Resume Information</div>
+                <div class="tab" data-tab="gpa">GPA & Courses</div>
+                <div class="tab" data-tab="user">User Information</div>
+                <div class="tab" data-tab="other">Other Information</div>
+            </div>
+            <div id="studentDetailsContent">
+                <div class="tab-content active" id="personal-tab">
+                    <h3>Personal Information</h3>
+                    <p><strong>Name:</strong> <span id="personal-name"></span></p>
+                    <p><strong>Roll Number:</strong> <span id="personal-roll"></span></p>
+                    <p><strong>Aadhar:</strong> <span id="personal-aadhar"></span></p>
+                    <p><strong>Contact Number:</strong> <span id="personal-contact"></span></p>
+                    <p><strong>Alternate Contact Number:</strong> <span id="personal-alt-contact"></span></p>
+                    <p><strong>Email:</strong> <span id="personal-email"></span></p>
+                    <p><strong>Personal Email:</strong> <span id="personal-personal-email"></span></p>
+                    <p><strong>Gender:</strong> <span id="personal-gender"></span></p>
+                    <p><strong>DOB:</strong> <span id="personal-dob"></span></p>
+                    <p><strong>Blood Group:</strong> <span id="personal-blood-group"></span></p>
+                    <p><strong>Present Address:</strong> <span id="personal-present-address"></span></p>
+                    <p><strong>Permanent Address:</strong> <span id="personal-perm-address"></span></p>
+                    <p><strong>Category:</strong> <span id="personal-category"></span></p>
+                    <p><strong>PAN:</strong> <span id="personal-pan"></span></p>
+                    <p><strong>PWD:</strong> <span id="personal-pwd"></span></p>
+                </div>
+                <div class="tab-content" id="academic-tab">
+                    <h3>Academic Details</h3>
+                    <p><strong>Batch:</strong> <span id="academic-batch"></span></p>
+                    <p><strong>Degree:</strong> <span id="academic-degree"></span></p>
+                    <p><strong>Branch:</strong> <span id="academic-branch"></span></p>
+                    <p><strong>Campus:</strong> <span id="academic-campus"></span></p>
+                    <p><strong>CGPA:</strong> <span id="academic-cgpa"></span></p>
+                    <p><strong>CGPA Before Drop:</strong> <span id="academic-cgpa-before-drop"></span></p>
+                    <p><strong>10th CGPA:</strong> <span id="academic-cgpa-10th"></span></p>
+                    <p><strong>12th CGPA:</strong> <span id="academic-cgpa-12th"></span></p>
+                    <p><strong>Graduation GPA:</strong> <span id="academic-graduation-gpa"></span></p>
+                    <p><strong>Backlogs:</strong> <span id="academic-backlogs"></span></p>
+                    <p><strong>Bans:</strong> <span id="academic-bans"></span></p>
+                    <p><strong>Current Ban:</strong> <span id="academic-current-ban"></span></p>
+                    <p><strong>CGPA Update Enabled:</strong> <span id="academic-cgpa-update-enabled"></span></p>
+                    <p><strong>Is CGPA Updated:</strong> <span id="academic-is-cgpa-updated"></span></p>
+                    <p><strong>Is PPO:</strong> <span id="academic-is-ppo"></span></p>
+                </div>
+                <div class="tab-content" id="resume-tab">
+                    <h3>Resume Information</h3>
+                    <p id="resume-content"></p>
+                </div>
+                <div class="tab-content" id="gpa-tab">
+                    <h3>GPA & Courses</h3>
+                    <table id="gpa-table"></table>
+                </div>
+                <div class="tab-content" id="user-tab">
+                    <h3>User Information</h3>
+                    <p><strong>User ID:</strong> <span id="user-id"></span></p>
+                    <p><strong>Username:</strong> <span id="user-username"></span></p>
+                    <p><strong>User Email:</strong> <span id="user-email"></span></p>
+                    <p><strong>User Role:</strong> <span id="user-role"></span></p>
+                    <p><strong>User Provider:</strong> <span id="user-provider"></span></p>
+                    <p><strong>User Confirmed:</strong> <span id="user-confirmed"></span></p>
+                    <p><strong>User Blocked:</strong> <span id="user-blocked"></span></p>
+                    <p><strong>User Created At:</strong> <span id="user-created-at"></span></p>
+                    <p><strong>User Updated At:</strong> <span id="user-updated-at"></span></p>
+                </div>
+                <div class="tab-content" id="other-tab">
+                    <h3>Other Information</h3>
+                    <p><strong>Internships Applied:</strong> <span id="other-intern-applied"></span></p>
+                    <p><strong>Placements Applied:</strong> <span id="other-placement-applied"></span></p>
+                    <p><strong>Status:</strong> <span id="other-status"></span></p>
+                    <p><strong>Created At:</strong> <span id="other-created-at"></span></p>
+                    <p><strong>Updated At:</strong> <span id="other-updated-at"></span></p>
+                    <p><strong>Published At:</strong> <span id="other-published-at"></span></p>
+                    <p><strong>Student ID:</strong> <span id="other-student-id"></span></p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -669,6 +765,8 @@
         const studentDetailsContent = document.getElementById('studentDetailsContent');
         const popupClose = document.querySelector('.popup-close');
         const popupOpenNewTab = document.querySelector('.popup-open-new-tab');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
 
         let students = [];
         let filteredStudents = [];
@@ -893,142 +991,132 @@
 
         // Function to display student details in popup
         function showStudentDetails(student) {
-            studentDetailsContent.innerHTML = `
-                <div class="section">
-                    <h3>Personal Information</h3>
-                    <p><strong>Name:</strong> ${student.Name || '-'}</p>
-                    <p><strong>Roll Number:</strong> ${student.rollNumber || '-'}</p>
-                    <p><strong>Aadhar:</strong> ${student.aadhar || '-'}</p>
-                    <p><strong>Contact Number:</strong> ${student.contact_number || '-'}</p>
-                    <p><strong>Alternate Contact Number:</strong> ${student.alt_contact_number || '-'}</p>
-                    <p><strong>Email:</strong> ${student.email || '-'}</p>
-                    <p><strong>Personal Email:</strong> ${student.personal_email || '-'}</p>
-                    <p><strong>Gender:</strong> ${student.gender || '-'}</p>
-                    <p><strong>DOB:</strong> ${student.dob || '-'}</p>
-                    <p><strong>Blood Group:</strong> ${student.blood_group || '-'}</p>
-                    <p><strong>Present Address:</strong> ${student.present_address || '-'}</p>
-                    <p><strong>Permanent Address:</strong> ${student.perm_address || '-'}</p>
-                    <p><strong>Category:</strong> ${student.category || '-'}</p>
-                    <p><strong>PAN:</strong> ${student.pan || '-'}</p>
-                    <p><strong>PWD:</strong> ${student.pwd ? 'Yes' : 'No'}</p>
-                </div>
-                <div class="section">
-                    <h3>Academic Information</h3>
-                    <p><strong>Batch:</strong> ${student.batch || '-'}</p>
-                    <p><strong>Degree:</strong> ${student.degree || '-'}</p>
-                    <p><strong>Branch:</strong> ${student.branch || '-'}</p>
-                    <p><strong>Campus:</strong> ${student.campus || '-'}</p>
-                    <p><strong>CGPA:</strong> ${student.cgpa || '-'}</p>
-                    <p><strong>CGPA Before Drop:</strong> ${student.cgpa_before_drop || '-'}</p>
-                    <p><strong>10th CGPA:</strong> ${student.cgpa_10th || '-'}</p>
-                    <p><strong>12th CGPA:</strong> ${student.cgpa_12th || '-'}</p>
-                    <p><strong>Graduation GPA:</strong> ${student.graduation_gpa || '-'}</p>
-                    <p><strong>Backlogs:</strong> ${student.backlogs || '0'}</p>
-                    <p><strong>Bans:</strong> ${student.bans || '0'}</p>
-                    <p><strong>Current Ban:</strong> ${student.currentBan || '-'}</p>
-                    <p><strong>CGPA Update Enabled:</strong> ${student.cgpaUpdateEnabled ? 'Yes' : 'No'}</p>
-                    <p><strong>Is CGPA Updated:</strong> ${student.isCgpaUpdated ? 'Yes' : 'No'}</p>
-                    <p><strong>Is PPO:</strong> ${student.isPPO ? 'Yes' : 'No'}</p>
-                </div>
-                <div class="section">
-                    <h3>Resume Information</h3>
-                    ${student.resume && student.resume.length > 0 ? `
-                        <p><strong>Resume Name:</strong> ${student.resume[0].name || '-'}</p>
-                        <p><strong>Resume URL:</strong> <a href="${student.resume[0].url || '#'}" target="_blank" class="text-blue-600 underline">${student.resume[0].url || '-'}</a></p>
-                        <p><strong>Resume Size:</strong> ${student.resume[0].size ? student.resume[0].size + ' KB' : '-'}</p>
-                        <p><strong>Resume MIME Type:</strong> ${student.resume[0].mime || '-'}</p>
-                        <p><strong>Resume Provider:</strong> ${student.resume[0].provider || '-'}</p>
-                        <p><strong>Resume Created At:</strong> ${student.resume[0].createdAt || '-'}</p>
-                        <p><strong>Resume Updated At:</strong> ${student.resume[0].updatedAt || '-'}</p>
-                    ` : '<p>No resume available</p>'}
-                </div>
-                <div class="section">
-                    <h3>Semester GPA</h3>
-                    ${student.allSemGPA && student.allSemGPA.semesterWiseData && student.allSemGPA.semesterWiseData.length > 0 ? `
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Semester</th>
-                                    <th>Total Credit</th>
-                                    <th>Total Credit Points</th>
-                                    <th>SGPA</th>
-                                    <th>Credit Secured</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${student.allSemGPA.semesterWiseData.map(sem => `
-                                    <tr>
-                                        <td>${sem.semester || '-'}</td>
-                                        <td>${sem.totalCredit || '-'}</td>
-                                        <td>${sem.totalCreditPoints || '-'}</td>
-                                        <td>${sem.sgpa || '-'}</td>
-                                        <td>${sem.creditSecured || '-'}</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    ` : '<p>No semester GPA data available</p>'}
-                </div>
-                <div class="section">
-                    <h3>Course-Wise Data</h3>
-                    ${student.allSemGPA && student.allSemGPA.courseWiseData && student.allSemGPA.courseWiseData.length > 0 ? `
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Course Code</th>
-                                    <th>Course Title</th>
-                                    <th>Course Type</th>
-                                    <th>Semester</th>
-                                    <th>Credits</th>
-                                    <th>Grade Letter</th>
-                                    <th>Grade Points</th>
-                                    <th>Credit Points</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${student.allSemGPA.courseWiseData.map(course => `
-                                    <tr>
-                                        <td>${course.courseCode || '-'}</td>
-                                        <td>${course.courseTitle || '-'}</td>
-                                        <td>${course.courseType || '-'}</td>
-                                        <td>${course.sem || '-'}</td>
-                                        <td>${course.credits || '-'}</td>
-                                        <td>${course.gradeLetter || '-'}</td>
-                                        <td>${course.gradePoints || '-'}</td>
-                                        <td>${course.creditPoints || '-'}</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    ` : '<p>No course-wise data available</p>'}
-                </div>
-                <div class="section">
-                    <h3>User Information</h3>
-                    <p><strong>User ID:</strong> ${student.user && student.user.id || '-'}</p>
-                    <p><strong>Username:</strong> ${student.user && student.user.username || '-'}</p>
-                    <p><strong>User Email:</strong> ${student.user && student.user.email || '-'}</p>
-                    <p><strong>User Role:</strong> ${student.user && student.user.role || '-'}</p>
-                    <p><strong>User Provider:</strong> ${student.user && student.user.provider || '-'}</p>
-                    <p><strong>User Confirmed:</strong> ${student.user && student.user.confirmed ? 'Yes' : 'No'}</p>
-                    <p><strong>User Blocked:</strong> ${student.user && student.user.blocked ? 'Yes' : 'No'}</p>
-                    <p><strong>User Created At:</strong> ${student.user && student.user.createdAt || '-'}</p>
-                    <p><strong>User Updated At:</strong> ${student.user && student.user.updatedAt || '-'}</p>
-                </div>
-                <div class="section">
-                    <h3>Other Information</h3>
-                    <p><strong>Internships Applied:</strong> ${student.intern_applied && student.intern_applied.length > 0 ? student.intern_applied.join(', ') : '-'}</p>
-                    <p><strong>Placements Applied:</strong> ${student.placement_applied && student.placement_applied.length > 0 ? student.placement_applied.join(', ') : '-'}</p>
-                    <p><strong>Status:</strong> ${student.status || '-'}</p>
-                    <p><strong>Created At:</strong> ${student.createdAt || '-'}</p>
-                    <p><strong>Updated At:</strong> ${student.updatedAt || '-'}</p>
-                    <p><strong>Published At:</strong> ${student.published_at || '-'}</p>
-                    <p><strong>Student ID:</strong> ${student._id || '-'}</p>
-                </div>
-            `;
+            // Personal Information
+            document.getElementById('personal-name').textContent = student.Name || '-';
+            document.getElementById('personal-roll').textContent = student.rollNumber || '-';
+            document.getElementById('personal-aadhar').textContent = student.aadhar || '-';
+            document.getElementById('personal-contact').textContent = student.contact_number || '-';
+            document.getElementById('personal-alt-contact').textContent = student.alt_contact_number || '-';
+            document.getElementById('personal-email').textContent = student.email || '-';
+            document.getElementById('personal-personal-email').textContent = student.personal_email || '-';
+            document.getElementById('personal-gender').textContent = student.gender || '-';
+            document.getElementById('personal-dob').textContent = student.dob || '-';
+            document.getElementById('personal-blood-group').textContent = student.blood_group || '-';
+            document.getElementById('personal-present-address').textContent = student.present_address || '-';
+            document.getElementById('personal-perm-address').textContent = student.perm_address || '-';
+            document.getElementById('personal-category').textContent = student.category || '-';
+            document.getElementById('personal-pan').textContent = student.pan || '-';
+            document.getElementById('personal-pwd').textContent = student.pwd ? 'Yes' : 'No';
+
+            // Academic Details
+            document.getElementById('academic-batch').textContent = student.batch || '-';
+            document.getElementById('academic-degree').textContent = student.degree || '-';
+            document.getElementById('academic-branch').textContent = student.branch || '-';
+            document.getElementById('academic-campus').textContent = student.campus || '-';
+            document.getElementById('academic-cgpa').textContent = student.cgpa || '-';
+            document.getElementById('academic-cgpa-before-drop').textContent = student.cgpa_before_drop || '-';
+            document.getElementById('academic-cgpa-10th').textContent = student.cgpa_10th || '-';
+            document.getElementById('academic-cgpa-12th').textContent = student.cgpa_12th || '-';
+            document.getElementById('academic-graduation-gpa').textContent = student.graduation_gpa || '-';
+            document.getElementById('academic-backlogs').textContent = student.backlogs || '0';
+            document.getElementById('academic-bans').textContent = student.bans || '0';
+            document.getElementById('academic-current-ban').textContent = student.currentBan || '-';
+            document.getElementById('academic-cgpa-update-enabled').textContent = student.cgpaUpdateEnabled ? 'Yes' : 'No';
+            document.getElementById('academic-is-cgpa-updated').textContent = student.isCgpaUpdated ? 'Yes' : 'No';
+            document.getElementById('academic-is-ppo').textContent = student.isPPO ? 'Yes' : 'No';
+
+            // Resume Information
+            const resumeContent = document.getElementById('resume-content');
+            if (student.resume && student.resume.length > 0) {
+                resumeContent.innerHTML = `
+                    <p><strong>Resume Name:</strong> ${student.resume[0].name || '-'}</p>
+                    <p><strong>Resume URL:</strong> <a href="${student.resume[0].url || '#'}" target="_blank" class="text-blue-600 underline">${student.resume[0].url || '-'}</a></p>
+                    <p><strong>Resume Size:</strong> ${student.resume[0].size ? student.resume[0].size + ' KB' : '-'}</p>
+                    <p><strong>Resume MIME Type:</strong> ${student.resume[0].mime || '-'}</p>
+                    <p><strong>Resume Provider:</strong> ${student.resume[0].provider || '-'}</p>
+                    <p><strong>Resume Created At:</strong> ${student.resume[0].createdAt || '-'}</p>
+                    <p><strong>Resume Updated At:</strong> ${student.resume[0].updatedAt || '-'}</p>
+                `;
+            } else {
+                resumeContent.textContent = 'No resume available';
+            }
+
+            // GPA & Courses
+            const gpaTable = document.getElementById('gpa-table');
+            if (student.allSemGPA && student.allSemGPA.semesterWiseData && student.allSemGPA.courseWiseData) {
+                const gpaData = student.allSemGPA.semesterWiseData.map(sem => {
+                    const courses = student.allSemGPA.courseWiseData.filter(course => course.sem === sem.semester);
+                    return courses.map(course => ({
+                        semester: sem.semester,
+                        courseCode: course.courseCode,
+                        courseTitle: course.courseTitle,
+                        credits: course.credits,
+                        marks: course.gradePoints, // Assuming gradePoints as marks
+                        grade: course.gradeLetter
+                    }));
+                }).flat();
+
+                gpaTable.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>Semester</th>
+                            <th>Course Code</th>
+                            <th>Course Title</th>
+                            <th>Credits</th>
+                            <th>Marks</th>
+                            <th>Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${gpaData.map(item => `
+                            <tr>
+                                <td>${item.semester || '-'}</td>
+                                <td>${item.courseCode || '-'}</td>
+                                <td>${item.courseTitle || '-'}</td>
+                                <td>${item.credits || '-'}</td>
+                                <td>${item.marks || '-'}</td>
+                                <td>${item.grade || '-'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                `;
+            } else {
+                gpaTable.innerHTML = '<p>No GPA or course data available</p>';
+            }
+
+            // User Information
+            document.getElementById('user-id').textContent = student.user && student.user.id || '-';
+            document.getElementById('user-username').textContent = student.user && student.user.username || '-';
+            document.getElementById('user-email').textContent = student.user && student.user.email || '-';
+            document.getElementById('user-role').textContent = student.user && student.user.role || '-';
+            document.getElementById('user-provider').textContent = student.user && student.user.provider || '-';
+            document.getElementById('user-confirmed').textContent = student.user && student.user.confirmed ? 'Yes' : 'No';
+            document.getElementById('user-blocked').textContent = student.user && student.user.blocked ? 'Yes' : 'No';
+            document.getElementById('user-created-at').textContent = student.user && student.user.createdAt || '-';
+            document.getElementById('user-updated-at').textContent = student.user && student.user.updatedAt || '-';
+
+            // Other Information
+            document.getElementById('other-intern-applied').textContent = student.intern_applied && student.intern_applied.length > 0 ? student.intern_applied.join(', ') : '-';
+            document.getElementById('other-placement-applied').textContent = student.placement_applied && student.placement_applied.length > 0 ? student.placement_applied.join(', ') : '-';
+            document.getElementById('other-status').textContent = student.status || '-';
+            document.getElementById('other-created-at').textContent = student.createdAt || '-';
+            document.getElementById('other-updated-at').textContent = student.updatedAt || '-';
+            document.getElementById('other-published-at').textContent = student.published_at || '-';
+            document.getElementById('other-student-id').textContent = student._id || '-';
 
             // Store student data for new tab
             studentDetailsPopup.setAttribute('data-student', JSON.stringify(student));
             studentDetailsPopup.style.display = 'flex';
+
+            // Activate tab functionality
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    document.getElementById(`${tab.getAttribute('data-tab')}-tab`).classList.add('active');
+                });
+            });
         }
 
         // Open student details in new tab
@@ -1052,7 +1140,7 @@
                         .container {
                             background-color: #fff;
                             border-radius: 8px;
-                            max-width: 800px;
+                            max-width: 1000px;
                             margin: 0 auto;
                             padding: 24px;
                             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -1063,43 +1151,63 @@
                             color: #1f2937;
                             margin-bottom: 16px;
                         }
-                        .section {
-                            margin-bottom: 24px;
+                        .tabs {
+                            display: flex;
+                            border-bottom: 1px solid #e5e7eb;
+                            margin-bottom: 16px;
+                        }
+                        .tab {
+                            padding: 10px 20px;
+                            cursor: pointer;
+                            color: #4b5563;
+                            font-weight: 500;
+                            border-bottom: 2px solid transparent;
+                            transition: color 0.2s, border-color 0.2s;
+                        }
+                        .tab.active {
+                            color: #1f2937;
+                            border-bottom-color: #4b5563;
+                        }
+                        .tab-content {
+                            display: none;
+                            padding: 16px;
                             border: 1px solid #e5e7eb;
                             border-radius: 6px;
-                            padding: 16px;
                             background-color: #fff;
                             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
                         }
-                        .section h3 {
+                        .tab-content.active {
+                            display: block;
+                        }
+                        .tab-content h3 {
                             font-size: 18px;
                             font-weight: 500;
                             color: #374151;
                             margin-bottom: 12px;
                         }
-                        .section p {
+                        .tab-content p {
                             font-size: 14px;
                             color: #4b5563;
                             margin-bottom: 8px;
                         }
-                        .section table {
+                        .tab-content table {
                             width: 100%;
                             border-collapse: collapse;
                             margin-top: 8px;
                         }
-                        .section table th,
-                        .section table td {
+                        .tab-content table th,
+                        .tab-content table td {
                             border: 1px solid #e5e7eb;
                             padding: 8px;
                             font-size: 13px;
                             text-align: left;
                         }
-                        .section table th {
+                        .tab-content table th {
                             background-color: #fafafa;
                             font-weight: 500;
                             color: #4b5563;
                         }
-                        .section table td {
+                        .tab-content table td {
                             background-color: #fff;
                         }
                         a {
@@ -1114,7 +1222,127 @@
                 <body>
                     <div class="container">
                         <h2>Student Details - ${student.Name || '-'}</h2>
-                        ${studentDetailsContent.innerHTML}
+                        <div class="tabs">
+                            <div class="tab active" data-tab="personal">Personal Information</div>
+                            <div class="tab" data-tab="academic">Academic Details</div>
+                            <div class="tab" data-tab="resume">Resume Information</div>
+                            <div class="tab" data-tab="gpa">GPA & Courses</div>
+                            <div class="tab" data-tab="user">User Information</div>
+                            <div class="tab" data-tab="other">Other Information</div>
+                        </div>
+                        <div id="new-tab-content">
+                            <div class="tab-content active" id="personal-tab">
+                                <h3>Personal Information</h3>
+                                <p><strong>Name:</strong> ${student.Name || '-'}</p>
+                                <p><strong>Roll Number:</strong> ${student.rollNumber || '-'}</p>
+                                <p><strong>Aadhar:</strong> ${student.aadhar || '-'}</p>
+                                <p><strong>Contact Number:</strong> ${student.contact_number || '-'}</p>
+                                <p><strong>Alternate Contact Number:</strong> ${student.alt_contact_number || '-'}</p>
+                                <p><strong>Email:</strong> ${student.email || '-'}</p>
+                                <p><strong>Personal Email:</strong> ${student.personal_email || '-'}</p>
+                                <p><strong>Gender:</strong> ${student.gender || '-'}</p>
+                                <p><strong>DOB:</strong> ${student.dob || '-'}</p>
+                                <p><strong>Blood Group:</strong> ${student.blood_group || '-'}</p>
+                                <p><strong>Present Address:</strong> ${student.present_address || '-'}</p>
+                                <p><strong>Permanent Address:</strong> ${student.perm_address || '-'}</p>
+                                <p><strong>Category:</strong> ${student.category || '-'}</p>
+                                <p><strong>PAN:</strong> ${student.pan || '-'}</p>
+                                <p><strong>PWD:</strong> ${student.pwd ? 'Yes' : 'No'}</p>
+                            </div>
+                            <div class="tab-content" id="academic-tab">
+                                <h3>Academic Details</h3>
+                                <p><strong>Batch:</strong> ${student.batch || '-'}</p>
+                                <p><strong>Degree:</strong> ${student.degree || '-'}</p>
+                                <p><strong>Branch:</strong> ${student.branch || '-'}</p>
+                                <p><strong>Campus:</strong> ${student.campus || '-'}</p>
+                                <p><strong>CGPA:</strong> ${student.cgpa || '-'}</p>
+                                <p><strong>CGPA Before Drop:</strong> ${student.cgpa_before_drop || '-'}</p>
+                                <p><strong>10th CGPA:</strong> ${student.cgpa_10th || '-'}</p>
+                                <p><strong>12th CGPA:</strong> ${student.cgpa_12th || '-'}</p>
+                                <p><strong>Graduation GPA:</strong> ${student.graduation_gpa || '-'}</p>
+                                <p><strong>Backlogs:</strong> ${student.backlogs || '0'}</p>
+                                <p><strong>Bans:</strong> ${student.bans || '0'}</p>
+                                <p><strong>Current Ban:</strong> ${student.currentBan || '-'}</p>
+                                <p><strong>CGPA Update Enabled:</strong> ${student.cgpaUpdateEnabled ? 'Yes' : 'No'}</p>
+                                <p><strong>Is CGPA Updated:</strong> ${student.isCgpaUpdated ? 'Yes' : 'No'}</p>
+                                <p><strong>Is PPO:</strong> ${student.isPPO ? 'Yes' : 'No'}</p>
+                            </div>
+                            <div class="tab-content" id="resume-tab">
+                                <h3>Resume Information</h3>
+                                ${student.resume && student.resume.length > 0 ? `
+                                    <p><strong>Resume Name:</strong> ${student.resume[0].name || '-'}</p>
+                                    <p><strong>Resume URL:</strong> <a href="${student.resume[0].url || '#'}" target="_blank" class="text-blue-600 underline">${student.resume[0].url || '-'}</a></p>
+                                    <p><strong>Resume Size:</strong> ${student.resume[0].size ? student.resume[0].size + ' KB' : '-'}</p>
+                                    <p><strong>Resume MIME Type:</strong> ${student.resume[0].mime || '-'}</p>
+                                    <p><strong>Resume Provider:</strong> ${student.resume[0].provider || '-'}</p>
+                                    <p><strong>Resume Created At:</strong> ${student.resume[0].createdAt || '-'}</p>
+                                    <p><strong>Resume Updated At:</strong> ${student.resume[0].updatedAt || '-'}</p>
+                                ` : '<p>No resume available</p>'}
+                            </div>
+                            <div class="tab-content" id="gpa-tab">
+                                <h3>GPA & Courses</h3>
+                                ${student.allSemGPA && student.allSemGPA.semesterWiseData && student.allSemGPA.courseWiseData ? `
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Semester</th>
+                                                <th>Course Code</th>
+                                                <th>Course Title</th>
+                                                <th>Credits</th>
+                                                <th>Marks</th>
+                                                <th>Grade</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${student.allSemGPA.courseWiseData.map(course => `
+                                                <tr>
+                                                    <td>${course.sem || '-'}</td>
+                                                    <td>${course.courseCode || '-'}</td>
+                                                    <td>${course.courseTitle || '-'}</td>
+                                                    <td>${course.credits || '-'}</td>
+                                                    <td>${course.gradePoints || '-'}</td>
+                                                    <td>${course.gradeLetter || '-'}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                ` : '<p>No GPA or course data available</p>'}
+                            </div>
+                            <div class="tab-content" id="user-tab">
+                                <h3>User Information</h3>
+                                <p><strong>User ID:</strong> ${student.user && student.user.id || '-'}</p>
+                                <p><strong>Username:</strong> ${student.user && student.user.username || '-'}</p>
+                                <p><strong>User Email:</strong> ${student.user && student.user.email || '-'}</p>
+                                <p><strong>User Role:</strong> ${student.user && student.user.role || '-'}</p>
+                                <p><strong>User Provider:</strong> ${student.user && student.user.provider || '-'}</p>
+                                <p><strong>User Confirmed:</strong> ${student.user && student.user.confirmed ? 'Yes' : 'No'}</p>
+                                <p><strong>User Blocked:</strong> ${student.user && student.user.blocked ? 'Yes' : 'No'}</p>
+                                <p><strong>User Created At:</strong> ${student.user && student.user.createdAt || '-'}</p>
+                                <p><strong>User Updated At:</strong> ${student.user && student.user.updatedAt || '-'}</p>
+                            </div>
+                            <div class="tab-content" id="other-tab">
+                                <h3>Other Information</h3>
+                                <p><strong>Internships Applied:</strong> ${student.intern_applied && student.intern_applied.length > 0 ? student.intern_applied.join(', ') : '-'}</p>
+                                <p><strong>Placements Applied:</strong> ${student.placement_applied && student.placement_applied.length > 0 ? student.placement_applied.join(', ') : '-'}</p>
+                                <p><strong>Status:</strong> ${student.status || '-'}</p>
+                                <p><strong>Created At:</strong> ${student.createdAt || '-'}</p>
+                                <p><strong>Updated At:</strong> ${student.updatedAt || '-'}</p>
+                                <p><strong>Published At:</strong> ${student.published_at || '-'}</p>
+                                <p><strong>Student ID:</strong> ${student._id || '-'}</p>
+                            </div>
+                        </div>
+                        <script>
+                            const tabs = document.querySelectorAll('.tab');
+                            const tabContents = document.querySelectorAll('.tab-content');
+                            tabs.forEach(tab => {
+                                tab.addEventListener('click', () => {
+                                    tabs.forEach(t => t.classList.remove('active'));
+                                    tab.classList.add('active');
+                                    tabContents.forEach(content => content.classList.remove('active'));
+                                    document.getElementById(`${tab.getAttribute('data-tab')}-tab`).classList.add('active');
+                                });
+                            });
+                        </script>
                     </div>
                 </body>
                 </html>
@@ -1136,189 +1364,4 @@
 
         // Filter and search logic
         function filterStudents() {
-            const searchTerm = searchInput.value.toLowerCase();
-            const batchValue = batchFilter.value;
-            const genderValue = genderFilter.value;
-
-            filteredStudents = students.filter(student => {
-                const matchesSearch = Object.values(student).some(val => 
-                    val && val.toString().toLowerCase().includes(searchTerm)
-                );
-                const matchesBranch = !selectedBranch || student.branch === selectedBranch;
-                const matchesBatch = !batchValue || student.batch === batchValue;
-                const matchesGender = !genderValue || student.gender === genderValue;
-
-                let matchesFilters = true;
-                for (const [key, filter] of Object.entries(columnFilters)) {
-                    if (filter && student[key]) {
-                        matchesFilters = matchesFilters && student[key].toString().toLowerCase().includes(filter.toLowerCase());
-                    }
-                }
-
-                return matchesSearch && matchesBranch && matchesBatch && matchesGender && matchesFilters;
-            });
-
-            currentPage = 1;
-            displayStudents();
-        }
-
-        // Event listeners for search and filters
-        searchInput.addEventListener('input', filterStudents);
-        batchFilter.addEventListener('change', filterStudents);
-        genderFilter.addEventListener('change', filterStudents);
-
-        // Pagination controls
-        prevPageBtn.addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                displayStudents();
-            }
-        });
-
-        nextPageBtn.addEventListener('click', () => {
-            const totalPages = rowsPerPage === 'all' ? 1 : Math.ceil(filteredStudents.length / rowsPerPage);
-            if (currentPage < totalPages) {
-                currentPage++;
-                displayStudents();
-            }
-        });
-
-        rowsPerPageSelect.addEventListener('change', () => {
-            rowsPerPage = rowsPerPageSelect.value === 'all' ? 'all' : parseInt(rowsPerPageSelect.value);
-            currentPage = 1;
-            displayStudents();
-        });
-
-        // Toggle navbar on mobile
-        menuToggle.addEventListener('click', () => {
-            navbar.classList.toggle('hidden');
-        });
-
-        // Close navbar when clicking outside on mobile
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth < 768 && !navbar.contains(e.target) && !menuToggle.contains(e.target)) {
-                navbar.classList.add('hidden');
-            }
-        });
-
-        // Column customization dropdown
-        customizeColumnsBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            columnsDropdown.classList.toggle('show');
-        });
-
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!customizeColumnsBtn.contains(e.target) && !columnsDropdown.contains(e.target)) {
-                columnsDropdown.classList.remove('show');
-            }
-
-            const openDropdown = document.querySelector('.dropdown.show');
-            if (openDropdown && !e.target.closest('th')) {
-                openDropdown.classList.remove('show');
-            }
-
-            const openFilterModal = document.querySelector('.filter-modal.show');
-            if (openFilterModal && !e.target.closest('.filter-modal') && !e.target.closest('.filter-btn')) {
-                openFilterModal.classList.remove('show');
-            }
-        });
-
-        // Column sorting and filtering
-        document.querySelectorAll('#tableHeader th').forEach(th => {
-            th.addEventListener('click', (e) => {
-                if (e.target.closest('.column-options')) return;
-                const dropdown = th.querySelector('.dropdown');
-                document.querySelectorAll('.dropdown').forEach(d => {
-                    if (d !== dropdown) d.classList.remove('show');
-                });
-                dropdown.classList.toggle('show');
-            });
-        });
-
-        document.querySelectorAll('.sort-asc').forEach(item => {
-            item.addEventListener('click', (e) => {
-                const th = e.target.closest('th');
-                const key = th.getAttribute('data-key');
-                filteredStudents.sort((a, b) => {
-                    const valA = a[key] || '';
-                    const valB = b[key] || '';
-                    return valA.toString().localeCompare(valB.toString());
-                });
-                displayStudents();
-                e.target.closest('.dropdown').classList.remove('show');
-            });
-        });
-
-        document.querySelectorAll('.sort-desc').forEach(item => {
-            item.addEventListener('click', (e) => {
-                const th = e.target.closest('th');
-                const key = th.getAttribute('data-key');
-                filteredStudents.sort((a, b) => {
-                    const valA = a[key] || '';
-                    const valB = b[key] || '';
-                    return valB.toString().localeCompare(valA.toString());
-                });
-                displayStudents();
-                e.target.closest('.dropdown').classList.remove('show');
-            });
-        });
-
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const th = e.target.closest('th');
-                const key = th.getAttribute('data-key');
-                const filterModal = th.querySelector('.filter-modal');
-                document.querySelectorAll('.filter-modal').forEach(m => {
-                    if (m !== filterModal) m.classList.remove('show');
-                });
-                filterModal.classList.toggle('show');
-                const input = filterModal.querySelector('.filter-input');
-                input.value = columnFilters[key] || '';
-            });
-        });
-
-        document.querySelectorAll('.apply-filter').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const th = e.target.closest('th');
-                const key = th.getAttribute('data-key');
-                const input = th.querySelector('.filter-input');
-                columnFilters[key] = input.value;
-                filterStudents();
-                e.target.closest('.filter-modal').classList.remove('show');
-            });
-        });
-
-        // Navigation between pages
-        const pages = {
-            'overview': document.getElementById('overviewPage'),
-            'student-profile': document.getElementById('studentProfilePage'),
-            'analytics': document.getElementById('analyticsPage'),
-            'placement': document.getElementById('placementPage'),
-            'notifications': document.getElementById('notificationsPage')
-        };
-
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const page = item.getAttribute('data-page');
-                if (page === 'analytics') {
-                    window.location.href = 'analytics.html';
-                    return;
-                }
-                if (page === 'placement') {
-                    window.location.href = 'placement.html';
-                    return;
-                }
-                document.querySelectorAll('.page-content').forEach(content => content.classList.add('hidden'));
-                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-                pages[page].classList.remove('hidden');
-                item.classList.add('active');
-            });
-        });
-
-        // Set default page
-        pages['overview'].classList.remove('hidden');
-        document.querySelector('.nav-item[data-page="overview"]').classList.add('active');
-    </script>
-</body>
-</html>
+            const searchTerm = search
