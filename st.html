@@ -3,38 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Placement Data</title>
+    <title>Student Data Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans">
-    <div class="container mx-auto p-4">
+<body class="bg-gray-100 min-h-screen p-4">
+    <div class="container mx-auto max-w-7xl">
         <h1 class="text-3xl font-bold mb-4 text-center">Student Placement Data</h1>
 
-        <!-- API Parameters -->
+        <!-- API Parameters Display -->
         <div class="mb-4 p-4 bg-white rounded shadow">
             <h2 class="text-xl font-semibold mb-2">API Parameters</h2>
             <p class="text-gray-700">
-                The API fetches the following student details: <br>
-                <strong>Personal Information:</strong> Name, Roll Number, Email, Phone, Address, Gender <br>
-                <strong>Academic Information:</strong> Degree, Branch, Batch, CGPA, 10th Percentage/CGPA, 12th Percentage/CGPA, Backlogs <br>
-                <strong>Placement Information:</strong> Placement Status, Company ID, Company Name, Job Title, Stipend/Package, Internship Shortlists, Placement Interviews <br>
-                <strong>Additional Details:</strong> Campus, Student ID, Resume URL, LinkedIn Profile, Created At, Updated At
+                Fetching data from: <code class="bg-gray-200 p-1 rounded">https://api.tnpnsut.in/students?batch={batch}&_limit=4000&_sort=rollNumber</code><br>
+                Batches: 2024, 2025, 2026, 2027, 2028<br>
+                Fields: name, rollNumber, email, phone, address, gender, degree, branch, batch, cgpa, tenthPercentage, twelfthPercentage, backlogs, placementStatus, companyName, jobTitle, package, internshipShortlists, placementInterviews, campus, resumeUrl, linkedinProfile, createdAt, updatedAt
             </p>
         </div>
 
-        <!-- Fetch Button and Console -->
-        <div class="flex justify-between mb-4">
-            <button id="fetchData" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Fetch Data</button>
-            <button id="downloadCsv" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" disabled>Download CSV</button>
-        </div>
-        <div class="mb-4 p-4 bg-gray-800 text-white rounded shadow">
-            <h2 class="text-xl font-semibold mb-2">Live Console</h2>
-            <pre id="console" class="text-sm h-32 overflow-y-auto"></pre>
+        <!-- Fetch Button and Progress Bar -->
+        <div class="flex items-center mb-4">
+            <button id="fetchButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-4">
+                Fetch Data
+            </button>
+            <div class="w-full bg-gray-200 rounded-full h-4 hidden" id="progressContainer">
+                <div id="progressBar" class="bg-blue-500 h-4 rounded-full" style="width: 0%"></div>
+            </div>
         </div>
 
-        <!-- Data Table -->
+        <!-- Console Log -->
+        <div class="mb-4 p-4 bg-gray-800 text-white rounded shadow h-40 overflow-y-auto" id="consoleLog">
+            <p class="text-sm">Console ready...</p>
+        </div>
+
+        <!-- Table -->
         <div class="overflow-x-auto">
-            <table id="dataTable" class="min-w-full bg-white shadow-md rounded">
+            <table id="studentTable" class="w-full bg-white shadow-md rounded hidden">
                 <thead>
                     <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
                         <th class="py-3 px-6 text-left">Name</th>
@@ -47,17 +50,17 @@
                         <th class="py-3 px-6 text-left">Branch</th>
                         <th class="py-3 px-6 text-left">Batch</th>
                         <th class="py-3 px-6 text-left">CGPA</th>
-                        <th class="py-3 px-6 text-left">10th %/CGPA</th>
-                        <th class="py-3 px-6 text-left">12th %/CGPA</th>
+                        <th class="py-3 px-6 text-left">10th %</th>
+                        <th class="py-3 px-6 text-left">12th %</th>
                         <th class="py-3 px-6 text-left">Backlogs</th>
                         <th class="py-3 px-6 text-left">Placement Status</th>
-                        <th class="py-3 px-6 text-left">Company Name</th>
+                        <th class="py-3 px-6 text-left">Company</th>
                         <th class="py-3 px-6 text-left">Job Title</th>
                         <th class="py-3 px-6 text-left">Package</th>
                         <th class="py-3 px-6 text-left">Internship Shortlists</th>
                         <th class="py-3 px-6 text-left">Placement Interviews</th>
                         <th class="py-3 px-6 text-left">Campus</th>
-                        <th class="py-3 px-6 text-left">Resume URL</th>
+                        <th class="py-3 px-6 text-left">Resume</th>
                         <th class="py-3 px-6 text-left">LinkedIn</th>
                         <th class="py-3 px-6 text-left">Created At</th>
                         <th class="py-3 px-6 text-left">Updated At</th>
@@ -66,120 +69,149 @@
                 <tbody id="tableBody" class="text-gray-600 text-sm font-light"></tbody>
             </table>
         </div>
+
+        <!-- Download Button -->
+        <button id="downloadButton" class="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded hidden">
+            Download as CSV
+        </button>
     </div>
 
     <script>
-        const fetchButton = document.getElementById('fetchData');
-        const downloadButton = document.getElementById('downloadCsv');
-        const consoleOutput = document.getElementById('console');
-        const tableBody = document.getElementById('tableBody');
-        let studentData = [];
+        const batches = ['2024', '2025', '2026', '2027', '2028'];
+        const token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc1MDg3NTg3NywiZXhwIjoxNzUzNDY3ODc3fQ.RRvoUFo76Q65vECK3P8cIHy7MSgGTd8zkmYYaqE89Dw';
+        let allStudents = [];
 
-        function logToConsole(message, isError = false) {
-            const timestamp = new Date().toLocaleTimeString();
-            consoleOutput.textContent += `[${timestamp}] ${message}\n`;
-            consoleOutput.scrollTop = consoleOutput.scrollHeight;
-            if (isError) consoleOutput.style.color = 'red';
+        const consoleLog = document.getElementById('consoleLog');
+        const progressBar = document.getElementById('progressBar');
+        const progressContainer = document.getElementById('progressContainer');
+        const fetchButton = document.getElementById('fetchButton');
+        const downloadButton = document.getElementById('downloadButton');
+        const table = document.getElementById('studentTable');
+        const tableBody = document.getElementById('tableBody');
+
+        function logMessage(message, isError = false) {
+            const p = document.createElement('p');
+            p.className = 'text-sm';
+            p.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            if (isError) p.className += ' text-red-400';
+            consoleLog.appendChild(p);
+            consoleLog.scrollTop = consoleLog.scrollHeight;
         }
 
         async function fetchData() {
-            logToConsole('Fetching data from API...');
+            allStudents = [];
+            tableBody.innerHTML = '';
+            table.classList.add('hidden');
+            downloadButton.classList.add('hidden');
+            progressContainer.classList.remove('hidden');
             fetchButton.disabled = true;
-            try {
-                const response = await fetch('https://api.tnpnsut.in/students', {
-                    headers: {
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc1MDg3NTg3NywiZXhwIjoxNzUzNDY3ODc3fQ.RRvoUFo76Q65vECK3P8cIHy7MSgGTd8zkmYYaqE89Dw'
-                    }
-                });
-                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                const data = await response.json();
-                studentData = data;
-                logToConsole('Data fetched successfully!');
-                renderTable(data);
-                downloadButton.disabled = false;
-            } catch (error) {
-                logToConsole(`Error: ${error.message}`, true);
-            } finally {
-                fetchButton.disabled = false;
+            logMessage('Starting data fetch...');
+
+            for (let i = 0; i < batches.length; i++) {
+                const batch = batches[i];
+                const url = `https://api.tnpnsut.in/students?batch=${batch}&_limit=4000&_sort=rollNumber`;
+                logMessage(`Fetching data for batch ${batch}...`);
+
+                try {
+                    const response = await fetch(url, {
+                        headers: { 'Authorization': token }
+                    });
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const data = await response.json();
+                    allStudents.push(...data);
+                    logMessage(`Fetched ${data.length} students for batch ${batch}`);
+                    progressBar.style.width = `${((i + 1) / batches.length * 100)}%`;
+                } catch (error) {
+                    logMessage(`Error fetching batch ${batch}: ${error.message}`, true);
+                }
             }
+
+            renderTable();
+            progressContainer.classList.add('hidden');
+            fetchButton.disabled = false;
+            downloadButton.classList.remove('hidden');
+            logMessage('Data fetch completed.');
         }
 
-        function renderTable(data) {
+        function renderTable() {
             tableBody.innerHTML = '';
-            data.forEach(student => {
+            table.classList.remove('hidden');
+
+            allStudents.forEach(student => {
                 const row = document.createElement('tr');
-                row.className = 'border-b border-gray-200 hover:bg-gray-100';
+                row.className = 'hover:bg-gray-100';
                 row.innerHTML = `
-                    <td class="py-3 px-6">${student.name || '-'}</td>
-                    <td class="py-3 px-6">${student.rollNumber || '-'}</td>
-                    <td class="py-3 px-6">${student.email || '-'}</td>
-                    <td class="py-3 px-6">${student.phone || '-'}</td>
-                    <td class="py-3 px-6">${student.address || '-'}</td>
-                    <td class="py-3 px-6">${student.gender || '-'}</td>
-                    <td class="py-3 px-6">${student.degree || '-'}</td>
-                    <td class="py-3 px-6">${student.branch || '-'}</td>
-                    <td class="py-3 px-6">${student.batch || '-'}</td>
-                    <td class="py-3 px-6">${student.cgpa || '-'}</td>
-                    <td class="py-3 px-6">${student.tenthPercentage || student.cgpa10th || '-'}</td>
-                    <td class="py-3 px-6">${student.twelfthPercentage || student.cgpa12th || '-'}</td>
-                    <td class="py-3 px-6">${student.backlogs || '-'}</td>
-                    <td class="py-3 px-6">${student.placementStatus || '-'}</td>
-                    <td class="py-3 px-6">${student.companyName || '-'}</td>
-                    <td class="py-3 px-6">${student.jobTitle || '-'}</td>
-                    <td class="py-3 px-6">${student.stipend || student.package || '-'}</td>
-                    <td class="py-3 px-6">${student.internshipShortlists || '-'}</td>
-                    <td class="py-3 px-6">${student.placementInterviews || '-'}</td>
-                    <td class="py-3 px-6">${student.campus || '-'}</td>
-                    <td class="py-3 px-6"><a href="${student.resumeUrl || '#'}" class="text-blue-500" target="_blank">${student.resumeUrl ? 'View' : '-'}</a></td>
-                    <td class="py-3 px-6"><a href="${student.linkedinProfile || '#'}" class="text-blue-500" target="_blank">${student.linkedinProfile ? 'View' : '-'}</a></td>
-                    <td class="py-3 px-6">${student.createdAt ? new Date(student.createdAt).toLocaleString() : '-'}</td>
-                    <td class="py-3 px-6">${student.updatedAt ? new Date(student.updatedAt).toLocaleString() : '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.name || '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.rollNumber || '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.email || '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.phone || '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.address || '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.gender || '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.degree || '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.branch || '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.batch || '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.cgpa || '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.tenthPercentage || '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.twelfthPercentage || '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.backlogs || '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.placementStatus || '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.companyName || '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.jobTitle || '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.package || '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.internshipShortlists || '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.placementInterviews || '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.campus || '-'}</td>
+                    <td class="py-3 px-6 border-b"><a href="${student.resumeUrl || '#'}" class="text-blue-500" target="_blank">${student.resumeUrl ? 'Link' : '-'}</a></td>
+                    <td class="py-3 px-6 border-b"><a href="${student.linkedinProfile || '#'}" class="text-blue-500" target="_blank">${student.linkedinProfile ? 'Link' : '-'}</a></td>
+                    <td class="py-3 px-6 border-b">${student.createdAt ? new Date(student.createdAt).toLocaleString() : '-'}</td>
+                    <td class="py-3 px-6 border-b">${student.updatedAt ? new Date(student.updatedAt).toLocaleString() : '-'}</td>
                 `;
                 tableBody.appendChild(row);
             });
         }
 
         function downloadCSV() {
-            if (!studentData.length) {
-                logToConsole('No data to download!', true);
-                return;
-            }
-            const headers = ['Name,Roll Number,Email,Phone,Address,Gender,Degree,Branch,Batch,CGPA,10th %/CGPA,12th %/CGPA,Backlogs,Placement Status,Company Name,Job Title,Package,Internship Shortlists,Placement Interviews,Campus,Resume URL,LinkedIn,Created At,Updated At'];
-            const rows = studentData.map(student => [
-                student.name || '-',
-                student.rollNumber || '-',
-                student.email || '-',
-                student.phone || '-',
-                student.address || '-',
-                student.gender || '-',
-                student.degree || '-',
-                student.branch || '-',
-                student.batch || '-',
-                student.cgpa || '-',
-                student.tenthPercentage || student.cgpa10th || '-',
-                student.twelfthPercentage || student.cgpa12th || '-',
-                student.backlogs || '-',
-                student.placementStatus || '-',
-                student.companyName || '-',
-                student.jobTitle || '-',
-                student.stipend || student.package || '-',
-                student.internshipShortlists || '-',
-                student.placementInterviews || '-',
-                student.campus || '-',
-                student.resumeUrl || '-',
-                student.linkedinProfile || '-',
-                student.createdAt ? new Date(student.createdAt).toLocaleString() : '-',
-                student.updatedAt ? new Date(student.updatedAt).toLocaleString() : '-'
-            ].map(field => `"${field}"`).join(','));
-            const csvContent = headers.concat(rows).join('\n');
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'student_data.csv';
-            a.click();
-            window.URL.revokeObjectURL(url);
-            logToConsole('CSV downloaded successfully!');
+            const headers = [
+                'Name', 'Roll Number', 'Email', 'Phone', 'Address', 'Gender', 'Degree', 'Branch', 'Batch',
+                'CGPA', '10th %', '12th %', 'Backlogs', 'Placement Status', 'Company', 'Job Title', 'Package',
+                'Internship Shortlists', 'Placement Interviews', 'Campus', 'Resume URL', 'LinkedIn', 'Created At', 'Updated At'
+            ];
+            const rows = allStudents.map(student => [
+                `"${student.name || ''}"`,
+                student.rollNumber || '',
+                student.email || '',
+                student.phone || '',
+                `"${student.address || ''}"`,
+                student.gender || '',
+                student.degree || '',
+                student.branch || '',
+                student.batch || '',
+                student.cgpa || '',
+                student.tenthPercentage || '',
+                student.twelfthPercentage || '',
+                student.backlogs || '',
+                student.placementStatus || '',
+                `"${student.companyName || ''}"`,
+                `"${student.jobTitle || ''}"`,
+                student.package || '',
+                student.internshipShortlists || '',
+                student.placementInterviews || '',
+                student.campus || '',
+                student.resumeUrl || '',
+                student.linkedinProfile || '',
+                student.createdAt ? new Date(student.createdAt).toISOString() : '',
+                student.updatedAt ? new Date(student.updatedAt).toISOString() : ''
+            ].join(','));
+
+            const csvContent = ['data:text/csv;charset=utf-8,', headers.join(','), ...rows].join('\n');
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', 'student_data.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            logMessage('CSV downloaded successfully.');
         }
 
         fetchButton.addEventListener('click', fetchData);
