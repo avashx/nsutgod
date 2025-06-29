@@ -5,216 +5,141 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Data Fetcher</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
-<body class="bg-gray-100 font-sans">
-    <div class="container mx-auto p-4">
-        <h1 class="text-3xl font-bold mb-4 text-center">Student Data Fetcher</h1>
-
-        <!-- API Parameters -->
-        <div class="mb-4 p-4 bg-white rounded shadow">
-            <h2 class="text-xl font-semibold mb-2">API Parameters</h2>
-            <p><strong>Endpoint:</strong> <span id="api-endpoint">https://api.tnpnsut.in/students</span></p>
-            <p><strong>Parameters:</strong> batch (optional, e.g., 2024, 2025), _limit (default: 4000), _sort (default: rollNumber)</p>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl">
+        <h1 class="text-2xl font-bold mb-6 text-center">Student Data Fetcher</h1>
+        <div class="flex justify-center space-x-4 mb-4">
+            <button id="fetchBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Fetch All</button>
+            <button id="pauseBtn" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 hidden">Pause</button>
+            <button id="exportJsonBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 hidden">Export JSON</button>
+            <button id="exportCsvBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 hidden">Export CSV</button>
         </div>
-
-        <!-- Batch Selection and Fetch Button -->
-        <div class="mb-4 flex flex-col sm:flex-row gap-4">
-            <select id="batchSelect" class="p-2 border rounded">
-                <option value="">All Batches</option>
-                <option value="2024">2024</option>
-                <option value="2025">2025</option>
-                <option value="2026">2026</option>
-                <option value="2027">2027</option>
-                <option value="2028">2028</option>
-            </select>
-            <button id="fetchButton" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Fetch Data</button>
-            <button id="downloadButton" class="bg-green-500 text-white p-2 rounded hover:bg-green-600 hidden">Download CSV</button>
-        </div>
-
-        <!-- Console Log -->
-        <div class="mb-4 p-4 bg-gray-800 text-white rounded shadow" style="height: 150px; overflow-y: auto;">
-            <h2 class="text-xl font-semibold mb-2">Console Log</h2>
-            <div id="consoleLog"></div>
-        </div>
-
-        <!-- Table -->
-        <div class="overflow-x-auto">
-            <table id="studentTable" class="min-w-full bg-white border rounded shadow hidden">
-                <thead>
-                    <tr class="bg-gray-200">
-                        <th class="p-2 border">Name</th>
-                        <th class="p-2 border">Roll Number</th>
-                        <th class="p-2 border">Batch</th>
-                        <th class="p-2 border">Branch</th>
-                        <th class="p-2 border">Campus</th>
-                        <th class="p-2 border">Category</th>
-                        <th class="p-2 border">CGPA</th>
-                        <th class="p-2 border">Aadhar</th>
-                        <th class="p-2 border">Contact Number</th>
-                        <th class="p-2 border">Alt Contact</th>
-                        <th class="p-2 border">Email</th>
-                        <th class="p-2 border">Personal Email</th>
-                        <th class="p-2 border">DOB</th>
-                        <th class="p-2 border">Gender</th>
-                        <th class="p-2 border">Blood Group</th>
-                        <th class="p-2 border">Permanent Address</th>
-                        <th class="p-2 border">Present Address</th>
-                        <th class="p-2 border">PAN</th>
-                        <th class="p-2 border">10th CGPA</th>
-                        <th class="p-2 border">12th CGPA</th>
-                        <th class="p-2 border">Sem 1 GPA</th>
-                        <th class="p-2 border">Sem 2 GPA</th>
-                        <th class="p-2 border">Sem 3 GPA</th>
-                        <th class="p-2 border">Sem 4 GPA</th>
-                        <th class="p-2 border">Sem 5 GPA</th>
-                        <th class="p-2 border">Sem 6 GPA</th>
-                        <th class="p-2 border">Sem 7 GPA</th>
-                        <th class="p-2 border">Sem 8 GPA</th>
-                        <th class="p-2 border">Backlogs</th>
-                        <th class="p-2 border">Bans</th>
-                        <th class="p-2 border">Status</th>
-                        <th class="p-2 border">Resume URL</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-        </div>
+        <div id="log" class="bg-gray-200 p-4 rounded h-64 overflow-y-auto text-sm"></div>
     </div>
 
     <script>
-        const fetchButton = document.getElementById('fetchButton');
-        const downloadButton = document.getElementById('downloadButton');
-        const batchSelect = document.getElementById('batchSelect');
-        const apiEndpoint = document.getElementById('apiendpoint');
-        const consoleLog = document.getElementById('consoleLog');
-        const table = document.getElementById('studentTable');
-        const tableBody = document.getElementById('tableBody');
-        let studentData = [];
+        const apiBase = 'https://api.tnpnsut.in/students';
+        const token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc1MDg3NTg3NywiZXhwIjoxNzUzNDY3ODc3fQ.RRvoUFo76Q65vECK3P8cIHy7MSgGTd8zkmYYaqE89Dw';
+        const batches = [2024, 2025, 2026, 2027, 2028];
+        let students = [];
+        let isFetching = false;
+        let isPaused = false;
 
-        function logMessage(message, isError = false) {
-            const logEntry = document.createElement('div');
-            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-            logEntry.className = isError ? 'text-red-400' : 'text-white';
-            consoleLog.appendChild(logEntry);
-            consoleLog.scrollTop = consoleLog.scrollHeight;
+        const fetchBtn = document.getElementById('fetchBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const exportJsonBtn = document.getElementById('exportJsonBtn');
+        const exportCsvBtn = document.getElementById('exportCsvBtn');
+        const logDiv = document.getElementById('log');
+
+        function log(message) {
+            logDiv.innerHTML += `<p>${new Date().toLocaleTimeString()}: ${message}</p>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
         }
 
-        async function fetchData() {
-            const batch = batchSelect.value;
-            let url = 'https://api.tnpnsut.in/students';
-            if (batch) {
-                url += `?batch=${batch}&_limit=4000&_sort=rollNumber`;
-            } else {
-                url += '?_limit=4000&_sort=rollNumber';
-            }
-            apiEndpoint.textContent = url;
-            logMessage(`Fetching data from ${url}`);
-            fetchButton.disabled = true;
-            table.classList.add('hidden');
-            downloadButton.classList.add('hidden');
-            tableBody.innerHTML = '';
+        function flattenObject(obj, prefix = '') {
+            return Object.keys(obj).reduce((acc, k) => {
+                const pre = prefix.length ? `${prefix}.` : '';
+                if (typeof obj[k] === 'object' && obj[k] !== null && !Array.isArray(obj[k])) {
+                    Object.assign(acc, flattenObject(obj[k], pre + k));
+                } else {
+                    acc[pre + k] = obj[k];
+                }
+                return acc;
+            }, {});
+        }
 
+        async function fetchStudents(batch) {
+            const url = `${apiBase}?batch=${batch}&_limit=20000&_sort=rollNumber`;
             try {
                 const response = await fetch(url, {
-                    headers: {
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc1MDg3NTg3NywiZXhwIjoxNzUzNDY3ODc3fQ.RRvoUFo76Q65vECK3P8cIHy7MSgGTd8zkmYYaqE89Dw'
-                    }
+                    headers: { Authorization: token }
                 });
-                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                studentData = await response.json();
-                logMessage(`Successfully fetched ${studentData.length} records`);
-                renderTable(studentData);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                return data;
             } catch (error) {
-                logMessage(`Error: ${error.message}`, true);
-            } finally {
-                fetchButton.disabled = false;
+                log(`Error fetching batch ${batch}: ${error.message}`);
+                return [];
             }
         }
 
-        function renderTable(data) {
-            tableBody.innerHTML = '';
-            data.forEach(student => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="p-2 border">${student.Name || '-'}</td>
-                    <td class="p-2 border">${student.rollNumber || '-'}</td>
-                    <td class="p-2 border">${student.batch || '-'}</td>
-                    <td class="p-2 border">${student.branch || '-'}</td>
-                    <td class="p-2 border">${student.campus || '-'}</td>
-                    <td class="p-2 border">${student.category || '-'}</td>
-                    <td class="p-2 border">${student.cgpa || '-'}</td>
-                    <td class="p-2 border">${student.aadhar || '-'}</td>
-                    <td class="p-2 border">${student.contact_number || '-'}</td>
-                    <td class="p-2 border">${student.alt_contact_number || '-'}</td>
-                    <td class="p-2 border">${student.email || '-'}</td>
-                    <td class="p-2 border">${student.personal_email || '-'}</td>
-                    <td class="p-2 border">${student.dob || '-'}</td>
-                    <td class="p-2 border">${student.gender || '-'}</td>
-                    <td class="p-2 border">${student.blood_group || '-'}</td>
-                    <td class="p-2 border">${student.perm_address || '-'}</td>
-                    <td class="p-2 border">${student.present_address || '-'}</td>
-                    <td class="p-2 border">${student.pan || '-'}</td>
-                    <td class="p-2 border">${student.cgpa_10th || '-'}</td>
-                    <td class="p-2 border">${student.cgpa_12th || '-'}</td>
-                    <td class="p-2 border">${student.sem1_gpa || '-'}</td>
-                    <td class="p-2 border">${student.sem2_gpa || '-'}</td>
-                    <td class="p-2 border">${student.sem3_gpa || '-'}</td>
-                    <td class="p-2 border">${student.sem4_gpa || '-'}</td>
-                    <td class="p-2 border">${student.sem5_gpa || '-'}</td>
-                    <td class="p-2 border">${student.sem6_gpa || '-'}</td>
-                    <td class="p-2 border">${student.sem7_gpa || '-'}</td>
-                    <td class="p-2 border">${student.sem8_gpa || '-'}</td>
-                    <td class="p-2 border">${student.backlogs || '-'}</td>
-                    <td class="p-2 border">${student.bans || '-'}</td>
-                    <td class="p-2 border">${student.status || '-'}</td>
-                    <td class="p-2 border">${student.resume?.[0]?.url ? `<a href="${student.resume[0].url}" target="_blank">View</a>` : '-'}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-            table.classList.remove('hidden');
-            downloadButton.classList.remove('hidden');
+        async function fetchAllStudents() {
+            isFetching = true;
+            fetchBtn.classList.add('hidden');
+            pauseBtn.classList.remove('hidden');
+            exportJsonBtn.classList.add('hidden');
+            exportCsvBtn.classList.add('hidden');
+            students = [];
+
+            for (const batch of batches) {
+                if (isPaused) {
+                    log('Fetching paused');
+                    break;
+                }
+                log(`Fetching students for batch ${batch}...`);
+                const batchStudents = await fetchStudents(batch);
+                students.push(...batchStudents);
+                log(`Fetched ${batchStudents.length} students for batch ${batch}. Total: ${students.length}`);
+            }
+
+            if (!isPaused) {
+                isFetching = false;
+                fetchBtn.classList.remove('hidden');
+                pauseBtn.classList.add('hidden');
+                exportJsonBtn.classList.remove('hidden');
+                exportCsvBtn.classList.remove('hidden');
+                log('Fetching complete');
+            }
         }
 
-        function downloadCSV() {
-            const headers = [
-                'Name', 'Roll Number', 'Batch', 'Branch', 'Campus', 'Category', 'CGPA', 'Aadhar', 
-                'Contact Number', 'Alt Contact', 'Email', 'Personal Email', 'DOB', 'Gender', 
-                'Blood Group', 'Permanent Address', 'Present Address', 'PAN', '10th CGPA', 
-                '12th CGPA', 'Sem 1 GPA', '主体', 'Sem 2 GPA', 'Sem 3 GPA', 'Sem 4 GPA', 
-                'Sem 5 GPA', 'Sem 6 GPA', 'Sem 7 GPA', 'Sem 8 GPA', 'Backlogs', 'Bans', 
-                'Status', 'Resume URL'
-            ];
-            const csvRows = [headers.join(',')];
-            studentData.forEach(student => {
-                const row = [
-                    `"${student.Name || ''}"`, student.rollNumber || '', student.batch || '', 
-                    student.branch || '', student.campus || '', student.category || '', 
-                    student.cgpa || '', student.aadhar || '', student.contact_number || '', 
-                    student.alt_contact_number || '', student.email || '', 
-                    student.personal_email || '', student.dob || '', student.gender || '', 
-                    student.blood_group || '', `"${student.perm_address || ''}"`, 
-                    `"${student.present_address || ''}"`, student.pan || '', 
-                    student.cgpa_10th || '', student.cgpa_12th || '', student.sem1_gpa || '', 
-                    student.sem2_gpa || '', student.sem3_gpa || '', student.sem4_gpa || '', 
-                    student.sem5_gpa || '', student.sem6_gpa || '', student.sem7_gpa || '', 
-                    student.sem8_gpa || '', student.backlogs || '', student.bans || '', 
-                    student.status || '', student.resume?.[0]?.url || ''
-                ];
-                csvRows.push(row.join(','));
-            });
-            const csvContent = csvRows.join('\n');
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
+        function exportToJson() {
+            const flattenedStudents = students.map(flattenObject);
+            const json = JSON.stringify(flattenedStudents, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'student_data.csv';
+            a.download = 'students.json';
             a.click();
-            window.URL.revokeObjectURL(url);
-            logMessage('CSV downloaded successfully');
+            URL.revokeObjectURL(url);
+            log('Exported to JSON');
         }
 
-        fetchButton.addEventListener('click', fetchData);
-        downloadButton.addEventListener('click', downloadCSV);
+        function exportToCsv() {
+            const flattenedStudents = students.map(flattenObject);
+            const csv = Papa.unparse(flattenedStudents);
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'students.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+            log('Exported to CSV');
+        }
+
+        fetchBtn.addEventListener('click', () => {
+            if (!isFetching) {
+                fetchAllStudents();
+            }
+        });
+
+        pauseBtn.addEventListener('click', () => {
+            if (isFetching) {
+                isPaused = !isPaused;
+                pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
+                exportJsonBtn.classList.toggle('hidden', !isPaused);
+                exportCsvBtn.classList.toggle('hidden', !isPaused);
+                if (!isPaused) {
+                    fetchAllStudents();
+                }
+            }
+        });
+
+        exportJsonBtn.addEventListener('click', exportToJson);
+        exportCsvBtn.addEventListener('click', exportToCsv);
     </script>
 </body>
 </html>
