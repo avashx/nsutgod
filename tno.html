@@ -25,7 +25,7 @@
     <script>
         const apiBase = 'https://api.tnpnsut.in/students';
         const token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc1MDg3NTg3NywiZXhwIjoxNzUzNDY3ODc3fQ.RRvoUFo76Q65vECK3P8cIHy7MSgGTd8zkmYYaqE89Dw';
-        const batches = [2024, 2025, 2026, 2027, 2028];
+        const batches = [2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029];
         let students = [];
         let isFetching = false;
         let isPaused = false;
@@ -112,7 +112,6 @@
         function exportToJson() {
             const flattenedStudents = students.map(student => {
                 const flat = flattenObject(student);
-                // Ensure all expected fields are included, even if missing
                 const allFields = {
                     Name: '', aadhar: '', alt_contact_number: '', backlogs: '', bans: '', batch: '',
                     blood_group: '', branch: '', campus: '', category: '', cgpa: '', cgpaUpdateEnabled: '',
