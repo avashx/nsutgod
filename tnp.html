@@ -600,41 +600,9 @@
 
         // Parse CSV content
         function parseCsv(csvText) {
-            if (!csvText || csvText.trim() === '') {
-                throw new Error('CSV is empty');
-            }
-
-            const rows = csvText.trim().split('\n').map(row => {
-                // Handle CSV rows with commas within quoted fields
-                const cells = [];
-                let currentCell = '';
-                let inQuotes = false;
-
-                for (let i = 0; i < row.length; i++) {
-                    const char = row[i];
-                    if (char === '"') {
-                        inQuotes = !inQuotes;
-                    } else if (char === ',' && !inQuotes) {
-                        cells.push(currentCell.replace(/^"|"$/g, '').replace(/""/g, '"'));
-                        currentCell = '';
-                    } else {
-                        currentCell += char;
-                    }
-                }
-                cells.push(currentCell.replace(/^"|"$/g, '').replace(/""/g, '"'));
-                return cells;
-            });
-
-            if (rows.length < 1) {
-                throw new Error('No rows found in CSV');
-            }
-
+            const rows = csvText.trim().split('\n').map(row => row.split(',').map(cell => cell.replace(/^"|"$/g, '').replace(/""/g, '"')));
             const headers = rows[0];
-            if (headers.length < 32) {
-                throw new Error(`Invalid CSV format: Expected 32 columns, found ${headers.length}`);
-            }
-
-            const data = rows.slice(1).filter(row => row.length === headers.length).map((row, index) => {
+            const data = rows.slice(1).map((row, index) => {
                 const company = { id: row[1], name: row[2], details: {}, isNew: false };
                 company.details._id = row[1];
                 company.details.Name = row[2];
@@ -670,12 +638,6 @@
                 company.details.info = row[31];
                 return company;
             });
-
-            if (data.length === 0) {
-                throw new Error('No valid data rows in CSV');
-            }
-
-            console.log(`Parsed ${data.length} companies from CSV`);
             return data;
         }
 
@@ -684,7 +646,6 @@
             const csvUrl = 'https://raw.githubusercontent.com/avashx/nsutgod/main/src/com_data.csv';
             const startTime = performance.now();
             try {
-                loading.classList.remove('hidden');
                 const response = await fetch(csvUrl);
                 const endTime = performance.now();
                 const size = response.headers.get('content-length') || 'Unknown';
@@ -697,16 +658,12 @@
                     filteredData = [...companyData];
                     saveCompaniesToStorage();
                     applyFilters();
-                    logNetworkActivity(csvUrl, `Success: Loaded ${companyData.length} companies`, size, endTime - startTime, 'fetch');
                 } else {
                     throw new Error(`Failed to fetch CSV - Status: ${response.status}`);
                 }
             } catch (error) {
-                logNetworkActivity(csvUrl, `Failed: ${error.message}`, '0', performance.now() - startTime, 'fetch');
                 showError(`Error loading CSV: ${error.message}. Loading from localStorage instead.`);
                 loadStoredCompanies();
-            } finally {
-                loading.classList.add('hidden');
             }
         }
 
@@ -718,9 +675,6 @@
                 storedCompanyIds = new Set(companyData.map(c => c.id));
                 filteredData = [...companyData];
                 applyFilters();
-                logNetworkActivity('localStorage', `Success: Loaded ${companyData.length} companies`, 'Unknown', 0, 'load');
-            } else {
-                showError('No data in localStorage. Please fetch companies or ensure CSV is available.');
             }
         }
 
@@ -768,7 +722,7 @@
                 if (error.name === 'AbortError') {
                     logNetworkActivity(url, 'Paused', '0', performance.now() - startTime, 'fetch');
                 } else {
-                    logNetworkActivity(url, `Failed: ${error.message}`, '0', performance.now() - startTime, 'fetch');
+                    logNetworkActivity(url, 'Failed', '0', performance.now() - startTime, 'fetch');
                     throw error;
                 }
             }
@@ -795,7 +749,7 @@
                 if (error.name === 'AbortError') {
                     logNetworkActivity(url, 'Paused', '0', performance.now() - startTime, 'fetch');
                 } else {
-                    logNetworkActivity(url, `Failed: ${error.message}`, '0', performance.now() - startTime, 'fetch');
+                    logNetworkActivity(url, 'Failed', '0', performance.now() - startTime, 'fetch');
                     throw error;
                 }
             }
@@ -854,7 +808,6 @@
                     } catch (error) {
                         if (error.name !== 'AbortError') {
                             console.error(error.message);
-                            logNetworkActivity(`Company ${company.id}`, `Failed: ${error.message}`, '0', 0, 'fetch');
                         }
                     }
                 }
@@ -873,7 +826,6 @@
                 }
 
                 exportCsvButton.classList.remove('hidden');
-                logNetworkActivity('Fetch Complete', `Success: Added ${newCompanies.length} new companies, Total: ${companyData.length}`, 'Unknown', 0, 'fetch');
             } catch (error) {
                 if (error.name !== 'AbortError') {
                     showError(error.message);
