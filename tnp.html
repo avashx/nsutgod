@@ -525,6 +525,7 @@
         let isPaused = false;
         let fetchController = null;
         let storedCompanyIds = new Set();
+        let csvCompanyIds = new Set(); // Track IDs from CSV to manage "New" sticker
 
         // Bearer Token
         const bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc1MDg3NTg3NywiZXhwIjoxNzUzNDY3ODc3fQ.RRvoUFo76Q65vECK3P8cIHy7MSgGTd8zkmYYaqE89Dw";
@@ -598,47 +599,84 @@
             return '#d1fae5';
         }
 
-        // Parse CSV content
+        // Parse CSV content with robust handling
         function parseCsv(csvText) {
-            const rows = csvText.trim().split('\n').map(row => row.split(',').map(cell => cell.replace(/^"|"$/g, '').replace(/""/g, '"')));
-            const headers = rows[0];
-            const data = rows.slice(1).map((row, index) => {
-                const company = { id: row[1], name: row[2], details: {}, isNew: false };
-                company.details._id = row[1];
-                company.details.Name = row[2];
-                company.details.company_category = row[4];
-                company.details.year = row[5];
-                company.details.events = [{
-                    jobtitle: row[6],
-                    category: row[7],
-                    stipend: row[8] !== '-' ? parseFloat(row[8]) : undefined,
-                    duration: row[9],
-                    type: row[10],
-                    graduation_cgpa: row[11] !== '-' ? parseFloat(row[11]) : undefined,
-                    degree: row[12],
-                    status: row[13],
-                    optional_criteria: row[14] !== '-' ? parseFloat(row[14]) : undefined,
-                    cgpa_10th: row[15] !== '-' ? parseFloat(row[15]) : undefined,
-                    cgpa_12th: row[16] !== '-' ? parseFloat(row[16]) : undefined,
-                    stipend_info: row[17],
-                    campus: row[18] !== '-' ? row[18].split(', ') : [],
-                    backlogs: row[19] !== '-' ? parseInt(row[19]) : undefined,
-                    branchesAllowed: row[20] !== '-' ? row[20].split(', ').map(branch => ({ branch })) : [],
-                    lastDate: row[21],
-                    placeOfPosting: row[22],
-                    degrees_allowed: row[23] !== '-' ? row[23].split(', ') : [],
-                    apc: row[24],
-                    _id: row[30]
-                }];
-                company.details.placement_interviews = row[25] !== 'None' ? new Array(parseInt(row[25])) : [];
-                company.details.internship_shortlists = row[26] !== 'None' ? new Array(parseInt(row[26])) : [];
-                company.details.published_at = row[27];
-                company.details.createdAt = row[28];
-                company.details.updatedAt = row[29];
-                company.details.info = row[31];
-                return company;
-            });
-            return data;
+            try {
+                const rows = csvText.trim().split('\n').map(row => {
+                    // Handle CSV rows with commas in quoted fields
+                    const cells = [];
+                    let currentCell = '';
+                    let insideQuotes = false;
+                    for (let i = 0; i < row.length; i++) {
+                        if (row[i] === '"') {
+                            insideQuotes = !insideQuotes;
+                        } else if (row[i] === ',' && !insideQuotes) {
+                            cells.push(currentCell);
+                            currentCell = '';
+                        } else {
+                            currentCell += row[i];
+                        }
+                    }
+                    cells.push(currentCell);
+                    return cells.map(cell => cell.replace(/^"|"$/g, '').replace(/""/g, '"'));
+                });
+
+                const headers = rows[0];
+                if (headers.length !== 32) {
+                    throw new Error('Invalid CSV format: Expected 32 columns');
+                }
+
+                const data = [];
+                for (let i = 1; i < rows.length; i++) {
+                    const row = rows[i];
+                    // Skip rows with incorrect number of columns
+                    if (row.length !== 32) {
+                        console.warn(`Skipping row ${i} due to incorrect column count: ${row.length}`);
+                        continue;
+                    }
+                    try {
+                        const company = { id: row[1], name: row[2], details: {}, isNew: false };
+                        company.details._id = row[1];
+                        company.details.Name = row[2];
+                        company.details.company_category = row[4] !== '-' ? row[4] : undefined;
+                        company.details.year = row[5] !== '-' ? row[5] : undefined;
+                        company.details.events = [{
+                            jobtitle: row[6] !== '-' ? row[6] : undefined,
+                            category: row[7] !== '-' ? row[7] : undefined,
+                            stipend: row[8] !== '-' ? parseFloat(row[8]) : undefined,
+                            duration: row[9] !== '-' ? row[9] : undefined,
+                            type: row[10] !== '-' ? row[10] : undefined,
+                            graduation_cgpa: row[11] !== '-' ? parseFloat(row[11]) : undefined,
+                            degree: row[12] !== '-' ? row[12] : undefined,
+                            status: row[13] !== '-' ? row[13] : undefined,
+                            optional_criteria: row[14] !== '-' ? parseFloat(row[14]) : undefined,
+                            cgpa_10th: row[15] !== '-' ? parseFloat(row[15]) : undefined,
+                            cgpa_12th: row[16] !== '-' ? parseFloat(row[16]) : undefined,
+                            stipend_info: row[17] !== '-' ? row[17] : undefined,
+                            campus: row[18] !== '-' ? row[18].split(', ').filter(c => c) : [],
+                            backlogs: row[19] !== '-' ? parseInt(row[19]) : undefined,
+                            branchesAllowed: row[20] !== '-' ? row[20].split(', ').filter(b => b).map(branch => ({ branch })) : [],
+                            lastDate: row[21] !== '-' ? row[21] : undefined,
+                            placeOfPosting: row[22] !== '-' ? row[22] : undefined,
+                            degrees_allowed: row[23] !== '-' ? row[23].split(', ').filter(d => d) : [],
+                            apc: row[24] !== '-' ? row[24] : undefined,
+                            _id: row[30] !== '-' ? row[30] : undefined
+                        }];
+                        company.details.placement_interviews = row[25] !== 'None' ? new Array(parseInt(row[25]) || 0) : [];
+                        company.details.internship_shortlists = row[26] !== 'None' ? new Array(parseInt(row[26]) || 0) : [];
+                        company.details.published_at = row[27] !== '-' ? row[27] : undefined;
+                        company.details.createdAt = row[28] !== '-' ? row[28] : undefined;
+                        company.details.updatedAt = row[29] !== '-' ? row[29] : undefined;
+                        company.details.info = row[31] !== '-' ? row[31] : undefined;
+                        data.push(company);
+                    } catch (e) {
+                        console.warn(`Error parsing row ${i}: ${e.message}`);
+                    }
+                }
+                return data;
+            } catch (error) {
+                throw new Error(`CSV parsing failed: ${error.message}`);
+            }
         }
 
         // Load companies from CSV
@@ -646,6 +684,7 @@
             const csvUrl = 'https://raw.githubusercontent.com/avashx/nsutgod/main/src/com_data.csv';
             const startTime = performance.now();
             try {
+                loading.classList.remove('hidden');
                 const response = await fetch(csvUrl);
                 const endTime = performance.now();
                 const size = response.headers.get('content-length') || 'Unknown';
@@ -654,6 +693,7 @@
                 if (response.ok) {
                     const csvText = await response.text();
                     companyData = parseCsv(csvText);
+                    csvCompanyIds = new Set(companyData.map(c => c.id));
                     storedCompanyIds = new Set(companyData.map(c => c.id));
                     filteredData = [...companyData];
                     saveCompaniesToStorage();
@@ -664,6 +704,8 @@
             } catch (error) {
                 showError(`Error loading CSV: ${error.message}. Loading from localStorage instead.`);
                 loadStoredCompanies();
+            } finally {
+                loading.classList.add('hidden');
             }
         }
 
@@ -672,6 +714,7 @@
             const stored = localStorage.getItem('companyData');
             if (stored) {
                 companyData = JSON.parse(stored);
+                csvCompanyIds = new Set(companyData.map(c => c.id));
                 storedCompanyIds = new Set(companyData.map(c => c.id));
                 filteredData = [...companyData];
                 applyFilters();
@@ -799,7 +842,7 @@
                     try {
                         currentCount++;
                         updateRealtimeList(company, currentCount, companies.length);
-                        const isNew = !storedCompanyIds.has(company.id);
+                        const isNew = !csvCompanyIds.has(company.id);
                         if (isNew) {
                             const details = await fetchCompanyDetails(company.id);
                             newCompanies.push({ id: company.id, name: company.name, details, isNew: true });
