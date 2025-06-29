@@ -243,7 +243,7 @@
             }
             .company-table.expanded td {
                 height: 40px;
-                line-height: 20px;
+                line CV-height: 20px;
             }
             .action-btn, .expand-btn, .pause-btn {
                 padding: 5px 10px;
@@ -388,6 +388,7 @@
                         <option value="500">Fetch 500</option>
                     </select>
                     <button id="export-csv" class="action-btn hidden">Export to CSV</button>
+                    <button id="export-json" class="action-btn hidden">Export to JSON</button>
                     <button id="expand-table" class="expand-btn">Expand</button>
                     <button id="pause-fetch" class="pause-btn hidden">Pause</button>
                 </div>
@@ -492,6 +493,7 @@
         const fetchButton = document.getElementById('fetch-companies');
         const fetchLimit = document.getElementById('fetch-limit');
         const exportCsvButton = document.getElementById('export-csv');
+        const exportJsonButton = document.getElementById('export-json');
         const expandButton = document.getElementById('expand-table');
         const pauseButton = document.getElementById('pause-fetch');
         const tableBody = document.getElementById('company-table-body');
@@ -517,7 +519,7 @@
         let fetchController = null;
 
         // Bearer Token
-        const bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc0Nzk3MzA5MywiZXhwIjoxNzUwNTY1MDkzfQ.oDgKeLGpRDz4w7zKWBUHS-trIyiJI2qp3GIs8qTBGsE";
+        const bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc1MDg3NTg3NywiZXhwIjoxNzUzNDY3ODc3fQ.RRvoUFo76Q65vECK3P8cIHy7MSgGTd8zkmYYaqE89Dw";
 
         // Headers for API requests
         const headers = {
@@ -678,6 +680,7 @@
             companyData = [];
             filteredData = [];
             exportCsvButton.classList.add('hidden');
+            exportJsonButton.classList.add('hidden');
             pauseButton.classList.remove('hidden');
             isPaused = false;
             pauseButton.textContent = 'Pause';
@@ -720,6 +723,7 @@
                 }
 
                 exportCsvButton.classList.remove('hidden');
+                exportJsonButton.classList.remove('hidden');
             } catch (error) {
                 if (error.name !== 'AbortError') {
                     showError(error.message);
@@ -905,6 +909,19 @@
             document.body.removeChild(link);
         }
 
+        // Export to JSON
+        function exportToJson() {
+            const jsonContent = JSON.stringify(filteredData, null, 2);
+            const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'company_data.json');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
         // Show error message
         function showError(message) {
             errorMessage.textContent = message;
@@ -990,6 +1007,7 @@
         // Event Listeners
         fetchButton.addEventListener('click', fetchAllCompanies);
         exportCsvButton.addEventListener('click', exportToCsv);
+        exportJsonButton.addEventListener('click', exportToJson);
 
         // Filter event listeners
         yearFilter.addEventListener('change', applyFilters);
