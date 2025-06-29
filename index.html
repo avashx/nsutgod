@@ -99,7 +99,7 @@
         .modern-select:hover {
             border-color: #9ca3af;
         }
-        .column-options {
+        .column- options {
             position: absolute;
             top: 0;
             right: 0;
@@ -219,7 +219,7 @@
             <h2 class="text-xl font-bold text-gray-800">NSUTGod</h2>
         </div>
         <ul class="space-y-2">
-            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg active" data-page="overview">
+            <li class="nav-item flex items-center text-gray- مدارك p-2 rounded-lg active" data-page="overview">
                 <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 Overview
             </li>
@@ -228,7 +228,7 @@
                 Student Profile
             </li>
             <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="analytics">
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10"/></svg>
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 01-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10"/></svg>
                 Analytics
             </li>
             <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="placement">
@@ -582,12 +582,11 @@
             return `rgb(${red}, ${green}, 0)`;
         }
 
-        // Fetch and parse CSV
-        Papa.parse('https://raw.githubusercontent.com/avashx/nsutgod/main/students.csv', {
-            download: true,
-            header: true,
-            complete: function(results) {
-                students = results.data.map(student => ({
+        // Fetch and parse JSON
+        fetch('https://raw.githubusercontent.com/avashx/nsutgod/main/src/students.json')
+            .then(response => response.json())
+            .then(data => {
+                students = data.map(student => ({
                     ...student,
                     gender: student.gender ? student.gender.toLowerCase() : ''
                 }));
@@ -598,12 +597,11 @@
                 populateBranchButtons();
                 populateColumnOptions();
                 displayStudents();
-            },
-            error: function(error) {
-                console.error('Error fetching CSV:', error);
+            })
+            .catch(error => {
+                console.error('Error fetching JSON:', error);
                 studentTableBody.innerHTML = '<tr><td colspan="12">Error loading data. Please try again later.</td></tr>';
-            }
-        });
+            });
 
         // Populate filter dropdowns
         function populateFilters() {
