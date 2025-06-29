@@ -10,7 +10,8 @@
     <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl">
         <h1 class="text-2xl font-bold mb-6 text-center">Company Data Fetcher</h1>
         <div class="flex justify-center space-x-4 mb-4">
-            <button id="fetchBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Fetch All</button>
+            <button id="fetchListBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Fetch List</button>
+            <button id="fetchDetailsBtn" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 hidden">Fetch Details</button>
             <button id="pauseBtn" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 hidden">Pause</button>
             <button id="exportJsonBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 hidden">Export JSON</button>
         </div>
@@ -24,13 +25,17 @@
         const apiBase = 'https://api.tnpnsut.in/companies';
         const token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc1MDg3NTg3NywiZXhwIjoxNzUzNDY3ODc3fQ.RRvoUFo76Q65vECK3P8cIHy7MSgGTd8zkmYYaqE89Dw';
         const years = [2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
-        let companies = [];
+        let companyList = []; // Stores {id, name} for each company
+        let companies = []; // Stores detailed company data
         let isFetching = false;
         let isPaused = false;
         let currentYearIndex = 0;
+        let currentCompanyIndex = 0;
         let totalCompanies = 0;
+        let fetchMode = null; // 'list' or 'details'
 
-        const fetchBtn = document.getElementById('fetchBtn');
+        const fetchListBtn = document.getElementById('fetchListBtn');
+        const fetchDetailsBtn = document.getElementById('fetchDetailsBtn');
         const pauseBtn = document.getElementById('pauseBtn');
         const exportJsonBtn = document.getElementById('exportJsonBtn');
         const logDiv = document.getElementById('log');
@@ -42,7 +47,7 @@
         }
 
         function updateProgress(completed, total) {
-            const percentage = (completed / total) * 100;
+            const percentage = total > 0 ? (completed / total) * 100 : 0;
             progressBar.style.width = `${percentage}%`;
         }
 
@@ -66,9 +71,9 @@
                 });
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const data = await response.json();
-                return data;
+                return data.map(item => ({ id: item.id, name: item.name }));
             } catch (error) {
-                log(`Error fetching companies for year ${year}: ${error.message}`);
+                log(`Error fetching company list for year ${year}: ${error.message}`);
                 return [];
             }
         }
@@ -83,62 +88,95 @@
                 const data = await response.json();
                 return data;
             } catch (error) {
-                log(`Error fetching details for company ID ${id}: ${error.message}`);
-                return null;
+                log(`Error fetching details for company ID ${id || 'undefined'}: ${error.message}`);
+                return { _id: id || 'undefined', Name: 'Unknown', error: error.message };
             }
         }
 
-        async function fetchAllCompanies() {
+        async function fetchAllCompanyLists() {
             isFetching = true;
-            fetchBtn.classList.add('hidden');
+            fetchMode = 'list';
+            fetchListBtn.classList.add('hidden');
+            fetchDetailsBtn.classList.add('hidden');
             pauseBtn.classList.remove('hidden');
             exportJsonBtn.classList.add('hidden');
-            companies = [];
+            companyList = [];
             totalCompanies = 0;
             currentYearIndex = 0;
 
             for (let i = currentYearIndex; i < years.length; i++) {
                 if (isPaused) {
-                    log('Fetching paused');
+                    log('Fetching company list paused');
                     break;
                 }
                 currentYearIndex = i;
                 const year = years[i];
-                log(`Fetching companies for year ${year}...`);
+                log(`Fetching company list for year ${year}...`);
                 const yearCompanies = await fetchCompanies(year);
-                log(`Fetched ${yearCompanies.length} companies for year ${year}`);
-
-                for (const company of yearCompanies) {
-                    if (isPaused) {
-                        log('Fetching paused');
-                        break;
-                    }
-                    if (!company._id || typeof company._id !== 'string' || company._id.trim() === '') {
-                        log(`Skipping company with invalid ID in year ${year}`);
-                        continue;
-                    }
-                    const details = await fetchCompanyDetails(company._id);
-                    if (details) {
-                        companies.push(details);
-                        totalCompanies++;
-                        log(`Fetched details for company ${details.Name || 'Unknown'}. Total companies: ${totalCompanies}`);
-                    }
-                }
-
+                companyList.push(...yearCompanies);
+                totalCompanies += yearCompanies.length;
+                log(`Fetched ${yearCompanies.length} companies for year ${year}. Total: ${totalCompanies}`);
                 updateProgress(i + 1, years.length);
             }
 
             if (!isPaused) {
                 isFetching = false;
-                fetchBtn.classList.remove('hidden');
+                fetchMode = null;
+                fetchListBtn.classList.remove('hidden');
+                fetchDetailsBtn.classList.remove('hidden');
                 pauseBtn.classList.add('hidden');
-                exportJsonBtn.classList.remove('hidden');
-                log(`Fetching complete. Total companies fetched: ${totalCompanies}`);
+                log(`Company list fetching complete. Total companies: ${totalCompanies}`);
                 updateProgress(years.length, years.length);
             }
         }
 
+        async function fetchAllCompanyDetails() {
+            if (companyList.length === 0) {
+                log('No company list available. Please fetch company list first.');
+                return;
+            }
+
+            isFetching = true;
+            fetchMode = 'details';
+            fetchListBtn.classList.add('hidden');
+            fetchDetailsBtn.classList.add('hidden');
+            pauseBtn.classList.remove('hidden');
+            exportJsonBtn.classList.add('hidden');
+            companies = [];
+            currentCompanyIndex = 0;
+
+            for (let i = currentCompanyIndex; i < companyList.length; i++) {
+                if (isPaused) {
+                    log('Fetching company details paused');
+                    break;
+                }
+                currentCompanyIndex = i;
+                const company = companyList[i];
+                log(`Fetching details for company ${company.name || 'Unknown'} (ID: ${company.id || 'undefined'})...`);
+                const details = await fetchCompanyDetails(company.id);
+                companies.push(details);
+                log(`Fetched details for company ${details.Name || company.name || 'Unknown'}. Total: ${companies.length}`);
+                updateProgress(i + 1, companyList.length);
+            }
+
+            if (!isPaused) {
+                isFetching = false;
+                fetchMode = null;
+                fetchListBtn.classList.remove('hidden');
+                fetchDetailsBtn.classList.remove('hidden');
+                pauseBtn.classList.add('hidden');
+                exportJsonBtn.classList.remove('hidden');
+                log(`Company details fetching complete. Total companies: ${companies.length}`);
+                updateProgress(companyList.length, companyList.length);
+            }
+        }
+
         function exportToJson() {
+            if (companies.length === 0) {
+                log('No company details to export. Please fetch details first.');
+                return;
+            }
+
             const flattenedCompanies = companies.map(company => {
                 const flat = flattenObject(company);
                 const allFields = {
@@ -162,7 +200,7 @@
                     'events.batch': '', 'events.jobtitle': '', 'events.type': '', 'events.branchesAllowed': '',
                     'events.branchesAllowed.branch': '', 'events.branchesAllowed.degree': '', 'events.branchesAllowed._id': '',
                     'events.branchesAllowed.__v': '', 'events.createdAt': '', 'events.updatedAt': '', 'events.__v': '',
-                    'events.company': '', 'events.createdPC': ''
+                    'events.company': '', 'events.createdPC': '', 'error': ''
                 };
                 return { ...allFields, ...flat };
             });
@@ -177,9 +215,15 @@
             log('Exported to JSON');
         }
 
-        fetchBtn.addEventListener('click', () => {
+        fetchListBtn.addEventListener('click', () => {
             if (!isFetching) {
-                fetchAllCompanies();
+                fetchAllCompanyLists();
+            }
+        });
+
+        fetchDetailsBtn.addEventListener('click', () => {
+            if (!isFetching) {
+                fetchAllCompanyDetails();
             }
         });
 
@@ -187,9 +231,13 @@
             if (isFetching) {
                 isPaused = !isPaused;
                 pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
-                exportJsonBtn.classList.toggle('hidden', !isPaused);
+                exportJsonBtn.classList.toggle('hidden', !isPaused || fetchMode !== 'details');
                 if (!isPaused) {
-                    fetchAllCompanies();
+                    if (fetchMode === 'list') {
+                        fetchAllCompanyLists();
+                    } else if (fetchMode === 'details') {
+                        fetchAllCompanyDetails();
+                    }
                 }
             }
         });
