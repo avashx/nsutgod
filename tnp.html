@@ -600,44 +600,90 @@
 
         // Parse CSV content
         function parseCsv(csvText) {
-            const rows = csvText.trim().split('\n').map(row => row.split(',').map(cell => cell.replace(/^"|"$/g, '').replace(/""/g, '"')));
+            if (!csvText || csvText.trim() === '') {
+                throw new Error('CSV file is empty');
+            }
+
+            const rows = csvText.trim().split('\n').map(row => {
+                const cells = [];
+                let currentCell = '';
+                let inQuotes = false;
+                for (let i = 0; i < row.length; i++) {
+                    const char = row[i];
+                    if (char === '"' && row[i + 1] === '"') {
+                        currentCell += '"';
+                        i++;
+                    } else if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        cells.push(currentCell);
+                        currentCell = '';
+                    } else {
+                        currentCell += char;
+                    }
+                }
+                cells.push(currentCell);
+                return cells.map(cell => cell.replace(/^"|"$/g, '').replace(/""/g, '"'));
+            });
+
             const headers = rows[0];
-            const data = rows.slice(1).map((row, index) => {
+            if (!headers || headers.length < 32) {
+                throw new Error('Invalid CSV format: Missing headers');
+            }
+
+            const expectedHeaders = [
+                'Serial No', 'ID', 'Name', 'View', 'Category', 'Year', 'Job Title', 'Event Category',
+                'Stipend (INR)', 'Duration', 'Type', 'Graduation CGPA', 'Degree', 'Status', 'Optional Criteria',
+                'CGPA 10th', 'CGPA 12th', 'Stipend Info', 'Campus', 'Backlogs', 'Branches Allowed', 'Deadline',
+                'Location', 'Degrees', 'POC', 'Placement Interviews', 'Internship Shortlists', 'Published At',
+                'Created At', 'Updated At', 'Event ID', 'Info'
+            ];
+
+            if (!headers.every((h, i) => h === expectedHeaders[i])) {
+                throw new Error('Invalid CSV format: Header mismatch');
+            }
+
+            const data = rows.slice(1).filter(row => row.length === headers.length).map((row, index) => {
                 const company = { id: row[1], name: row[2], details: {}, isNew: false };
                 company.details._id = row[1];
                 company.details.Name = row[2];
-                company.details.company_category = row[4];
-                company.details.year = row[5];
+                company.details.company_category = row[4] !== '-' ? row[4] : undefined;
+                company.details.year = row[5] !== '-' ? row[5] : undefined;
                 company.details.events = [{
-                    jobtitle: row[6],
-                    category: row[7],
+                    jobtitle: row[6] !== '-' ? row[6] : undefined,
+                    category: row[7] !== '-' ? row[7] : undefined,
                     stipend: row[8] !== '-' ? parseFloat(row[8]) : undefined,
-                    duration: row[9],
-                    type: row[10],
+                    duration: row[9] !== '-' ? row[9] : undefined,
+                    type: row[10] !== '-' ? row[10] : undefined,
                     graduation_cgpa: row[11] !== '-' ? parseFloat(row[11]) : undefined,
-                    degree: row[12],
-                    status: row[13],
+                    degree: row[12] !== '-' ? row[12] : undefined,
+                    status: row[13] !== '-' ? row[13] : undefined,
                     optional_criteria: row[14] !== '-' ? parseFloat(row[14]) : undefined,
                     cgpa_10th: row[15] !== '-' ? parseFloat(row[15]) : undefined,
                     cgpa_12th: row[16] !== '-' ? parseFloat(row[16]) : undefined,
-                    stipend_info: row[17],
-                    campus: row[18] !== '-' ? row[18].split(', ') : [],
+                    stipend_info: row[17] !== '-' ? row[17] : undefined,
+                    campus: row[18] !== '-' ? row[18].split(', ').filter(c => c) : [],
                     backlogs: row[19] !== '-' ? parseInt(row[19]) : undefined,
-                    branchesAllowed: row[20] !== '-' ? row[20].split(', ').map(branch => ({ branch })) : [],
-                    lastDate: row[21],
-                    placeOfPosting: row[22],
-                    degrees_allowed: row[23] !== '-' ? row[23].split(', ') : [],
-                    apc: row[24],
-                    _id: row[30]
+                    branchesAllowed: row[20] !== '-' ? row[20].split(', ').filter(b => b).map(branch => ({ branch })) : [],
+                    lastDate: row[21] !== '-' ? row[21] : undefined,
+                    placeOfPosting: row[22] !== '-' ? row[22] : undefined,
+                    degrees_allowed: row[23] !== '-' ? row[23].split(', ').filter(d => d) : [],
+                    apc: row[24] !== '-' ? row[24] : undefined,
+                    _id: row[30] !== '-' ? row[30] : undefined
                 }];
-                company.details.placement_interviews = row[25] !== 'None' ? new Array(parseInt(row[25])) : [];
-                company.details.internship_shortlists = row[26] !== 'None' ? new Array(parseInt(row[26])) : [];
-                company.details.published_at = row[27];
-                company.details.createdAt = row[28];
-                company.details.updatedAt = row[29];
-                company.details.info = row[31];
+                company.details.placement_interviews = row[25] !== 'None' ? new Array(parseInt(row[25]) || 0) : [];
+                company.details.internship_shortlists = row[26] !== 'None' ? new Array(parseInt(row[26]) || 0) : [];
+                company.details.published_at = row[27] !== '-' ? row[27] : undefined;
+                company.details.createdAt = row[28] !== '-' ? row[28] : undefined;
+                company.details.updatedAt = row[29] !== '-' ? row[29] : undefined;
+                company.details.info = row[31] !== '-' ? row[31] : undefined;
                 return company;
             });
+
+            if (data.length === 0) {
+                throw new Error('No valid data rows in CSV');
+            }
+
             return data;
         }
 
@@ -646,6 +692,7 @@
             const csvUrl = 'https://raw.githubusercontent.com/avashx/nsutgod/main/src/com_data.csv';
             const startTime = performance.now();
             try {
+                loading.classList.remove('hidden');
                 const response = await fetch(csvUrl);
                 const endTime = performance.now();
                 const size = response.headers.get('content-length') || 'Unknown';
@@ -662,8 +709,11 @@
                     throw new Error(`Failed to fetch CSV - Status: ${response.status}`);
                 }
             } catch (error) {
+                logNetworkActivity(csvUrl, 'Failed', '0', performance.now() - startTime, 'fetch');
                 showError(`Error loading CSV: ${error.message}. Loading from localStorage instead.`);
                 loadStoredCompanies();
+            } finally {
+                loading.classList.add('hidden');
             }
         }
 
