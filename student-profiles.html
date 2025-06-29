@@ -3,244 +3,1117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NSUTGod</title>
+    <title>Student Profile - NSUTGod</title>
+    <link rel="icon" type="image/png" href="https://github.com/avashx/nsutgod/blob/main/src/logo.png?raw=true">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap");
+
+        :root {
+            --bg: #f8f9fa;
+            --dark: #2c3038;
+            --light: #999;
+        }
+
+        body {
+            font: 400 18px "Manrope", sans-serif;
+            background: var(--bg);
+            color: #666;
+        }
+
+        .navbar {
+            width: 220px;
+            background-color: #fff;
+            border-right: 1px solid #e5e7eb;
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 40;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .navbar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .nav-item {
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        .content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .elements {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            overflow: hidden;
+        }
+
+        .personal-info-box {
+            grid-column: span 2;
+        }
+
+        .box {
+            position: relative;
+            padding: 5%;
+            border-radius: 15px;
+            background: #fff;
+            box-shadow: 0px 14px 25px 0px #2c303822;
+        }
+
+        .box h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .info-grid p {
+            margin: 5px 0;
+            word-break: break-word;
+        }
+
+        .info-grid p span {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 220px;
+        }
+
+        .cgpa-improvement-chart {
+            position: relative;
+            height: 150px;
+            margin-top: 10px;
+        }
+
+        .company-table, .suggestions-table, .course-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+            max-height: 200px;
+            display: block;
+            overflow-y: auto;
+        }
+
+        .company-table thead, .suggestions-table thead, .course-table thead {
+            position: sticky;
+            top: 0;
+            background-color: #f9fafb;
+        }
+
+        .company-table th, .company-table td,
+        .suggestions-table th, .suggestions-table td,
+        .course-table th, .course-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+        }
+
+        .company-table th, .suggestions-table th, .course-table th {
+            background-color: #f9fafb;
+            font-weight: 500;
+            color: #4b5563;
+        }
+
+        .semester-grid {
+            display: grid;
+            grid-template-columns: repeat(8, minmax(40px, 1fr));
+            gap: 5px;
+            margin-top: 10px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .semester-grid div {
+            padding: 4px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .semester-grid div:first-child {
+            font-weight: 500;
+            color: #4b5563;
+        }
+
+        .tag {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        @media (max-width: 1024px) {
+            .personal-info-box {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                width: 200px;
+            }
+            .content {
+                margin-left: 0 !important;
+                padding: 16px;
+            }
+            .elements {
+                grid-template-columns: 1fr;
+            }
+            .personal-info-box {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                width: 180px;
+            }
+            .content {
+                padding: 12px;
+            }
+            .company-table th, .company-table td,
+            .suggestions-table th, .suggestions-table td,
+            .course-table th, .course-table td {
+                font-size: 12px;
+                padding: 6px;
+            }
+            .semester-grid {
+                grid-template-columns: repeat(4, minmax(40px, 1fr));
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-    <div class="container mx-auto p-4">
-        <header class="flex justify-between items-center mb-4">
-            <h1 class="text-2xl font-bold">NSUTGod</h1>
-            <nav>
-                <a href="newstudent.html" class="px-2 py-1 text-gray-700 hover:text-blue-500">Overview</a>
-                <a href="#" class="px-2 py-1 text-gray-700 hover:text-blue-500 font-bold">Student Profile</a>
-                <a href="#" class="px-2 py-1 text-gray-700 hover:text-blue-500">Analytics</a>
-                <a href="#" class="px-2 py-1 text-gray-700 hover:text-blue-500">Placement</a>
-                <a href="#" class="px-2 py-1 text-gray-700 hover:text-blue-500">Notifications <span class="bg-red-500 text-white rounded-full px-2">2</span></a>
-            </nav>
-        </header>
+<body class="bg-[#f5f5f5]">
+    <!-- Hamburger Menu for Mobile -->
+    <div class="md:hidden fixed top-4 left-4 z-50">
+        <button id="menuToggle" class="p-2 bg-gray-200 rounded-lg">
+            <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+    </div>
 
-        <div class="bg-white p-6 rounded-lg shadow-md">
-            <h2 id="studentTitle" class="text-xl font-semibold mb-4">Student Profile - -</h2>
+    <!-- Left Navbar -->
+    <div id="navbar" class="navbar">
+        <div class="flex items-center mb-6">
+            <img src="https://github.com/avashx/nsutgod/blob/main/src/logo.png?raw=true" alt="NSUTGod Logo" class="h-10 w-10 mr-2">
+            <h2 class="text-xl font-bold text-gray-800">NSUTGod</h2>
+        </div>
+        <ul class="space-y-2">
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="overview">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                Overview
+            </li>
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg active" data-page="student-profile">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Student Profile
+            </li>
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="analytics">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10"/></svg>
+                Analytics
+            </li>
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="placement">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                Placement
+            </li>
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="notifications">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a率先
 
-            <div class="mb-4">
-                <h3 class="text-lg font-semibold">Personal Information</h3>
-                <p><strong>Roll Number:</strong> <span id="rollNumber">-</span></p>
-                <p><strong>Email:</strong> <span id="email">-</span></p>
-                <p><strong>Personal Email:</strong> <span id="personalEmail">-</span></p>
-                <p><strong>Gender:</strong> <span id="gender">-</span></p>
-                <p><strong>Date of Birth:</strong> <span id="dob">-</span></p>
-                <p><strong>Contact Number:</strong> <span id="contactNumber">-</span></p>
-                <p><strong>Alternate Contact:</strong> <span id="altContactNumber">-</span></p>
-                <p><strong>Present Address:</strong> <span id="presentAddress">-</span></p>
-                <p><strong>Permanent Address:</strong> <span id="permAddress">-</span></p>
-                <p><strong>Category:</strong> <span id="category">-</span></p>
-                <p><strong>Campus:</strong> <span id="campus">-</span></p>
-                <p><strong>PWD:</strong> <span id="pwd">-</span></p>
-                <p><strong>Blood Group:</strong> <span id="bloodGroup">-</span></p>
-                <p><strong>Aadhar:</strong> <span id="aadhar">-</span></p>
-                <p><strong>PAN:</strong> <span id="pan">-</span></p>
+                Notifications
+                <span class="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded">2</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="md:ml-56 p-8 content">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">
+            Student Profile - <span id="studentName">-</span>
+        </h1>
+
+        <div class="elements">
+            <!-- Box 1: Personal Details -->
+            <div class="box personal-info-box">
+                <h3>👤 Personal Details</h3>
+                <div class="info-grid" id="personalInfo">
+                    <p>Name: <span id="name">-</span></p>
+                    <p>Gender: <span id="gender" class="tag">-</span></p>
+                    <p>Date of Birth: <span id="dob">-</span></p>
+                    <p>Blood Group: <span id="bloodGroup">-</span></p>
+                    <p>Category: <span id="category" class="tag">-</span></p>
+                    <p>PWD: <span id="pwd">-</span></p>
+                </div>
             </div>
 
-            <div class="mb-4">
-                <h3 class="text-lg font-semibold">Academic Information</h3>
-                <p><strong>Branch:</strong> <span id="branch">-</span></p>
-                <p><strong>Batch:</strong> <span id="batch">-</span></p>
-                <p><strong>Degree:</strong> <span id="degree">-</span></p>
-                <p><strong>10th Percentage:</strong> <span id="cgpa10th">-</span></p>
-                <p><strong>12th Percentage:</strong> <span id="cgpa12th">-</span></p>
-                <p><strong>CGPA:</strong> <span id="cgpa">-</span></p>
-                <p><strong>CGPA Before Drop:</strong> <span id="cgpaBeforeDrop">-</span></p>
-                <p><strong>Graduation GPA:</strong> <span id="graduationGpa">-</span></p>
-                <p><strong>Backlogs:</strong> <span id="backlogs">-</span></p>
-                <p><strong>Semester GPAs:</strong></p>
-                <ul class="list-disc ml-6">
-                    <li>Sem 1: <span id="sem1Gpa">-</span></li>
-                    <li>Sem 2: <span id="sem2Gpa">-</span></li>
-                    <li>Sem 3: <span id="sem3Gpa">-</span></li>
-                    <li>Sem 4: <span id="sem4Gpa">-</span></li>
-                    <li>Sem 5: <span id="sem5Gpa">-</span></li>
-                    <li>Sem 6: <span id="sem6Gpa">-</span></li>
-                    <li>Sem 7: <span id="sem7Gpa">-</span></li>
-                    <li>Sem 8: <span id="sem8Gpa">-</span></li>
-                </ul>
+            <!-- Box 2: Contact Information -->
+            <div class="box">
+                <h3>📞 Contact Information</h3>
+                <div class="info-grid" id="contactInfo">
+                    <p>Contact Number: <span id="contactNumber">-</span></p>
+                    <p>Alternate Contact Number: <span id="alternateContact">-</span></p>
+                    <p>College Email: <span id="email">-</span></p>
+                    <p>Personal Email: <span id="personalEmail">-</span></p>
+                    <p>Present Address: <span id="presentAddress">-</span></p>
+                    <p>Permanent Address: <span id="permanentAddress">-</span></p>
+                </div>
             </div>
 
-            <div class="mb-4">
-                <h3 class="text-lg font-semibold">Additional Information</h3>
-                <p><strong>Status:</strong> <span id="status">-</span></p>
-                <p><strong>CGPA Update Enabled:</strong> <span id="cgpaUpdateEnabled">-</span></p>
-                <p><strong>Is PPO:</strong> <span id="isPPO">-</span></p>
-                <p><strong>Intern Applied:</strong> <span id="internApplied">-</span></p>
-                <p><strong>Placement Applied:</strong> <span id="placementApplied">-</span></p>
-                <p><strong>Current Ban:</strong> <span id="currentBan">-</span></p>
-                <p><strong>Bans:</strong> <span id="bans">-</span></p>
-                <p><strong>Created At:</strong> <span id="createdAt">-</span></p>
-                <p><strong>Updated At:</strong> <span id="updatedAt">-</span></p>
-                <p><strong>Published At:</strong> <span id="publishedAt">-</span></p>
-                <p><strong>ID:</strong> <span id="id">-</span></p>
-                <p><strong>Is CGPA Updated:</strong> <span id="isCgpaUpdated">-</span></p>
+            <!-- Box 3: Academic Information -->
+            <div class="box">
+                <h3>🎓 Academic Information</h3>
+                <div class="info-grid" id="academicInfo">
+                    <p>Roll Number: <span id="rollNumber">-</span></p>
+                    <p>Branch: <span id="branch" class="tag">-</span></p>
+                    <p>Degree: <span id="degree">-</span></p>
+                    <p>Batch: <span id="batch">-</span></p>
+                    <p>Campus: <span id="campus">-</span></p>
+                    <p>CGPA: <span id="cgpa">-</span></p>
+                    <p>CGPA Before Drop: <span id="cgpaBeforeDrop">-</span></p>
+                    <p>Class 10th %: <span id="cgpa10th">-</span></p>
+                    <p>Class 12th %: <span id="cgpa12th">-</span></p>
+                    <p>Graduation GPA: <span id="graduationGpa">-</span></p>
+                    <p>Backlogs: <span id="backlogs">-</span></p>
+                    <p>PPO: <span id="ppo">-</span></p>
+                </div>
             </div>
 
-            <div class="mb-4">
-                <h3 class="text-lg font-semibold">Resume Information</h3>
-                <p><strong>Resume ID:</strong> <span id="resumeId">-</span></p>
-                <p><strong>Resume Name:</strong> <span id="resumeName">-</span></p>
-                <p><strong>Resume Hash:</strong> <span id="resumeHash">-</span></p>
-                <p><strong>Resume Extension:</strong> <span id="resumeExt">-</span></p>
-                <p><strong>Resume MIME:</strong> <span id="resumeMime">-</span></p>
-                <p><strong>Resume Provider:</strong> <span id="resumeProvider">-</span></p>
-                <p><strong>Resume Size:</strong> <span id="resumeSize">-</span></p>
-                <p><strong>Resume URL:</strong> <span id="resumeUrl">-</span></p>
-                <p><strong>Resume Created At:</strong> <span id="resumeCreatedAt">-</span></p>
-                <p><strong>Resume Updated At:</strong> <span id="resumeUpdatedAt">-</span></p>
+            <!-- Box 4: Status & Timestamps -->
+            <div class="box">
+                <h3>⏰ Status & Timestamps</h3>
+                <div class="info-grid" id="statusInfo">
+                    <p>Account Status: <span id="status">-</span></p>
+                    <p>User Created At: <span id="userCreatedAt">-</span></p>
+                    <p>Profile Last Updated At: <span id="updatedAt">-</span></p>
+                    <p>Published At: <span id="publishedAt">-</span></p>
+                </div>
             </div>
 
-            <div class="mb-4">
-                <h3 class="text-lg font-semibold">User Information</h3>
-                <p><strong>User ID:</strong> <span id="userId">-</span></p>
-                <p><strong>User Username:</strong> <span id="userUsername">-</span></p>
-                <p><strong>User Email:</strong> <span id="userEmail">-</span></p>
-                <p><strong>User Provider:</strong> <span id="userProvider">-</span></p>
-                <p><strong>User Role:</strong> <span id="userRole">-</span></p>
-                <p><strong>User Blocked:</strong> <span id="userBlocked">-</span></p>
-                <p><strong>User Confirmed:</strong> <span id="userConfirmed">-</span></p>
-                <p><strong>User Created At:</strong> <span id="userCreatedAt">-</span></p>
-                <p><strong>User Updated At:</strong> <span id="userUpdatedAt">-</span></p>
+            <!-- Box 5: Documents (Resume) -->
+            <div class="box">
+                <h3>🧾 Documents (Resume)</h3>
+                <div class="info-grid" id="resumeInfo">
+                    <p>Resume Name: <span id="resumeName">-</span></p>
+                    <p>Resume Size: <span id="resumeSize">-</span></p>
+                    <p>Resume URL: <span id="resumeUrl">-</span></p>
+                    <p>Resume Upload Date: <span id="resumeCreatedAt">-</span></p>
+                    <p>Resume Mime: <span id="resumeMime">-</span></p>
+                    <p>Resume Provider: <span id="resumeProvider">-</span></p>
+                </div>
             </div>
 
-            <div class="mb-4">
-                <h3 class="text-lg font-semibold">CGPA Comparison</h3>
-                <div id="cgpaComparisonChart"></div>
+            <!-- Box 6: Restrictions / Bans -->
+            <div class="box">
+                <h3>🚫 Restrictions / Bans</h3>
+                <div class="info-grid" id="restrictionsInfo">
+                    <p>Bans: <span id="bans">-</span></p>
+                    <p>Current Ban: <span id="currentBan">-</span></p>
+                </div>
             </div>
 
-            <div class="mb-4">
-                <h3 class="text-lg font-semibold">Semester-wise GPA & Performance</h3>
-                <div id="semesterGpaChart"></div>
+            <!-- Box 7: Internship & Placement -->
+            <div class="box">
+                <h3>💼 Internship & Placement</h3>
+                <div class="info-grid" id="internshipPlacementInfo">
+                    <p>Internship Applied: <span id="internshipApplied">-</span></p>
+                    <p>Placement Applied: <span id="placementApplied">-</span></p>
+                </div>
             </div>
 
-            <div class="mb-4">
-                <h3 class="text-lg font-semibold">Eligible Companies</h3>
-                <table class="min-w-full bg-white border">
+            <!-- Box 8: Semester-wise GPA Data -->
+            <div class="box">
+                <h3>🧮 Semester-Wise GPA Data</h3>
+                <table class="company-table" id="semesterGpaTable">
                     <thead>
                         <tr>
-                            <th class="px-4 py-2 border">Company</th>
-                            <th class="px-4 py-2 border">CTC (LPA)</th>
-                            <th class="px-4 py-2 border">Cutoff CGPA</th>
+                            <th>Semester</th>
+                            <th>SGPA</th>
+                            <th>Total Credits</th>
+                            <th>Credit Points</th>
                         </tr>
                     </thead>
-                    <tbody id="eligibleCompaniesTable"></tbody>
+                    <tbody id="semesterGpaBody"></tbody>
                 </table>
             </div>
 
-            <div class="mb-4">
-                <h3 class="text-lg font-semibold">CGPA Improvement Suggestions</h3>
-                <p><strong>Current CGPA:</strong> <span id="currentCgpa">-</span></p>
-                <p><strong>Target SGPA for Next Semester:</strong> <span id="targetSgpa">-</span></p>
-                <p><strong>Projected CGPA After Improvement:</strong> <span id="projectedCgpa">-</span></p>
-                <div>
-                    <h4 class="text-md font-semibold">Companies You Can Target After Improvement:</h4>
-                    <table class="min-w-full bg-white border">
+            <!-- Box 9: Course-wise Data -->
+            <div class="box personal-info-box">
+                <h3>📚 Course-wise Data</h3>
+                <table class="course-table" id="courseTable">
+                    <thead>
+                        <tr>
+                            <th>Course Code</th>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Sem</th>
+                            <th>Credits</th>
+                            <th>Grade</th>
+                            <th>Grade Points</th>
+                            <th>Credit Points</th>
+                        </tr>
+                    </thead>
+                    <tbody id="courseBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Box 10: CGPA Comparison Histogram -->
+            <div class="box">
+                <h3>CGPA Comparison</h3>
+                <div class="chart-container">
+                    <canvas id="cgpaChart" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Box 11: Semester-wise GPA Graph with Performance -->
+            <div class="box">
+                <h3>Semester-wise GPA & Performance</h3>
+                <div class="chart-container">
+                    <canvas id="semesterGpaChart" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Box 12: Eligible Companies -->
+            <div class="box">
+                <h3>Eligible Companies</h3>
+                <table class="company-table" id="eligibleCompaniesTable">
+                    <thead>
+                        <tr>
+                            <th>Company</th>
+                            <th>CTC (LPA)</th>
+                            <th>Cutoff CGPA</th>
+                        </tr>
+                    </thead>
+                    <tbody id="eligibleCompaniesBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Box 13: Suggestions -->
+            <div class="box">
+                <h3>CGPA Improvement Suggestions</h3>
+                <div class="suggestions" id="suggestions">
+                    <div class="info-grid">
+                        <p>Current CGPA: <span id="currentCgpa" class="tag">-</span></p>
+                        <p>Target SGPA for Next Semester: <span id="targetSgpa" class="tag">-</span></p>
+                        <p>Projected CGPA After Improvement: <span id="projectedCgpa" class="tag">-</span></p>
+                    </div>
+                    <div class="cgpa-improvement-chart">
+                        <canvas id="cgpaImprovementChart" height="150"></canvas>
+                    </div>
+                    <p>Companies You Can Target After Improvement:</p>
+                    <table class="suggestions-table" id="targetCompaniesTable">
                         <thead>
                             <tr>
-                                <th class="px-4 py-2 border">Company</th>
-                                <th class="px-4 py-2 border">CTC (LPA)</th>
-                                <th class="px-4 py-2 border">Cutoff CGPA</th>
+                                <th>Company</th>
+                                <th>CTC (LPA)</th>
+                                <th>Cutoff CGPA</th>
                             </tr>
                         </thead>
-                        <tbody id="targetCompaniesTable"></tbody>
+                        <tbody id="targetCompaniesBody"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="session.js"></script>
     <script>
-        async function fetchStudentData() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const studentId = urlParams.get('id');
-            if (!studentId) {
-                document.getElementById('studentTitle').textContent = 'Student Profile - Not Found';
-                return;
+        // Check session on page load
+        checkSession();
+
+        const menuToggle = document.getElementById('menuToggle');
+        const navbar = document.getElementById('navbar');
+        let studentData = {};
+        let allStudents = [];
+        let companies = [];
+
+        // Get roll number from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const rollNumber = urlParams.get('roll');
+
+        // Branch, Gender, and Category color mapping
+        const branchColors = {
+            'CSAI': '#bfdbfe',
+            'CSE': '#93c5fd',
+            'CSDS': '#60a5fa',
+            'CIOT': '#93c5fd',
+            'IT': '#bfdbfe',
+            'ITNS': '#dbeafe',
+            'MAC': '#fef9c3',
+            'ECIOT': '#fef9c3',
+            'ECE': '#fef3c7',
+            'ECAM': '#fde68a',
+            'EE': '#fce7a3',
+            'ICE': '#fef9c3',
+            'ME': '#fef3c7',
+            'MEEV': '#fef9c3',
+            'WEST': '#fef2f2',
+            'CE': '#fee2e2',
+            'BT': '#ffedd5',
+            'GI': '#fed7aa'
+        };
+        const genderColors = {
+            'male': '#bfdbfe',
+            'female': '#f9a8d4',
+            'other': '#d1fae5'
+        };
+        const categoryColors = {
+            'GEN': '#e5e7eb',
+            'OBC': '#fef9c3',
+            'SC': '#bfdbfe',
+            'ST': '#ffedd5',
+            'EWS': '#d1fae5'
+        };
+
+        // Company type color mapping
+        const companyTypeColors = {
+            'Tech': '#bfdbfe',
+            'Non-Tech': '#d1fae5',
+            'Core': '#fed7aa'
+        };
+
+        // Function to determine company type
+        function getCompanyType(companyName) {
+            const techCompanies = ['Google', 'Microsoft', 'Amazon', 'Adobe', 'Oracle', 'Flipkart', 'Goldman Sachs', 'Uber', 'Atlassian'];
+            const coreCompanies = ['L&T', 'Siemens', 'Tata Steel', 'Bajaj', 'Maruti Suzuki'];
+            if (techCompanies.includes(companyName)) return 'Tech';
+            if (coreCompanies.includes(companyName)) return 'Core';
+            return 'Non-Tech';
+        }
+
+        // Function to get color based on CGPA
+        function getCgpaColor(value) {
+            value = parseFloat(value) || 0;
+            if (value < 7) return '#f87171';
+            if (value <= 8.5) return '#facc15';
+            return '#4ade80';
+        }
+
+        // Function to get color based on CTC
+        function getCtcColor(ctc) {
+            ctc = parseFloat(ctc) || 0;
+            if (ctc < 10) return '#f87171';
+            if (ctc <= 20) return '#facc15';
+            return '#4ade80';
+        }
+
+        // Fetch student data from students.json
+        fetch('https://raw.githubusercontent.com/avashx/nsutgod/main/src/students.json')
+            .then(response => response.json())
+            .then(data => {
+                allStudents = data;
+                studentData = allStudents.find(student => student.rollNumber === rollNumber) || {};
+                if (!studentData.rollNumber) {
+                    console.error('Student not found for roll number:', rollNumber);
+                    studentData = {
+                        rollNumber: "Not Found",
+                        Name: "Unknown",
+                        branch: "-",
+                        email: "-",
+                        personal_email: "-",
+                        degree: "-",
+                        campus: "-",
+                        gender: "-",
+                        contact_number: "-",
+                        alt_contact_number: "-",
+                        cgpa_10th: "-",
+                        cgpa_12th: "-",
+                        cgpa: 0,
+                        cgpa_before_drop: 0,
+                        sem1_gpa: 0,
+                        sem2_gpa: 0,
+                        sem3_gpa: 0,
+                        sem4_gpa: 0,
+                        sem5_gpa: 0,
+                        sem6_gpa: 0,
+                        sem7_gpa: 0,
+                        sem8_gpa: 0,
+                        backlogs: "-",
+                        blood_group: "-",
+                        present_address: "-",
+                        perm_address: "-",
+                        category: "-",
+                        pwd: "-",
+                        graduation_gpa: "-",
+                        dob: "-",
+                        batch: "-",
+                        status: "-",
+                        createdAt: "-",
+                        updatedAt: "-",
+                        published_at: "-",
+                        resume: [],
+                        bans: "-",
+                        currentBan: "-",
+                        intern_applied: [],
+                        placement_applied: [],
+                        isPPO: "-",
+                        allSemGPA: { semesterWiseData: [], courseWiseData: [] }
+                    };
+                }
+                displayStudentData();
+                renderCharts();
+                provideSuggestions();
+            })
+            .catch(error => {
+                console.error('Error fetching students JSON:', error);
+                studentData = {
+                    rollNumber: "Error",
+                    Name: "Error",
+                    cgpa: 0
+                };
+                displayStudentData();
+                renderCharts();
+                provideSuggestions();
+            });
+
+        // Fetch company data from place.csv
+        Papa.parse('https://raw.githubusercontent.com/avashx/nsutgod/main/src/place.csv', {
+            download: true,
+            header: true,
+            complete: function(results) {
+                companies = results.data
+                    .filter(company => company.Company && company['Cutoff CGPA'] && company['CTC (LPA)'])
+                    .map(company => ({
+                        Company: company.Company,
+                        'CTC (LPA)': parseFloat(company['CTC (LPA)']) || 0,
+                        'Cutoff CGPA': parseFloat(company['Cutoff CGPA']) || 0
+                    }));
+                displayEligibleCompanies();
+                provideSuggestions();
+            },
+            error: function(error) {
+                console.error('Error fetching companies CSV:', error);
+                document.getElementById('eligibleCompaniesBody').innerHTML = '<tr><td colspan="3">Error loading company data.</td></tr>';
+            }
+        });
+
+        // Display student data in the boxes
+        function displayStudentData() {
+            // Display student name in the title
+            document.getElementById('studentName').textContent = studentData.Name || '-';
+
+            // Personal Details
+            document.getElementById('name').textContent = studentData.Name || '-';
+            const genderSpan = document.getElementById('gender');
+            genderSpan.textContent = studentData.gender || '-';
+            if (studentData.gender) {
+                genderSpan.style.backgroundColor = genderColors[studentData.gender.toLowerCase()] || '#e5e7eb';
+            }
+            document.getElementById('dob').textContent = studentData.dob || '-';
+            document.getElementById('bloodGroup').textContent = studentData.blood_group || 'Invalid format';
+            const categorySpan = document.getElementById('category');
+            categorySpan.textContent = studentData.category || '-';
+            if (studentData.category) {
+                categorySpan.style.backgroundColor = categoryColors[studentData.category] || '#e5e7eb';
+            }
+            document.getElementById('pwd').textContent = studentData.pwd ? 'True' : 'False';
+
+            // Contact Information
+            document.getElementById('contactNumber').textContent = studentData.contact_number || '-';
+            document.getElementById('alternateContact').textContent = studentData.alt_contact_number || '-';
+            document.getElementById('email').textContent = studentData.email || '-';
+            document.getElementById('personalEmail').textContent = studentData.personal_email || '-';
+            document.getElementById('presentAddress').textContent = studentData.present_address || 'Missing';
+            document.getElementById('permanentAddress').textContent = studentData.perm_address || 'Missing';
+
+            // Academic Information
+            document.getElementById('rollNumber').textContent = studentData.rollNumber || '-';
+            const branchSpan = document.getElementById('branch');
+            branchSpan.textContent = studentData.branch || '-';
+            if (studentData.branch) {
+                branchSpan.style.backgroundColor = branchColors[studentData.branch] || '#e5e7eb';
+            }
+            document.getElementById('degree').textContent = studentData.degree || '-';
+            document.getElementById('batch').textContent = studentData.batch || '-';
+            document.getElementById('campus').textContent = studentData.campus || '-';
+            document.getElementById('cgpa').textContent = studentData.cgpa || '-';
+            document.getElementById('cgpaBeforeDrop').textContent = studentData.cgpa_before_drop || '-';
+            document.getElementById('cgpa10th').textContent = studentData.cgpa_10th || '-';
+            document.getElementById('cgpa12th').textContent = studentData.cgpa_12th || '-';
+            document.getElementById('graduationGpa').textContent = studentData.graduation_gpa || 'Not set';
+            document.getElementById('backlogs').textContent = studentData.backlogs || '-';
+            document.getElementById('ppo').textContent = studentData.isPPO ? 'True' : 'False';
+            document.getElementById('sem1Gpa').textContent = studentData.sem1_gpa || '-';
+            document.getElementById('sem2Gpa').textContent = studentData.sem2_gpa || '-';
+            document.getElementById('sem3Gpa').textContent = studentData.sem3_gpa || '-';
+            document.getElementById('sem4Gpa').textContent = studentData.sem4_gpa || '-';
+            document.getElementById('sem5Gpa').textContent = studentData.sem5_gpa || '-';
+            document.getElementById('sem6Gpa').textContent = studentData.sem6_gpa || '-';
+            document.getElementById('sem7Gpa').textContent = studentData.sem7_gpa || '-';
+            document.getElementById('sem8Gpa').textContent = studentData.sem8_gpa || '-';
+
+            // Status & Timestamps
+            document.getElementById('status').textContent = studentData.status || '-';
+            document.getElementById('userCreatedAt').textContent = studentData.user?.createdAt?.split('T')[0] || '-';
+            document.getElementById('updatedAt').textContent = studentData.updatedAt?.split('T')[0] || '-';
+            document.getElementById('publishedAt').textContent = studentData.published_at?.split('T')[0] || '-';
+
+            // Documents (Resume)
+            const resume = studentData.resume && studentData.resume.length > 0 ? studentData.resume[0] : {};
+            document.getElementById('resumeName').textContent = resume.name || '-';
+            document.getElementById('resumeSize').textContent = resume.size ? `${resume.size} KB` : '-';
+            document.getElementById('resumeUrl').innerHTML = resume.url ? `<a href="${resume.url}" target="_blank" class="tag" style="background-color: #bfdbfe">Download</a>` : '-';
+            document.getElementById('resumeCreatedAt').textContent = resume.createdAt?.split('T')[0] || '-';
+            document.getElementById('resumeMime').textContent = resume.mime || '-';
+            document.getElementById('resumeProvider').textContent = resume.provider || '-';
+
+            // Restrictions / Bans
+            document.getElementById('bans').textContent = studentData.bans || '-';
+            document.getElementById('currentBan').textContent = studentData.currentBan || 'None';
+
+            // Internship & Placement
+            document.getElementById('internshipApplied').textContent = studentData.intern_applied?.length > 0 ? studentData.intern_applied.join(', ') : 'None';
+            document.getElementById('placementApplied').textContent = studentData.placement_applied?.length > 0 ? studentData.placement_applied.join(', ') : 'None';
+
+            // Semester-wise GPA Data
+            const semesterGpaBody = document.getElementById('semesterGpaBody');
+            semesterGpaBody.innerHTML = '';
+            if (studentData.allSemGPA?.semesterWiseData?.length > 0) {
+                studentData.allSemGPA.semesterWiseData.forEach(sem => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${sem.semester || '-'}</td>
+                        <td><span class="tag" style="background-color: ${getCgpaColor(sem.sgpa)}">${sem.sgpa || '-'}</span></td>
+                        <td>${sem.totalCredit || '-'}</td>
+                        <td>${sem.totalCreditPoints || '-'}</td>
+                    `;
+                    semesterGpaBody.appendChild(row);
+                });
+            } else {
+                semesterGpaBody.innerHTML = '<tr><td colspan="4">No semester GPA data available.</td></tr>';
             }
 
-            const token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc1MDg3NTg3NywiZXhwIjoxNzUzNDY3ODc3fQ.RRvoUFo76Q65vECK3P8cIHy7MSgGTd8zkmYYaqE89Dw';
-            try {
-                const response = await fetch(`https://api.tnpnsut.in/students/${studentId}`, {
-                    headers: { 'Authorization': token }
+            // Course-wise Data
+            const courseBody = document.getElementById('courseBody');
+            courseBody.innerHTML = '';
+            if (studentData.allSemGPA?.courseWiseData?.length > 0) {
+                studentData.allSemGPA.courseWiseData.forEach(course => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${course.courseCode || '-'}</td>
+                        <td>${course.courseTitle || '-'}</td>
+                        <td>${course.courseType || '-'}</td>
+                        <td>${course.sem || '-'}</td>
+                        <td>${course.credits || '-'}</td>
+                        <td><span class="tag" style="background-color: ${getCgpaColor(course.gradePoints)}">${course.gradeLetter || '-'}</span></td>
+                        <td>${course.gradePoints || '-'}</td>
+                        <td>${course.creditPoints || '-'}</td>
+                    `;
+                    courseBody.appendChild(row);
                 });
-                const student = await response.json();
-
-                document.getElementById('studentTitle').textContent = `Student Profile - ${student.name || student.Name || 'Unknown'}`;
-                document.getElementById('rollNumber').textContent = student.rollNumber || '-';
-                document.getElementById('email').textContent = student.email || '-';
-                document.getElementById('personalEmail').textContent = student.personal_email || '-';
-                document.getElementById('gender').textContent = student.gender || '-';
-                document.getElementById('dob').textContent = student.dob || '-';
-                document.getElementById('contactNumber').textContent = student.contact_number || '-';
-                document.getElementById('altContactNumber').textContent = student.alt_contact_number || '-';
-                document.getElementById('presentAddress').textContent = student.present_address || '-';
-                document.getElementById('permAddress').textContent = student.perm_address || '-';
-                document.getElementById('category').textContent = student.category || '-';
-                document.getElementById('campus').textContent = student.campus || '-';
-                document.getElementById('pwd').textContent = student.pwd || '-';
-                document.getElementById('bloodGroup').textContent = student.blood_group || '-';
-                document.getElementById('aadhar').textContent = student.aadhar || '-';
-                document.getElementById('pan').textContent = student.pan || '-';
-                document.getElementById('branch').textContent = student.branch || '-';
-                document.getElementById('batch').textContent = student.batch || '-';
-                document.getElementById('degree').textContent = student.degree || '-';
-                document.getElementById('cgpa10th').textContent = student.cgpa_10th || '-';
-                document.getElementById('cgpa12th').textContent = student.cgpa_12th || '-';
-                document.getElementById('cgpa').textContent = student.cgpa || '-';
-                document.getElementById('cgpaBeforeDrop').textContent = student.cgpa_before_drop || '-';
-                document.getElementById('graduationGpa').textContent = student.graduation_gpa || '-';
-                document.getElementById('backlogs').textContent = student.backlogs || '-';
-                document.getElementById('sem1Gpa').textContent = student.sem1_gpa || '-';
-                document.getElementById('sem2Gpa').textContent = student.sem2_gpa || '-';
-                document.getElementById('sem3Gpa').textContent = student.sem3_gpa || '-';
-                document.getElementById('sem4Gpa').textContent = student.sem4_gpa || '-';
-                document.getElementById('sem5Gpa').textContent = student.sem5_gpa || '-';
-                document.getElementById('sem6Gpa').textContent = student.sem6_gpa || '-';
-                document.getElementById('sem7Gpa').textContent = student.sem7_gpa || '-';
-                document.getElementById('sem8Gpa').textContent = student.sem8_gpa || '-';
-                document.getElementById('status').textContent = student.status || '-';
-                document.getElementById('cgpaUpdateEnabled').textContent = student.cgpaUpdateEnabled || '-';
-                document.getElementById('isPPO').textContent = student.isPPO || '-';
-                document.getElementById('internApplied').textContent = student.intern_applied || '-';
-                document.getElementById('placementApplied').textContent = student.placement_applied || '-';
-                document.getElementById('currentBan').textContent = student.currentBan || '-';
-                document.getElementById('bans').textContent = student.bans || '-';
-                document.getElementById('createdAt').textContent = student.createdAt || '-';
-                document.getElementById('updatedAt').textContent = student.updatedAt || '-';
-                document.getElementById('publishedAt').textContent = student.published_at || '-';
-                document.getElementById('id').textContent = student.id || '-';
-                document.getElementById('isCgpaUpdated').textContent = student.isCgpaUpdated || '-';
-                document.getElementById('resumeId').textContent = student.resume?._id || '-';
-                document.getElementById('resumeName').textContent = student.resume?.name || '-';
-                document.getElementById('resumeHash').textContent = student.resume?.hash || '-';
-                document.getElementById('resumeExt').textContent = student.resume?.ext || '-';
-                document.getElementById('resumeMime').textContent = student.resume?.mime || '-';
-                document.getElementById('resumeProvider').textContent = student.resume?.provider || '-';
-                document.getElementById('resumeSize').textContent = student.resume?.size || '-';
-                document.getElementById('resumeUrl').textContent = student.resume?.url || '-';
-                document.getElementById('resumeCreatedAt').textContent = student.resume?.createdAt || '-';
-                document.getElementById('resumeUpdatedAt').textContent = student.resume?.updatedAt || '-';
-                document.getElementById('userId').textContent = student.user?.id || '-';
-                document.getElementById('userUsername').textContent = student.user?.username || '-';
-                document.getElementById('userEmail').textContent = student.user?.email || '-';
-                document.getElementById('userProvider').textContent = student.user?.provider || '-';
-                document.getElementById('userRole').textContent = student.user?.role || '-';
-                document.getElementById('userBlocked').textContent = student.user?.blocked || '-';
-                document.getElementById('userConfirmed').textContent = student.user?.confirmed || '-';
-                document.getElementById('userCreatedAt').textContent = student.user?.createdAt || '-';
-                document.getElementById('userUpdatedAt').textContent = student.user?.updatedAt || '-';
-            } catch (error) {
-                console.error('Error fetching student data:', error);
-                document.getElementById('studentTitle').textContent = 'Student Profile - Error';
+            } else {
+                courseBody.innerHTML = '<tr><td colspan="8">No course data available.</td></tr>';
             }
         }
 
-        window.onload = fetchStudentData;
+        // Render CGPA and Semester GPA charts
+        function renderCharts() {
+            // Compute averages and highest CGPAs
+            const branchStudents = allStudents.filter(s => s.branch === studentData.branch);
+            const branchAvgCgpa = branchStudents.length ? branchStudents.reduce((sum, s) => sum + (parseFloat(s.cgpa) || 0), 0) / branchStudents.length : 0;
+            const universityAvgCgpa = allStudents.length ? allStudents.reduce((sum, s) => sum + (parseFloat(s.cgpa) || 0), 0) / allStudents.length : 0;
+            const branchHighestCgpa = branchStudents.length ? Math.max(...branchStudents.map(s => parseFloat(s.cgpa) || 0)) : 0;
+            const universityHighestCgpa = allStudents.length ? Math.max(...allStudents.map(s => parseFloat(s.cgpa) || 0)) : 0;
+            const yourCgpa = parseFloat(studentData.cgpa) || 0;
+
+            // CGPA Comparison Histogram
+            const cgpaChartCtx = document.getElementById('cgpaChart').getContext('2d');
+            new Chart(cgpaChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Branch Avg', 'University Avg', 'Branch Highest', 'University Highest', 'Your CGPA'],
+                    datasets: [{
+                        label: 'CGPA',
+                        data: [
+                            branchAvgCgpa.toFixed(2),
+                            universityAvgCgpa.toFixed(2),
+                            branchHighestCgpa.toFixed(2),
+                            universityHighestCgpa.toFixed(2),
+                            yourCgpa.toFixed(2)
+                        ],
+                        backgroundColor: ['#888e95', '#888e95', '#888e95', '#888e95', '#2c3038'],
+                        barThickness: 20
+                    }]
+                },
+                plugins: [ChartDataLabels],
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        datalabels: {
+                            color: '#fff',
+                            anchor: 'center',
+                            align: 'center',
+                            formatter: (value) => value,
+                            font: {
+                                weight: 'bold',
+                                size: 12
+                            }
+                        },
+                        annotation: {
+                            annotations: {
+                                yourCgpaLine: {
+                                    type: 'line',
+                                    yMin: yourCgpa,
+                                    yMax: yourCgpa,
+                                    xMin: -0.5,
+                                    xMax: 4.5,
+                                    borderColor: '#2c3038',
+                                    borderWidth: 2,
+                                    borderDash: [5, 5],
+                                    label: {
+                                        enabled: true,
+                                        content: `Your CGPA: ${yourCgpa.toFixed(2)}`,
+                                        position: 'end',
+                                        backgroundColor: '#2c3038',
+                                        color: '#fff'
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            title: {
+                                display: true,
+                                text: 'CGPA'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Category'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Semester-wise GPA Chart with Performance Trend
+            const semesterData = [
+                studentData.sem1_gpa || 0,
+                studentData.sem2_gpa || 0,
+                studentData.sem3_gpa || 0,
+                studentData.sem4_gpa || 0,
+                studentData.sem5_gpa || 0,
+                studentData.sem6_gpa || 0,
+                studentData.sem7_gpa || 0,
+                studentData.sem8_gpa || 0
+            ].map(parseFloat);
+
+            // Adjust performance trend data
+            const performanceTrendData = [...semesterData];
+            let lastKnownValue = parseFloat(studentData.cgpa) || 0;
+            let lastKnownIndex = -1;
+            for (let i = 0; i < semesterData.length; i++) {
+                if (semesterData[i] > 0) {
+                    lastKnownValue = semesterData[i];
+                    lastKnownIndex = i;
+                }
+            }
+            for (let i = lastKnownIndex + 1; i < performanceTrendData.length; i++) {
+                performanceTrendData[i] = lastKnownValue;
+            }
+
+            const semesterGpaChartCtx = document.getElementById('semesterGpaChart').getContext('2d');
+            new Chart(semesterGpaChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6', 'Sem 7', 'Sem 8'],
+                    datasets: [
+                        {
+                            type: 'bar',
+                            label: 'Semester GPA',
+                            data: semesterData,
+                            backgroundColor: '#2c3038'
+                        },
+                        {
+                            type: 'line',
+                            label: 'Performance Trend',
+                            data: performanceTrendData,
+                            borderColor: '#ff0000',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            title: {
+                                display: true,
+                                text: 'GPA'
+                            },
+                            grid: {
+                                drawBorder: true,
+                                drawOnChartArea: true
+                            },
+                            afterFit: (scale) => {
+                                scale.paddingTop = 20;
+                            },
+                            afterDataLimits: (scale) => {
+                                scale.max = Math.max(scale.max, 10);
+                            },
+                            afterBuildTicks: (scale) => {
+                                const cgpa = parseFloat(studentData.cgpa) || 0;
+                                const cgpaBeforeDrop = parseFloat(studentData.cgpa_before_drop) || 0;
+                                scale.ticks.push({ value: cgpa, label: `CGPA (${cgpa.toFixed(2)})` });
+                                scale.ticks.push({ value: cgpaBeforeDrop, label: `CGPA Before Drop (${cgpaBeforeDrop.toFixed(2)})` });
+                                scale.ticks = scale.ticks.filter((tick, index, self) =>
+                                    index === self.findIndex(t => t.value === tick.value)
+                                );
+                            },
+                            gridLines: {
+                                color: (context) => {
+                                    const cgpa = parseFloat(studentData.cgpa) || 0;
+                                    const cgpaBeforeDrop = parseFloat(studentData.cgpa_before_drop) || 0;
+                                    if (context.tick.value === cgpa) return '#00ff00';
+                                    if (context.tick.value === cgpaBeforeDrop) return '#0000ff';
+                                    return '#e5e7eb';
+                                },
+                                lineWidth: (context) => {
+                                    const cgpa = parseFloat(studentData.cgpa) || 0;
+                                    const cgpaBeforeDrop = parseFloat(studentData.cgpa_before_drop) || 0;
+                                    if (context.tick.value === cgpa || context.tick.value === cgpaBeforeDrop) return 2;
+                                    return 1;
+                                },
+                                borderDash: (context) => {
+                                    const cgpa = parseFloat(studentData.cgpa) || 0;
+                                    const cgpaBeforeDrop = parseFloat(studentData.cgpa_before_drop) || 0;
+                                    if (context.tick.value === cgpa || context.tick.value === cgpaBeforeDrop) return [5, 5];
+                                    return [];
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Semester'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Display eligible companies
+        function displayEligibleCompanies() {
+            const studentCgpa = parseFloat(studentData.cgpa) || 0;
+            const eligibleCompanies = companies
+                .filter(company => {
+                    const cutoff = parseFloat(company['Cutoff CGPA']) || 0;
+                    return studentCgpa >= cutoff;
+                })
+                .sort((a, b) => b['CTC (LPA)'] - a['CTC (LPA)']);
+
+            const tbody = document.getElementById('eligibleCompaniesBody');
+            tbody.innerHTML = '';
+
+            if (eligibleCompanies.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3">No companies found for your CGPA.</td></tr>';
+                return;
+            }
+
+            eligibleCompanies.forEach(company => {
+                const companyType = getCompanyType(company.Company);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span class="tag" style="background-color: ${companyTypeColors[companyType]}">${company.Company || '-'}</span></td>
+                    <td><span class="tag" style="background-color: ${getCtcColor(company['CTC (LPA)'])}">${company['CTC (LPA)'] || '-'}</span></td>
+                    <td><span class="tag" style="background-color: ${getCgpaColor(company['Cutoff CGPA'])}">${company['Cutoff CGPA'] || '-'}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Provide CGPA improvement suggestions
+        function provideSuggestions() {
+            const currentCgpa = parseFloat(studentData.cgpa) || 0;
+            const semesters = [
+                studentData.sem1_gpa,
+                studentData.sem2_gpa,
+                studentData.sem3_gpa,
+                studentData.sem4_gpa,
+                studentData.sem5_gpa,
+                studentData.sem6_gpa,
+                studentData.sem7_gpa,
+                studentData.sem8_gpa
+            ].map(parseFloat).filter(val => !isNaN(val) && val > 0);
+            const currentSemester = semesters.length;
+            const remainingSemesters = 8 - currentSemester;
+            const creditsPerSemester = 20;
+            const totalCreditsSoFar = currentSemester * creditsPerSemester;
+            const totalCredits = 8 * creditsPerSemester;
+
+            // Display current CGPA
+            const currentCgpaSpan = document.getElementById('currentCgpa');
+            currentCgpaSpan.textContent = currentCgpa.toFixed(2);
+            currentCgpaSpan.style.backgroundColor = getCgpaColor(currentCgpa);
+
+            // Determine target SGPA
+            const lastSemesterSgpa = semesters[semesters.length - 1] || currentCgpa;
+            const performanceTrend = semesters.length > 1 ? (semesters[semesters.length - 1] - semesters[semesters.length - 2]) : 0;
+            let targetSgpa;
+
+            if (currentCgpa < 7.0) {
+                targetSgpa = Math.min(lastSemesterSgpa + 0.5 + (performanceTrend > 0 ? 0.3 : 0), 8.5);
+            } else if (currentCgpa < 8.5) {
+                targetSgpa = Math.min(lastSemesterSgpa + 0.3 + (performanceTrend > 0 ? 0.2 : 0), 9.0);
+            } else {
+                targetSgpa = Math.min(lastSemesterSgpa + 0.1 + (performanceTrend > 0 ? 0.1 : 0), 9.5);
+            }
+
+            targetSgpa = Math.max(currentCgpa + 0.3, Math.min(targetSgpa, 9.5));
+            const targetSgpaSpan = document.getElementById('targetSgpa');
+            targetSgpaSpan.textContent = targetSgpa.toFixed(2);
+            targetSgpaSpan.style.backgroundColor = getCgpaColor(targetSgpa);
+
+            // Calculate projected CGPA
+            const currentPoints = currentCgpa * totalCreditsSoFar;
+            const remainingCredits = remainingSemesters * creditsPerSemester;
+            const projectedPoints = currentPoints + (targetSgpa * remainingCredits);
+            const projectedCgpa = projectedPoints / totalCredits;
+            const projectedCgpaSpan = document.getElementById('projectedCgpa');
+            projectedCgpaSpan.textContent = projectedCgpa.toFixed(2);
+            projectedCgpaSpan.style.backgroundColor = getCgpaColor(projectedCgpa);
+
+            // CGPA Improvement Chart
+            const cgpaImprovementChartCtx = document.getElementById('cgpaImprovementChart').getContext('2d');
+            new Chart(cgpaImprovementChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Current CGPA', 'Projected CGPA'],
+                    datasets: [{
+                        label: 'CGPA',
+                        data: [currentCgpa.toFixed(2), projectedCgpa.toFixed(2)],
+                        backgroundColor: [getCgpaColor(currentCgpa), getCgpaColor(projectedCgpa)],
+                        barThickness: 20
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        annotation: {
+                            annotations: {
+                                improvementLine: {
+                                    type: 'line',
+                                    xMin: 0,
+                                    xMax: 1,
+                                    yMin: currentCgpa,
+                                    yMax: projectedCgpa,
+                                    borderColor: '#2c3038',
+                                    borderWidth: 2,
+                                    borderDash: [5, 5]
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            title: {
+                                display: true,
+                                text: 'CGPA'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Category'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Target companies
+            const targetCompanies = companies
+                .filter(company => {
+                    const cutoff = parseFloat(company['Cutoff CGPA']) || 0;
+                    return cutoff > currentCgpa && cutoff <= projectedCgpa;
+                })
+                .sort((a, b) => b['CTC (LPA)'] - a['CTC (LPA)']);
+
+            const targetCompaniesBody = document.getElementById('targetCompaniesBody');
+            targetCompaniesBody.innerHTML = '';
+            if (targetCompanies.length === 0) {
+                targetCompaniesBody.innerHTML = '<tr><td colspan="3">No additional companies available.</td></tr>';
+            } else {
+                targetCompanies.forEach(company => {
+                    const companyType = getCompanyType(company.Company);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><span class="tag" style="background-color: ${companyTypeColors[companyType]}">${company.Company}</span></td>
+                        <td><span class="tag" style="background-color: ${getCtcColor(company['CTC (LPA)'])}">${company['CTC (LPA)']} LPA</span></td>
+                        <td><span class="tag" style="background-color: ${getCgpaColor(company['Cutoff CGPA'])}">${company['Cutoff CGPA']}</span></td>
+                    `;
+                    targetCompaniesBody.appendChild(row);
+                });
+            }
+        }
+
+        // Toggle navbar on mobile
+        menuToggle.addEventListener('click', () => {
+            navbar.classList.toggle('hidden');
+        });
+
+        // Close navbar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth < 768 && !navbar.contains(e.target) && !menuToggle.contains(e.target)) {
+                navbar.classList.add('hidden');
+            }
+        });
+
+        // Navigation between pages
+        const pages = {
+            'overview': () => window.location.href = 'index.html',
+            'student-profile': () => {},
+            'analytics': () => window.location.href = 'analytics.html',
+            'placement': () => window.location.href = 'placement.html',
+            'notifications': () => window.location.href = 'index.html#notificationsPage'
+        };
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const page = item.getAttribute('data-page');
+                pages[page]();
+            });
+        });
     </script>
 </body>
 </html>
