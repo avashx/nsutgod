@@ -245,16 +245,24 @@
         }
         .batch-table th, .batch-table td {
             padding: 4px 8px;
-            text-align: left;
+            text-align: center;
             font-size: 12px;
             border-bottom: 1px solid #e5e7eb;
         }
         .batch-table th {
             font-weight: 500;
             color: #4b5563;
+            border-right: 1px solid #e5e7eb;
         }
         .batch-table td {
             color: #1f2937;
+            border-right: 1px solid #e5e7eb;
+        }
+        .batch-table tr:last-child th, .batch-table tr:last-child td {
+            border-bottom: none;
+        }
+        .batch-table th:last-child, .batch-table td:last-child {
+            border-right: none;
         }
         @media (max-width: 768px) {
             .main-content {
@@ -410,18 +418,21 @@
                 </div>
                 <div class="batch-table">
                     <table>
-                        <thead>
+                        <tbody>
                             <tr>
-                                <th>Batch</th>
-                                <th>Companies</th>
+                                <th>2023</th>
+                                <th>2024</th>
+                                <th>2025</th>
+                                <th>2026</th>
+                                <th>2027</th>
                             </tr>
-                        </thead>
-                        <tbody id="batch-table-body">
-                            <tr><td>2023</td><td id="batch-2023">0</td></tr>
-                            <tr><td>2024</td><td id="batch-2024">0</td></tr>
-                            <tr><td>2025</td><td id="batch-2025">0</td></tr>
-                            <tr><td>2026</td><td id="batch-2026">0</td></tr>
-                            <tr><td>2027</td><td id="batch-2027">0</td></tr>
+                            <tr>
+                                <td id="batch-2023">0</td>
+                                <td id="batch-2024">0</td>
+                                <td id="batch-2025">0</td>
+                                <td id="batch-2026">0</td>
+                                <td id="batch-2027">0</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -439,6 +450,7 @@
                         <option value="500">Fetch 500</option>
                     </select>
                     <button id="export-csv" class="action-btn hidden">Export to CSV</button>
+                    <button id="export-json" class="action-btn hidden">Export to JSON</button>
                     <button id="expand-table" class="expand-btn">Expand</button>
                     <button id="pause-fetch" class="pause-btn hidden">Pause</button>
                 </div>
@@ -497,7 +509,7 @@
                                 <th data-sort="name">Name <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th>View <div class="resize-handle"></div></th>
                                 <th data-sort="company_category">Category <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="year">Year <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="year">Year <span class="sort-icon">↓</span><div class="resize-handle"></div></th>
                                 <th data-sort="jobtitle">Job Title <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="category">Event Category <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="stipend">Stipend (INR) <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
@@ -544,6 +556,7 @@
         const fetchButton = document.getElementById('fetch-companies');
         const fetchLimit = document.getElementById('fetch-limit');
         const exportCsvButton = document.getElementById('export-csv');
+        const exportJsonButton = document.getElementById('export-json');
         const expandButton = document.getElementById('expand-table');
         const pauseButton = document.getElementById('pause-fetch');
         const tableBody = document.getElementById('company-table-body');
@@ -563,8 +576,8 @@
         // State
         let companyData = [];
         let filteredData = [];
-        let sortColumn = null;
-        let sortDirection = 1;
+        let sortColumn = 'year'; // Default sort by year
+        let sortDirection = -1;  // Descending order (2027 on top)
         let isExpanded = false;
         let isPaused = false;
         let fetchController = null;
@@ -644,7 +657,7 @@
             return '#d1fae5';
         }
 
-        // Update batch counts in the small table
+        // Update batch counts in the horizontal table
         function updateBatchCounts() {
             const batchCounts = {
                 '2023': 0,
@@ -675,7 +688,6 @@
         function parseCsv(csvText) {
             try {
                 const rows = csvText.trim().split('\n').map(row => {
-                    // Handle CSV rows with commas in quoted fields
                     const cells = [];
                     let currentCell = '';
                     let insideQuotes = false;
@@ -701,13 +713,11 @@
                 const data = [];
                 for (let i = 1; i < rows.length; i++) {
                     const row = rows[i];
-                    // Skip rows with invalid or missing ID
                     const id = row[1] || '';
                     if (!id || id === '-' || !isValidObjectId(id)) {
                         console.warn(`Skipping row ${i} due to invalid or missing ID: ${id}`);
                         continue;
                     }
-                    // Pad or truncate row to match 32 columns
                     const paddedRow = row.length < 32 ? [...row, ...Array(32 - row.length).fill('-')] : row.slice(0, 32);
                     if (row.length !== 32) {
                         console.warn(`Row ${i} has ${row.length} columns, expected 32. Padded/truncated to 32 columns.`);
@@ -814,7 +824,6 @@
             listItem.className = 'text-gray-600';
             realtimeListBody.insertBefore(listItem, realtimeListBody.firstChild);
 
-            // Update circular progress (900 companies = 100%)
             const progress = Math.min((currentCount / 900) * 100, 100);
             circularProgress.style.background = `conic-gradient(#10b981 0% ${progress}%, #e5e7eb ${progress}% 100%)`;
             progressText.textContent = `${Math.round(progress)}%`;
@@ -863,7 +872,6 @@
                 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log(`API Response for ${companyId}:`, data);
                     return data;
                 } else {
                     throw new Error(`Failed to fetch data for company ID ${companyId} - Status: ${response.status}`);
@@ -895,6 +903,7 @@
             circularProgress.style.background = `conic-gradient(#10b981 0% 0%, #e5e7eb 0% 100%)`;
             progressText.textContent = '0%';
             exportCsvButton.classList.add('hidden');
+            exportJsonButton.classList.add('hidden');
             pauseButton.classList.remove('hidden');
             isPaused = false;
             pauseButton.textContent = 'Pause';
@@ -939,11 +948,10 @@
                     }
                 }
 
-                if (companyData.length === 0) {
-                    throw new Error('No company details fetched. Please check the API or token.');
+                if (companyData.length > 0) {
+                    exportCsvButton.classList.remove('hidden');
+                    exportJsonButton.classList.remove('hidden');
                 }
-
-                exportCsvButton.classList.remove('hidden');
             } catch (error) {
                 if (error.name !== 'AbortError') {
                     showError(error.message);
@@ -978,8 +986,6 @@
 
         // Sort data
         function sortData() {
-            if (!sortColumn) return;
-
             filteredData.sort((a, b) => {
                 const detailsA = a.details || {};
                 const detailsB = b.details || {};
@@ -1129,6 +1135,19 @@
             document.body.removeChild(link);
         }
 
+        // Export to JSON
+        function exportToJson() {
+            const jsonContent = JSON.stringify(companyData, null, 2);
+            const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'com_data.json');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
         // Show error message
         function showError(message) {
             errorMessage.textContent = message;
@@ -1214,6 +1233,7 @@
         // Event Listeners
         fetchButton.addEventListener('click', fetchAllCompanies);
         exportCsvButton.addEventListener('click', exportToCsv);
+        exportJsonButton.addEventListener('click', exportToJson);
 
         // Filter event listeners
         yearFilter.addEventListener('change', () => {
@@ -1247,6 +1267,8 @@
         // Load companies from CSV on page load
         document.addEventListener('DOMContentLoaded', () => {
             loadCompaniesFromCsv();
+            sortData(); // Apply default sort by year (2027 on top)
+            renderTable();
         });
     </script>
 </body>
