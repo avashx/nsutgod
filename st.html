@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Placement Data</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold mb-4 text-center">Student Placement Data</h1>
+
+        <!-- API Parameters -->
+        <div class="mb-4 p-4 bg-white rounded shadow">
+            <h2 class="text-xl font-semibold mb-2">API Parameters</h2>
+            <p class="text-gray-700">
+                The API fetches the following student details: <br>
+                <strong>Personal Information:</strong> Name, Roll Number, Email, Phone, Address, Gender <br>
+                <strong>Academic Information:</strong> Degree, Branch, Batch, CGPA, 10th Percentage/CGPA, 12th Percentage/CGPA, Backlogs <br>
+                <strong>Placement Information:</strong> Placement Status, Company ID, Company Name, Job Title, Stipend/Package, Internship Shortlists, Placement Interviews <br>
+                <strong>Additional Details:</strong> Campus, Student ID, Resume URL, LinkedIn Profile, Created At, Updated At
+            </p>
+        </div>
+
+        <!-- Fetch Button and Console -->
+        <div class="flex justify-between mb-4">
+            <button id="fetchData" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Fetch Data</button>
+            <button id="downloadCsv" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" disabled>Download CSV</button>
+        </div>
+        <div class="mb-4 p-4 bg-gray-800 text-white rounded shadow">
+            <h2 class="text-xl font-semibold mb-2">Live Console</h2>
+            <pre id="console" class="text-sm h-32 overflow-y-auto"></pre>
+        </div>
+
+        <!-- Data Table -->
+        <div class="overflow-x-auto">
+            <table id="dataTable" class="min-w-full bg-white shadow-md rounded">
+                <thead>
+                    <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                        <th class="py-3 px-6 text-left">Name</th>
+                        <th class="py-3 px-6 text-left">Roll Number</th>
+                        <th class="py-3 px-6 text-left">Email</th>
+                        <th class="py-3 px-6 text-left">Phone</th>
+                        <th class="py-3 px-6 text-left">Address</th>
+                        <th class="py-3 px-6 text-left">Gender</th>
+                        <th class="py-3 px-6 text-left">Degree</th>
+                        <th class="py-3 px-6 text-left">Branch</th>
+                        <th class="py-3 px-6 text-left">Batch</th>
+                        <th class="py-3 px-6 text-left">CGPA</th>
+                        <th class="py-3 px-6 text-left">10th %/CGPA</th>
+                        <th class="py-3 px-6 text-left">12th %/CGPA</th>
+                        <th class="py-3 px-6 text-left">Backlogs</th>
+                        <th class="py-3 px-6 text-left">Placement Status</th>
+                        <th class="py-3 px-6 text-left">Company Name</th>
+                        <th class="py-3 px-6 text-left">Job Title</th>
+                        <th class="py-3 px-6 text-left">Package</th>
+                        <th class="py-3 px-6 text-left">Internship Shortlists</th>
+                        <th class="py-3 px-6 text-left">Placement Interviews</th>
+                        <th class="py-3 px-6 text-left">Campus</th>
+                        <th class="py-3 px-6 text-left">Resume URL</th>
+                        <th class="py-3 px-6 text-left">LinkedIn</th>
+                        <th class="py-3 px-6 text-left">Created At</th>
+                        <th class="py-3 px-6 text-left">Updated At</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody" class="text-gray-600 text-sm font-light"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const fetchButton = document.getElementById('fetchData');
+        const downloadButton = document.getElementById('downloadCsv');
+        const consoleOutput = document.getElementById('console');
+        const tableBody = document.getElementById('tableBody');
+        let studentData = [];
+
+        function logToConsole(message, isError = false) {
+            const timestamp = new Date().toLocaleTimeString();
+            consoleOutput.textContent += `[${timestamp}] ${message}\n`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            if (isError) consoleOutput.style.color = 'red';
+        }
+
+        async function fetchData() {
+            logToConsole('Fetching data from API...');
+            fetchButton.disabled = true;
+            try {
+                const response = await fetch('https://api.tnpnsut.in/students', {
+                    headers: {
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc1MDg3NTg3NywiZXhwIjoxNzUzNDY3ODc3fQ.RRvoUFo76Q65vECK3P8cIHy7MSgGTd8zkmYYaqE89Dw'
+                    }
+                });
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const data = await response.json();
+                studentData = data;
+                logToConsole('Data fetched successfully!');
+                renderTable(data);
+                downloadButton.disabled = false;
+            } catch (error) {
+                logToConsole(`Error: ${error.message}`, true);
+            } finally {
+                fetchButton.disabled = false;
+            }
+        }
+
+        function renderTable(data) {
+            tableBody.innerHTML = '';
+            data.forEach(student => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 hover:bg-gray-100';
+                row.innerHTML = `
+                    <td class="py-3 px-6">${student.name || '-'}</td>
+                    <td class="py-3 px-6">${student.rollNumber || '-'}</td>
+                    <td class="py-3 px-6">${student.email || '-'}</td>
+                    <td class="py-3 px-6">${student.phone || '-'}</td>
+                    <td class="py-3 px-6">${student.address || '-'}</td>
+                    <td class="py-3 px-6">${student.gender || '-'}</td>
+                    <td class="py-3 px-6">${student.degree || '-'}</td>
+                    <td class="py-3 px-6">${student.branch || '-'}</td>
+                    <td class="py-3 px-6">${student.batch || '-'}</td>
+                    <td class="py-3 px-6">${student.cgpa || '-'}</td>
+                    <td class="py-3 px-6">${student.tenthPercentage || student.cgpa10th || '-'}</td>
+                    <td class="py-3 px-6">${student.twelfthPercentage || student.cgpa12th || '-'}</td>
+                    <td class="py-3 px-6">${student.backlogs || '-'}</td>
+                    <td class="py-3 px-6">${student.placementStatus || '-'}</td>
+                    <td class="py-3 px-6">${student.companyName || '-'}</td>
+                    <td class="py-3 px-6">${student.jobTitle || '-'}</td>
+                    <td class="py-3 px-6">${student.stipend || student.package || '-'}</td>
+                    <td class="py-3 px-6">${student.internshipShortlists || '-'}</td>
+                    <td class="py-3 px-6">${student.placementInterviews || '-'}</td>
+                    <td class="py-3 px-6">${student.campus || '-'}</td>
+                    <td class="py-3 px-6"><a href="${student.resumeUrl || '#'}" class="text-blue-500" target="_blank">${student.resumeUrl ? 'View' : '-'}</a></td>
+                    <td class="py-3 px-6"><a href="${student.linkedinProfile || '#'}" class="text-blue-500" target="_blank">${student.linkedinProfile ? 'View' : '-'}</a></td>
+                    <td class="py-3 px-6">${student.createdAt ? new Date(student.createdAt).toLocaleString() : '-'}</td>
+                    <td class="py-3 px-6">${student.updatedAt ? new Date(student.updatedAt).toLocaleString() : '-'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function downloadCSV() {
+            if (!studentData.length) {
+                logToConsole('No data to download!', true);
+                return;
+            }
+            const headers = ['Name,Roll Number,Email,Phone,Address,Gender,Degree,Branch,Batch,CGPA,10th %/CGPA,12th %/CGPA,Backlogs,Placement Status,Company Name,Job Title,Package,Internship Shortlists,Placement Interviews,Campus,Resume URL,LinkedIn,Created At,Updated At'];
+            const rows = studentData.map(student => [
+                student.name || '-',
+                student.rollNumber || '-',
+                student.email || '-',
+                student.phone || '-',
+                student.address || '-',
+                student.gender || '-',
+                student.degree || '-',
+                student.branch || '-',
+                student.batch || '-',
+                student.cgpa || '-',
+                student.tenthPercentage || student.cgpa10th || '-',
+                student.twelfthPercentage || student.cgpa12th || '-',
+                student.backlogs || '-',
+                student.placementStatus || '-',
+                student.companyName || '-',
+                student.jobTitle || '-',
+                student.stipend || student.package || '-',
+                student.internshipShortlists || '-',
+                student.placementInterviews || '-',
+                student.campus || '-',
+                student.resumeUrl || '-',
+                student.linkedinProfile || '-',
+                student.createdAt ? new Date(student.createdAt).toLocaleString() : '-',
+                student.updatedAt ? new Date(student.updatedAt).toLocaleString() : '-'
+            ].map(field => `"${field}"`).join(','));
+            const csvContent = headers.concat(rows).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'student_data.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+            logToConsole('CSV downloaded successfully!');
+        }
+
+        fetchButton.addEventListener('click', fetchData);
+        downloadButton.addEventListener('click', downloadCSV);
+    </script>
+</body>
+</html>
