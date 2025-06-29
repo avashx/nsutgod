@@ -3,16 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NSUTGod</title>
-    <link rel="icon" type="image/png" href="https://github.com/avashx/nsutgod/blob/main/src/logo.png?raw=true">
+    <title>NSUTGod API Company Fetch</title>
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/avashx/nsutgod/refs/heads/main/src/logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f5f5f5;
         }
-        th {
+        .main-content {
+            padding: 1.5rem;
+            background-color: #f5f5f5;
+        }
+        .company-table-container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-top: 16px;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .realtime-list-container, .network-log {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .realtime-list-container h3, .network-log h3 {
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+        .realtime-list-container li, .network-log div {
+            font-size: 11px;
+        }
+        .network-log .status {
+            color: #dc2626;
+            font-weight: 500;
+        }
+        .network-log .time {
+            color: #16a34a;
+            font-weight: 500;
+        }
+        .circular-progress-container {
+            width: 50px;
+            height: 50px;
+            position: relative;
+            margin: 8px 0;
+        }
+        .circular-progress {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(#10b981 0% 0%, #e5e7eb 0% 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .circular-progress::before {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: #fff;
+            border-radius: 50%;
+        }
+        .circular-progress span {
+            position: relative;
+            font-size: 12px;
+            color: #4b5563;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .company-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 2000px;
+        }
+        .company-table th {
             padding: 4px 8px;
             text-align: left;
             border-bottom: 2px solid #e5e7eb;
@@ -20,24 +98,112 @@
             font-weight: 500;
             color: #4b5563;
             background-color: #fafafa;
-            resize: horizontal;
-            overflow: auto;
-            min-width: 80px;
             position: relative;
             cursor: pointer;
+            white-space: nowrap;
+            max-width: 120px;
+            min-width: 80px;
         }
-        td {
-            padding: 4px 8px;
+        .company-table th[data-sort="jobtitle"] {
+            width: 120px;
+        }
+        .company-table th:hover {
+            background-color: #f5f5f5;
+        }
+        .company-table th .resize-handle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            cursor: col-resize;
+            background-color: transparent;
+        }
+        .company-table th .resize-handle:hover {
+            background-color: #d1d5db;
+        }
+        .company-table td {
+            padding: 2px 8px;
             text-align: left;
             border-bottom: 1px solid #e5e7eb;
             font-size: 13px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            height: 24px;
+            line-height: 24px;
             max-width: 120px;
         }
-        th:hover {
-            background-color: #f5f5f5;
+        .company-table.expanded td {
+            white-space: normal;
+            height: 48px;
+            line-height: 24px;
+        }
+        .company-table td.info-column {
+            max-width: 120px;
+        }
+        .company-table th.resized, .company-table td.resized {
+            width: auto !important;
+            max-width: none !important;
+        }
+        .company-table .sort-icon {
+            display: inline-block;
+            margin-left: 4px;
+            font-size: 12px;
+        }
+        .tag {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .view-btn {
+            padding: 4px 8px;
+            background-color: #10b981;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        .view-btn:hover {
+            background-color: #059669;
+        }
+        .action-btn {
+            padding: 6px 12px;
+            background-color: #4b5563;
+            color: #fff;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        .action-btn:hover {
+            background-color: #374151;
+        }
+        .expand-btn {
+            padding: 6px 12px;
+            background-color: #6b7280;
+            color: #fff;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        .expand-btn:hover {
+            background-color: #4b5563;
+        }
+        .pause-btn {
+            padding: 6px 12px;
+            background-color: #ef4444;
+            color: #fff;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        .pause-btn:hover {
+            background-color: #dc2626;
         }
         .navbar {
             width: 220px;
@@ -57,147 +223,88 @@
         .nav-item {
             cursor: pointer;
         }
-        .branch-button {
-            padding: 4px 8px;
-            margin: 2px;
-            border: 1px solid #d1d5db;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        .branch-button.active {
-            border-color: #4b5563;
-            color: #fff;
-        }
-        .tag {
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        .modern-select {
-            appearance: none;
-            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci' +
-                      'IGNsYXNzPSJoLTUgdy01IHRleHQtZ3JheS02MDAiIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggc3Ryb2tlLW' +
-                      'xpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik02IDlsNiA2IDYtNiIvPjwvc3ZnPg==') no-repeat right 8px center;
-            background-size: 16px;
-            padding-right: 32px;
-            padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 14px;
-            color: #374151;
-            background-color: #fff;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-        .modern-select:focus {
-            outline: none;
-            border-color: #4b5563;
-            box-shadow: 0 0 0 2px rgba(75, 85, 99, 0.2);
-        }
-        .modern-select:hover {
-            border-color: #9ca3af;
-        }
-        .column-options {
-            position: absolute;
-            top: 0;
-            right: 0;
-            padding: 2px;
-        }
-        .dropdown {
-            position: fixed;
-            bottom: 150px;
-            right: 0;
-            background-color: #fff;
-            border: 1px solid #d1d5db;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            display: none;
-        }
-        .dropdown.show {
-            display: block;
-            z-index: 1000;
-        }
-        .dropdown-item {
-            padding: 8px 12px;
-            font-size: 14px;
-            color: #374151;
-            cursor: pointer;
-        }
-        .dropdown-item:hover {
-            background-color: #f3f4f6;
-        }
-        .filter-modal {
-            position: fixed;
-            bottom: 0px;
-            right: 0;
-            background-color: #fff;
-            border: 1px solid #d1d5db;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            display: none;
-            padding: 12px;
-            width: 200px;
-        }
-        .filter-modal.show {
-            display: block;
-        }
         .nav-item.active {
             background-color: #f3f4f6;
             color: #1f2937;
             font-weight: 500;
         }
-        .customize-columns-btn {
-            padding: 8px 16px;
-            background-color: #4b5563;
-            color: #fff;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background-color 0.2s ease;
-        }
-        .customize-columns-btn:hover {
-            background-color: #6b7280;
-        }
         @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+                margin-left: 0 !important;
+            }
+            .company-table th, .company-table td {
+                font-size: 12px;
+            }
+            .company-table td {
+                padding: 1px 6px;
+                height: 20px;
+                line-height: 20px;
+            }
+            .company-table.expanded td {
+                height: 40px;
+                line-height: 20px;
+            }
+            .action-btn, .expand-btn, .pause-btn {
+                padding: 5px 10px;
+                font-size: 12px;
+            }
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+            .realtime-list-container h3, .network-log h3 {
+                font-size: 12px;
+            }
+            .realtime-list-container li, .network-log div {
+                font-size: 10px;
+            }
             .navbar {
                 width: 200px;
+                transform: translateX(-100%);
             }
-            .main-content {
-                margin-left: 0 !important;
-                padding: 16px;
-            }
-            .table-container {
-                overflow-x: auto;
-            }
-            th, td {
-                font-size: 12px;
-                max-width: 100px;
-            }
-            .modern-select, .branch-button {
-                font-size: 12px;
-                padding: 6px 8px;
-            }
-            .flex-col.md\\:flex-row {
-                flex-direction: column !important;
-            }
-            #searchInput {
-                width: 100%;
+            .navbar.visible {
+                transform: translateX(0);
             }
         }
         @media (max-width: 480px) {
+            .main-content {
+                padding: 0.75rem;
+            }
+            .company-table th, .company-table td {
+                font-size: 11px;
+            }
+            .company-table td {
+                padding: 1px 4px;
+                height: 18px;
+                line-height: 18px;
+            }
+            .company-table.expanded td {
+                height: 36px;
+                line-height: 18px;
+            }
+            .action-btn, .expand-btn, .pause-btn {
+                padding: 4px 8px;
+                font-size: 11px;
+            }
+            .filter-group {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .filter-group div {
+                width: 100%;
+            }
+            .filter-group input,
+            .filter-group select {
+                width: 100%;
+            }
+            .realtime-list-container h3, .network-log h3 {
+                font-size: 11px;
+            }
+            .realtime-list-container li, .network-log div {
+                font-size: 9px;
+            }
             .navbar {
                 width: 180px;
-            }
-            .main-content {
-                padding: 12px;
-            }
-            th, td {
-                font-size: 11px;
-                max-width: 80px;
             }
         }
     </style>
@@ -212,722 +319,703 @@
         </button>
     </div>
 
-    <!-- Left Navbar -->
+    <!-- Left Sidebar Navbar -->
     <div id="navbar" class="navbar">
         <div class="flex items-center mb-6">
-            <img src="https://github.com/avashx/nsutgod/blob/main/src/logo.png?raw=true" alt="NSUTGod Logo" class="h-10 w-10 mr-2">
+            <img src="https://raw.githubusercontent.com/avashx/nsutgod/refs/heads/main/src/logo.png" alt="NSUTGod Logo" class="h-10 w-10 mr-2">
             <h2 class="text-xl font-bold text-gray-800">NSUTGod</h2>
         </div>
         <ul class="space-y-2">
             <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg active" data-page="overview">
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
                 Overview
             </li>
             <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="student-profile">
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
                 Student Profile
             </li>
             <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="analytics">
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10"/></svg>
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10"/>
+                </svg>
                 Analytics
             </li>
             <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="placement">
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
                 Placement
             </li>
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="tnp">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+                TnP
+            </li>
             <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="notifications">
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
                 Notifications
                 <span class="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded">2</span>
             </li>
         </ul>
     </div>
 
-    <!-- Overview Page -->
-    <div id="overviewPage" class="md:ml-56 p-8 main-content page-content">
-        <div class="max-w-6xl mx-auto">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                <h1 class="text-2xl font-bold text-gray-800">Student Data - <span class="text-green-600" id="totalRecords"></span></h1>
-                <div class="flex gap-2 w-full md:w-auto">
-                    <input type="text" id="searchInput" placeholder="Search" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 w-full md:w-auto" />
-                    <button class="p-2 bg-gray-100 rounded-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                    </button>
+    <!-- Main Content -->
+    <div class="md:ml-56 p-8 main-content">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center">
+                    <img src="https://raw.githubusercontent.com/avashx/nsutgod/refs/heads/main/src/logo.png" alt="NSUTGod Logo" class="h-8 w-8 mr-2">
+                    <h1 class="text-2xl font-bold text-gray-800">NSUTGod API Company Fetch</h1>
                 </div>
             </div>
 
-            <!-- Branch Filter Buttons -->
-            <div class="flex flex-wrap gap-1 mb-4 overflow-x-auto" id="branchFilterButtons"></div>
-
-            <!-- Column Customization -->
-            <div class="mb-4 flex justify-end relative">
-                <button id="customizeColumnsBtn" class="customize-columns-btn">Customize Columns</button>
-                <div id="columnsDropdown" class="dropdown hidden">
-                    <!-- Column options will be populated dynamically -->
-                </div>
-            </div>
-
-            <!-- Other Filters -->
-            <div class="flex flex-col md:flex-row gap-4 mb-6">
-                <select id="batchFilter" class="modern-select w-full md:w-auto">
-                    <option value="">Batch Year</option>
-                </select>
-                <select id="genderFilter" class="modern-select w-full md:w-auto">
-                    <option value="">Filter by Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
-
-            <!-- Table -->
-            <div class="bg-white rounded-lg shadow-sm table-container">
-                <table class="min-w-full" id="studentTable">
-                    <thead id="tableHeader">
-                        <tr>
-                            <th data-key="serialNo">Serial No
-                                <div class="column-options">
-                                    <button class="options-btn p-1">...</button>
-                                    <div class="dropdown">
-                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
-                                        <div class="dropdown-item sort-desc">Sort Descending</div>
-                                        <div class="dropdown-item filter-btn">Filter</div>
-                                    </div>
-                                    <div class="filter-modal">
-                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
-                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
-                                    </div>
-                                </div>
-                            </th>
-                            <th data-key="rollNumber">Roll Number
-                                <div class="column-options">
-                                    <button class="options-btn p-1">...</button>
-                                    <div class="dropdown">
-                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
-                                        <div class="dropdown-item sort-desc">Sort Descending</div>
-                                        <div class="dropdown-item filter-btn">Filter</div>
-                                    </div>
-                                    <div class="filter-modal">
-                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
-                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
-                                    </div>
-                                </div>
-                            </th>
-                            <th data-key="name">Name
-                                <div class="column-options">
-                                    <button class="options-btn p-1">...</button>
-                                    <div class="dropdown">
-                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
-                                        <div class="dropdown-item sort-desc">Sort Descending</div>
-                                        <div class="dropdown-item filter-btn">Filter</div>
-                                    </div>
-                                    <div class="filter-modal">
-                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
-                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
-                                    </div>
-                                </div>
-                            </th>
-                            <th data-key="branch">Branch
-                                <div class="column-options">
-                                    <button class="options-btn p-1">...</button>
-                                    <div class="dropdown">
-                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
-                                        <div class="dropdown-item sort-desc">Sort Descending</div>
-                                        <div class="dropdown-item filter-btn">Filter</div>
-                                    </div>
-                                    <div class="filter-modal">
-                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
-                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
-                                    </div>
-                                </div>
-                            </th>
-                            <th data-key="email">Email
-                                <div class="column-options">
-                                    <button class="options-btn p-1">...</button>
-                                    <div class="dropdown">
-                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
-                                        <div class="dropdown-item sort-desc">Sort Descending</div>
-                                        <div class="dropdown-item filter-btn">Filter</div>
-                                    </div>
-                                    <div class="filter-modal">
-                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
-                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
-                                    </div>
-                                </div>
-                            </th>
-                            <th data-key="gender">Gender
-                                <div class="column-options">
-                                    <button class="options-btn p-1">...</button>
-                                    <div class="dropdown">
-                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
-                                        <div class="dropdown-item sort-desc">Sort Descending</div>
-                                        <div class="dropdown-item filter-btn">Filter</div>
-                                    </div>
-                                    <div class="filter-modal">
-                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
-                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
-                                    </div>
-                                </div>
-                            </th>
-                            <th data-key="dob">DOB
-                                <div class="column-options">
-                                    <button class="options-btn p-1">...</button>
-                                    <div class="dropdown">
-                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
-                                        <div class="dropdown-item sort-desc">Sort Descending</div>
-                                        <div class="dropdown-item filter-btn">Filter</div>
-                                    </div>
-                                    <div class="filter-modal">
-                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
-                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
-                                    </div>
-                                </div>
-                            </th>
-                            <th data-key="contactNumber">Contact Number
-                                <div class="column-options">
-                                    <button class="options-btn p-1">...</button>
-                                    <div class="dropdown">
-                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
-                                        <div class="dropdown-item sort-desc">Sort Descending</div>
-                                        <div class="dropdown-item filter-btn">Filter</div>
-                                    </div>
-                                    <div class="filter-modal">
-                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
-                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
-                                    </div>
-                                </div>
-                            </th>
-                            <th data-key="presentAddress">Present Address
-                                <div class="column-options">
-                                    <button class="options-btn p-1">...</button>
-                                    <div class="dropdown">
-                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
-                                        <div class="dropdown-item sort-desc">Sort Descending</div>
-                                        <div class="dropdown-item filter-btn">Filter</div>
-                                    </div>
-                                    <div class="filter-modal">
-                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
-                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
-                                    </div>
-                                </div>
-                            </th>
-                            <th data-key="category">Category
-                                <div class="column-options">
-                                    <button class="options-btn p-1">...</button>
-                                    <div class="dropdown">
-                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
-                                        <div class="dropdown-item sort-desc">Sort Descending</div>
-                                        <div class="dropdown-item filter-btn">Filter</div>
-                                    </div>
-                                    <div class="filter-modal">
-                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
-                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
-                                    </div>
-                                </div>
-                            </th>
-                            <th data-key="cgpa">CGPA
-                                <div class="column-options">
-                                    <button class="options-btn p-1">...</button>
-                                    <div class="dropdown">
-                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
-                                        <div class="dropdown-item sort-desc">Sort Descending</div>
-                                        <div class="dropdown-item filter-btn">Filter</div>
-                                    </div>
-                                    <div class="filter-modal">
-                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
-                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
-                                    </div>
-                                </div>
-                            </th>
-                            <th data-key="viewProfile">View Profile
-                                <div class="column-options">
-                                    <button class="options-btn p-1">...</button>
-                                    <div class="dropdown">
-                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
-                                        <div class="dropdown-item sort-desc">Sort Descending</div>
-                                        <div class="dropdown-item filter-btn">Filter</div>
-                                    </div>
-                                    <div class="filter-modal">
-                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
-                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
-                                    </div>
-                                </div>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="studentTableBody"></tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            <div class="flex flex-col md:flex-row justify-between items-center mt-4 text-gray-600 gap-4">
-                <div>
-                    Rows per page: 
-                    <select id="rowsPerPageSelect" class="modern-select">
-                        <option value="150" selected>150</option>
-                        <option value="300">300</option>
-                        <option value="500">500</option>
-                        <option value="all">All</option>
+            <!-- Fetch Options and Filters -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
+                <div class="flex space-x-2">
+                    <button id="fetch-companies" class="action-btn">Fetch Companies</button>
+                    <select id="fetch-limit" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                        <option value="all">Fetch All</option>
+                        <option value="100">Fetch 100</option>
+                        <option value="150">Fetch 150</option>
+                        <option value="200">Fetch 200</option>
+                        <option value="500">Fetch 500</option>
                     </select>
+                    <button id="export-csv" class="action-btn hidden">Export to CSV</button>
+                    <button id="expand-table" class="expand-btn">Expand</button>
+                    <button id="pause-fetch" class="pause-btn hidden">Pause</button>
                 </div>
-                <div id="pageInfo"></div>
-                <div class="flex gap-2">
-                    <button id="prevPage" class="p-1 bg-gray-200 rounded-lg disabled:opacity-50"><</button>
-                    <button id="nextPage" class="p-1 bg-gray-200 rounded-lg disabled:opacity-50">></button>
+                <div class="flex flex-wrap gap-2 filter-group">
+                    <div>
+                        <label for="year-filter" class="text-sm text-gray-600 mr-2">Year:</label>
+                        <select id="year-filter" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                            <option value="">All</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026">2026</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="type-filter" class="text-sm text-gray-600 mr-2">Type:</label>
+                        <input id="type-filter" type="text" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                    </div>
+                    <div>
+                        <label for="cgpa-filter" class="text-sm text-gray-600 mr-2">CGPA:</label>
+                        <input id="cgpa-filter" type="number" step="0.1" class="border border-gray-300 rounded px-2 py-1 text-sm w-16">
+                    </div>
+                    <div>
+                        <label for="name-filter" class="text-sm text-gray-600 mr-2">Name:</label>
+                        <input id="name-filter" type="text" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                    </div>
                 </div>
             </div>
+
+            <!-- Grid for Realtime List and Network Log -->
+            <div class="grid-container">
+                <div class="realtime-list-container" id="realtime-list">
+                    <h3 class="font-semibold mb-4">Fetching Companies...</h3>
+                    <div class="circular-progress-container">
+                        <div class="circular-progress" id="circular-progress">
+                            <span id="progress-text">0%</span>
+                        </div>
+                    </div>
+                    <ul id="realtime-list-body" class="space-y-2 mt-4"></ul>
+                </div>
+                <div class="network-log" id="network-log-body">
+                    <h3 class="font-semibold mb-4">Network Activity Log</h3>
+                </div>
+            </div>
+
+            <!-- Company Recruitment Table -->
+            <div class="company-table-container">
+                <h3 class="text-lg font-semibold mb-4">Company Recruitment</h3>
+                <div class="table-wrapper">
+                    <table class="company-table" id="company-table">
+                        <thead>
+                            <tr>
+                                <th data-sort="serial">Serial No <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="id">ID <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="name">Name <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th>View <div class="resize-handle"></div></th>
+                                <th data-sort="company_category">Category <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="year">Year <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="jobtitle">Job Title <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="category">Event Category <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="stipend">Stipend (INR) <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="duration">Duration <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="type">Type <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="graduation_cgpa">Graduation CGPA <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="degree">Degree <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="status">Status <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="optional_criteria">Optional Criteria <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="cgpa_10th">CGPA 10th <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="cgpa_12th">CGPA 12th <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="stipend_info">Stipend Info <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="campus">Campus <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="backlogs">Backlogs <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="branches_allowed">Branches Allowed <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="lastDate">Deadline <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="placeOfPosting">Location <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="degrees_allowed">Degrees <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="apc">POC <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="placement_interviews">Placement Interviews <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="internship_shortlists">Internship Shortlists <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="published_at">Published At <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="createdAt">Created At <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="updatedAt">Updated At <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="event_id">Event ID <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="info">Info <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                            </tr>
+                        </thead>
+                        <tbody id="company-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loading" class="text-center text-gray-500 mt-4 hidden">Loading...</div>
+
+            <!-- Error Message -->
+            <div id="error-message" class="text-center text-red-500 mt-4 hidden"></div>
         </div>
     </div>
 
-    <!-- Student Profile Page (Placeholder) -->
-    <div id="studentProfilePage" class="md:ml-56 p-8 main-content page-content hidden">
-        <div class="max-w-6xl mx-auto">
-            <h1 class="text-2xl font-bold text-gray-800 mb-6">Student Profile</h1>
-            <p class="text-gray-600">This section will allow viewing individual student profiles. (Placeholder)</p>
-        </div>
-    </div>
-
-    <!-- Analytics Page (Placeholder) -->
-    <div id="analyticsPage" class="md:ml-56 p-8 main-content page-content hidden">
-        <div class="max-w-6xl mx-auto">
-            <h1 class="text-2xl font-bold text-gray-800 mb-6">Analytics</h1>
-            <p class="text-gray-600">This section will display analytics graphs. See <a href="analytics.html" class="text-blue-600 underline">analytics.html</a> for details.</p>
-        </div>
-    </div>
-
-    <!-- Placement Page (Placeholder) -->
-    <div id="placementPage" class="md:ml-56 p-8 main-content page-content hidden">
-        <div class="max-w-6xl mx-auto">
-            <h1 class="text-2xl font-bold text-gray-800 mb-6">Placement</h1>
-            <p class="text-gray-600">This section will display placement statistics. See <a href="placement.html" class="text-blue-600 underline">placement.html</a> for details.</p>
-        </div>
-    </div>
-
-    <!-- Notifications Page (Placeholder) -->
-    <div id="notificationsPage" class="md:ml-56 p-8 main-content page-content hidden">
-        <div class="max-w-6xl mx-auto">
-            <h1 class="text-2xl font-bold text-gray-800 mb-6">Notifications</h1>
-            <p class="text-gray-600">This section will display notifications. (Placeholder)</p>
-        </div>
-    </div>
-
-    <script src="session.js"></script>
     <script>
-        // Check session on page load
-        checkSession();
+        // DOM Elements
+        const fetchButton = document.getElementById('fetch-companies');
+        const fetchLimit = document.getElementById('fetch-limit');
+        const exportCsvButton = document.getElementById('export-csv');
+        const expandButton = document.getElementById('expand-table');
+        const pauseButton = document.getElementById('pause-fetch');
+        const tableBody = document.getElementById('company-table-body');
+        const companyTable = document.getElementById('company-table');
+        const networkLogBody = document.getElementById('network-log-body');
+        const loading = document.getElementById('loading');
+        const errorMessage = document.getElementById('error-message');
+        const yearFilter = document.getElementById('year-filter');
+        const typeFilter = document.getElementById('type-filter');
+        const cgpaFilter = document.getElementById('cgpa-filter');
+        const nameFilter = document.getElementById('name-filter');
+        const realtimeListBody = document.getElementById('realtime-list-body');
+        const circularProgress = document.getElementById('circular-progress');
+        const progressText = document.getElementById('progress-text');
 
-        const studentTableBody = document.getElementById('studentTableBody');
-        const searchInput = document.getElementById('searchInput');
-        const branchFilterButtons = document.getElementById('branchFilterButtons');
-        const batchFilter = document.getElementById('batchFilter');
-        const genderFilter = document.getElementById('genderFilter');
-        const prevPageBtn = document.getElementById('prevPage');
-        const nextPageBtn = document.getElementById('nextPage');
-        const pageInfo = document.getElementById('pageInfo');
-        const totalRecords = document.getElementById('totalRecords');
-        const rowsPerPageSelect = document.getElementById('rowsPerPageSelect');
-        const menuToggle = document.getElementById('menuToggle');
-        const navbar = document.getElementById('navbar');
-        const customizeColumnsBtn = document.getElementById('customizeColumnsBtn');
-        const columnsDropdown = document.getElementById('columnsDropdown');
-        const tableHeader = document.getElementById('tableHeader');
+        // State
+        let companyData = [];
+        let filteredData = [];
+        let sortColumn = null;
+        let sortDirection = 1;
+        let isExpanded = false;
+        let isPaused = false;
+        let fetchController = null;
 
-        let students = [];
-        let filteredStudents = [];
-        let currentPage = 1;
-        let rowsPerPage = parseInt(rowsPerPageSelect.value);
-        let selectedBranch = '';
-        let visibleColumns = ['serialNo', 'rollNumber', 'name', 'branch', 'email', 'gender', 'dob', 'contactNumber', 'presentAddress', 'category', 'cgpa', 'viewProfile'];
-        let columnFilters = {};
+        // Bearer Token
+        const bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc0Nzk3MzA5MywiZXhwIjoxNzUwNTY1MDkzfQ.oDgKeLGpRDz4w7zKWBUHS-trIyiJI2qp3GIs8qTBGsE";
 
-        // Branch and Gender color mapping
-        const branchColors = {
-            'Cumulative': '#f3f4f6',
-            'CSAI': '#bfdbfe',
-            'CSE': '#93c5fd',
-            'CSDS': '#60a5fa',
-            'CIOT': '#93c5fd',
-            'IT': '#bfdbfe',
-            'ITNS': '#dbeafe',
-            'MAC': '#fef9c3',
-            'ECIOT': '#fef9c3',
-            'ECE': '#fef3c7',
-            'ECAM': '#fde68a',
-            'EE': '#fce7a3',
-            'ICE': '#fef9c3',
-            'ME': '#fef3c7',
-            'MEEV': '#fef9c3',
-            'WEST': '#fef2f2',
-            'CE': '#fee2e2',
-            'BT': '#ffedd5',
-            'GI': '#fed7aa'
-        };
-        const genderColors = {
-            'male': '#bfdbfe',
-            'female': '#f9a8d4',
-            'other': '#d1fae5'
+        // Headers for API requests
+        const headers = {
+            "Authorization": `Bearer ${bearerToken}`,
+            "connection": "keep-alive",
+            "host": "api.tnpnsut.in",
+            "origin": "https://admin.tnpnsut.in",
+            "referer": "https://admin.tnpnsut.in/",
+            "sec-ch-ua": '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": '"macOS"',
+            "sec-fetch-dest": "empty"
         };
 
-        // Function to map CGPA to a color gradient (red at 4, green at 9)
+        // Tag Colors
+        const categoryColors = {
+            'Dream': '#bfdbfe',
+            'A++': '#fef9c3',
+            'default': '#e5e7eb'
+        };
+
+        const yearColors = {
+            '2023': '#ffedd5',
+            '2024': '#d1fae5',
+            '2025': '#bfdbfe',
+            '2026': '#fce7f3'
+        };
+
+        const eventCategoryColors = {
+            'tech': '#bfdbfe',
+            'default': '#e5e7eb'
+        };
+
+        const typeColors = {
+            'Placement': '#d1fae5',
+            'Internship': '#ffedd5',
+            'default': '#e5e7eb'
+        };
+
+        function getStipendColor(stipend) {
+            const value = parseFloat(stipend) || 0;
+            if (value < 500000) return '#fee2e2';
+            if (value <= 2000000) return '#fef9c3';
+            return '#d1fae5';
+        }
+
+        const locationColors = {
+            'Bangalore': '#bfdbfe',
+            'Hyderabad': '#d1fae5',
+            'Pune': '#ffedd5',
+            'Gurgaon': '#fef9c3',
+            'Delhi': '#fce7f3',
+            'default': '#e5e7eb'
+        };
+
+        function getLocationColor(location) {
+            if (!location) return locationColors.default;
+            const cities = location.split(',').map(city => city.trim());
+            const firstCity = cities[0].split('/')[0];
+            return locationColors[firstCity] || locationColors.default;
+        }
+
         function getCgpaColor(cgpa) {
-            if (!cgpa || isNaN(cgpa)) return '#e5e7eb';
             const value = parseFloat(cgpa);
-            if (value < 4) return 'rgb(255, 0, 0)';
-            if (value > 9) return 'rgb(0, 255, 0)';
-            const ratio = (value - 4) / (9 - 4);
-            const red = Math.round(255 * (1 - ratio));
-            const green = Math.round(255 * ratio);
-            return `rgb(${red}, ${green}, 0)`;
+            if (isNaN(value)) return '#e5e7eb';
+            if (value < 6) return '#fee2e2';
+            if (value <= 8) return '#fef9c3';
+            return '#d1fae5';
         }
 
-        // Fetch and parse CSV
-        Papa.parse('https://raw.githubusercontent.com/avashx/nsutgod/main/students.csv', {
-            download: true,
-            header: true,
-            complete: function(results) {
-                students = results.data.map(student => ({
-                    ...student,
-                    gender: student.gender ? student.gender.toLowerCase() : ''
-                }));
-                filteredStudents = [...students];
-                totalRecords.textContent = `${students.length} Students`;
+        // Update real-time company list and circular progress
+        function updateRealtimeList(company, currentCount, totalCount) {
+            const listItem = document.createElement('li');
+            listItem.textContent = `Fetched: ${company.name || 'Unknown'} (ID: ${company.id})`;
+            listItem.className = 'text-gray-600';
+            realtimeListBody.insertBefore(listItem, realtimeListBody.firstChild);
 
-                populateFilters();
-                populateBranchButtons();
-                populateColumnOptions();
-                displayStudents();
-            },
-            error: function(error) {
-                console.error('Error fetching CSV:', error);
-                studentTableBody.innerHTML = '<tr><td colspan="12">Error loading data. Please try again later.</td></tr>';
-            }
-        });
-
-        // Populate filter dropdowns
-        function populateFilters() {
-            const batches = [...new Set(students.map(student => student.batch))].filter(Boolean);
-            batches.forEach(batch => {
-                const option = document.createElement('option');
-                option.value = batch;
-                option.textContent = batch;
-                batchFilter.appendChild(option);
-            });
+            // Update circular progress (900 companies = 100%)
+            const progress = Math.min((currentCount / 900) * 100, 100);
+            circularProgress.style.background = `conic-gradient(#10b981 0% ${progress}%, #e5e7eb ${progress}% 100%)`;
+            progressText.textContent = `${Math.round(progress)}%`;
         }
 
-        // Populate branch filter buttons
-        function populateBranchButtons() {
-            const branches = ['Cumulative', ...new Set(students.map(student => student.branch))].filter(Boolean);
-            branches.forEach(branch => {
-                const button = document.createElement('button');
-                button.className = 'branch-button';
-                button.textContent = branch;
-                button.style.backgroundColor = branchColors[branch] || '#f3f4f6';
-                button.addEventListener('click', () => {
-                    document.querySelectorAll('.branch-button').forEach(btn => {
-                        btn.classList.remove('active');
-                        btn.style.backgroundColor = branchColors[btn.textContent] || '#f3f4f6';
-                        btn.style.color = '#000';
-                    });
-                    button.classList.add('active');
-                    button.style.color = '#fff';
-                    selectedBranch = branch === 'Cumulative' ? '' : branch;
-                    filterStudents();
-                });
-                branchFilterButtons.appendChild(button);
-            });
-            branchFilterButtons.children[0].classList.add('active');
-            branchFilterButtons.children[0].style.color = '#fff';
-        }
-
-        // Populate column customization options
-        function populateColumnOptions() {
-            columnsDropdown.innerHTML = '';
-            const allColumns = [
-                { key: 'serialNo', label: 'Serial No' },
-                { key: 'rollNumber', label: 'Roll Number' },
-                { key: 'name', label: 'Name' },
-                { key: 'branch', label: 'Branch' },
-                { key: 'email', label: 'Email' },
-                { key: 'gender', label: 'Gender' },
-                { key: 'dob', label: 'DOB' },
-                { key: 'contactNumber', label: 'Contact Number' },
-                { key: 'presentAddress', label: 'Present Address' },
-                { key: 'category', label: 'Category' },
-                { key: 'cgpa', label: 'CGPA' },
-                { key: 'viewProfile', label: 'View Profile' }
-            ];
-
-            allColumns.forEach(column => {
-                const div = document.createElement('div');
-                div.className = 'dropdown-item';
-                div.innerHTML = `
-                    <input type="checkbox" id="col-${column.key}" ${visibleColumns.includes(column.key) ? 'checked' : ''}>
-                    <label for="col-${column.key}">${column.label}</label>
-                `;
-                div.querySelector('input').addEventListener('change', (e) => {
-                    if (e.target.checked) {
-                        visibleColumns.push(column.key);
-                    } else {
-                        visibleColumns = visibleColumns.filter(col => col !== column.key);
+        // Fetch list of companies
+        async function fetchCompaniesList() {
+            const url = 'https://api.tnpnsut.in/companies';
+            const startTime = performance.now();
+            try {
+                fetchController = new AbortController();
+                const response = await fetch(url, { headers, signal: fetchController.signal });
+                const endTime = performance.now();
+                const size = response.headers.get('content-length') || 'Unknown';
+                logNetworkActivity(url, response.status, size, endTime - startTime, 'fetch');
+                
+                if (response.ok) {
+                    let companies = await response.json();
+                    const limit = fetchLimit.value;
+                    if (limit !== 'all') {
+                        companies = companies.slice(0, parseInt(limit));
                     }
-                    displayStudents();
-                });
-                columnsDropdown.appendChild(div);
+                    return companies;
+                } else {
+                    throw new Error(`Failed to fetch companies list - Status: ${response.status}`);
+                }
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    logNetworkActivity(url, 'Paused', '0', performance.now() - startTime, 'fetch');
+                } else {
+                    logNetworkActivity(url, 'Failed', '0', performance.now() - startTime, 'fetch');
+                    throw error;
+                }
+            }
+        }
+
+        // Fetch company details
+        async function fetchCompanyDetails(companyId) {
+            const url = `https://api.tnpnsut.in/companies/${companyId}`;
+            const startTime = performance.now();
+            try {
+                const response = await fetch(url, { headers, signal: fetchController.signal });
+                const endTime = performance.now();
+                const size = response.headers.get('content-length') || 'Unknown';
+                logNetworkActivity(url, response.status, size, endTime - startTime, 'fetch');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(`API Response for ${companyId}:`, data);
+                    return data;
+                } else {
+                    throw new Error(`Failed to fetch data for company ID ${companyId} - Status: ${response.status}`);
+                }
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    logNetworkActivity(url, 'Paused', '0', performance.now() - startTime, 'fetch');
+                } else {
+                    logNetworkActivity(url, 'Failed', '0', performance.now() - startTime, 'fetch');
+                    throw error;
+                }
+            }
+        }
+
+        // Log network activity
+        function logNetworkActivity(name, status, size, time, type) {
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `Request: ${name} | <span class="status">Status: ${status}</span> | Size: ${size} bytes | <span class="time">Time: ${time.toFixed(2)} ms</span> | Type: ${type}`;
+            networkLogBody.appendChild(logEntry);
+            networkLogBody.scrollTop = networkLogBody.scrollHeight;
+        }
+
+        // Fetch all company data
+        async function fetchAllCompanies() {
+            loading.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+            networkLogBody.innerHTML = '';
+            realtimeListBody.innerHTML = '';
+            circularProgress.style.background = `conic-gradient(#10b981 0% 0%, #e5e7eb 0% 100%)`;
+            progressText.textContent = '0%';
+            companyData = [];
+            filteredData = [];
+            exportCsvButton.classList.add('hidden');
+            pauseButton.classList.remove('hidden');
+            isPaused = false;
+            pauseButton.textContent = 'Pause';
+
+            try {
+                const companies = await fetchCompaniesList();
+                if (!Array.isArray(companies) || companies.length === 0) {
+                    throw new Error('No companies found in the API response.');
+                }
+
+                let currentCount = 0;
+                for (const company of companies) {
+                    if (isPaused) {
+                        await new Promise(resolve => {
+                            const checkPause = setInterval(() => {
+                                if (!isPaused) {
+                                    clearInterval(checkPause);
+                                    resolve();
+                                }
+                            }, 100);
+                        });
+                    }
+                    try {
+                        currentCount++;
+                        updateRealtimeList(company, currentCount, companies.length);
+                        const details = await fetchCompanyDetails(company.id);
+                        companyData.push({ id: company.id, name: company.name, details });
+                        filteredData = [...companyData];
+                        applyFilters();
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    } catch (error) {
+                        if (error.name !== 'AbortError') {
+                            console.error(error.message);
+                        }
+                    }
+                }
+
+                if (companyData.length === 0) {
+                    throw new Error('No company details fetched. Please check the API or token.');
+                }
+
+                exportCsvButton.classList.remove('hidden');
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    showError(error.message);
+                }
+            } finally {
+                loading.classList.add('hidden');
+                pauseButton.classList.add('hidden');
+                fetchController = null;
+            }
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const year = yearFilter.value;
+            const type = typeFilter.value.toLowerCase();
+            const cgpa = parseFloat(cgpaFilter.value) || null;
+            const name = nameFilter.value.toLowerCase();
+
+            filteredData = companyData.filter(company => {
+                const details = company.details || {};
+                const event = details.events && details.events.length > 0 ? details.events[0] : {};
+                const matchesYear = year ? details.year === year : true;
+                const matchesType = type ? (event.type || '').toLowerCase().includes(type) : true;
+                const matchesCgpa = cgpa !== null ? (event.graduation_cgpa || 0) >= cgpa : true;
+                const matchesName = name ? (details.Name || company.name || '').toLowerCase().includes(name) : true;
+                return matchesYear && matchesType && matchesCgpa && matchesName;
+            });
+
+            sortData();
+            renderTable();
+        }
+
+        // Sort data
+        function sortData() {
+            if (!sortColumn) return;
+
+            filteredData.sort((a, b) => {
+                const detailsA = a.details || {};
+                const detailsB = b.details || {};
+                const eventA = detailsA.events && detailsA.events.length > 0 ? detailsA.events[0] : {};
+                const eventB = detailsB.events && detailsB.events.length > 0 ? detailsB.events[0] : {};
+                let valueA, valueB;
+
+                if (sortColumn === 'serial') {
+                    valueA = companyData.indexOf(a);
+                    valueB = companyData.indexOf(b);
+                } else if (sortColumn === 'placement_interviews') {
+                    valueA = (detailsA.placement_interviews || []).length;
+                    valueB = (detailsB.placement_interviews || []).length;
+                } else if (sortColumn === 'internship_shortlists') {
+                    valueA = (detailsA.internship_shortlists || []).length;
+                    valueB = (detailsB.internship_shortlists || []).length;
+                } else if (sortColumn === 'name') {
+                    valueA = (detailsA.Name || a.name || '').toLowerCase();
+                    valueB = (detailsB.Name || b.name || '').toLowerCase();
+                } else if (sortColumn === 'graduation_cgpa' || sortColumn === 'cgpa_10th' || sortColumn === 'cgpa_12th' || sortColumn === 'stipend' || sortColumn === 'backlogs') {
+                    valueA = parseFloat(eventA[sortColumn]) || 0;
+                    valueB = parseFloat(eventB[sortColumn]) || 0;
+                } else if (sortColumn === 'event_id') {
+                    valueA = (eventA._id || '').toLowerCase();
+                    valueB = (eventB._id || '').toLowerCase();
+                } else if (sortColumn === 'degrees_allowed' || sortColumn === 'campus' || sortColumn === 'branches_allowed') {
+                    valueA = (eventA[sortColumn] || []).join(', ').toLowerCase();
+                    valueB = (eventB[sortColumn] || []).join(', ').toLowerCase();
+                } else {
+                    valueA = (eventA[sortColumn] || detailsA[sortColumn] || '').toString().toLowerCase();
+                    valueB = (eventB[sortColumn] || detailsB[sortColumn] || '').toString().toLowerCase();
+                }
+
+                if (valueA < valueB) return -1 * sortDirection;
+                if (valueA > valueB) return 1 * sortDirection;
+                return 0;
             });
         }
 
-        // Display students in the table
-        function displayStudents() {
-            const start = (currentPage - 1) * rowsPerPage;
-            const end = rowsPerPage === 'all' ? filteredStudents.length : start + rowsPerPage;
-            const paginatedStudents = filteredStudents.slice(start, end);
-
-            studentTableBody.innerHTML = '';
-            paginatedStudents.forEach((student, index) => {
-                const serialNo = start + index + 1;
+        // Render the table
+        function renderTable() {
+            tableBody.innerHTML = '';
+            filteredData.forEach((company, index) => {
+                const details = company.details || {};
+                const event = details.events && details.events.length > 0 ? details.events[0] : {};
+                const branchesAllowed = (event.branchesAllowed || []).map(b => b.branch).join(', ');
                 const row = document.createElement('tr');
-                let cells = '';
-
-                if (visibleColumns.includes('serialNo')) {
-                    cells += `<td>${serialNo}</td>`;
-                }
-                if (visibleColumns.includes('rollNumber')) {
-                    cells += `<td>${student.rollNumber || '-'}</td>`;
-                }
-                if (visibleColumns.includes('name')) {
-                    cells += `<td>${student.Name || '-'}</td>`;
-                }
-                if (visibleColumns.includes('branch')) {
-                    cells += `<td><span class="tag" style="background-color: ${branchColors[student.branch] || '#e5e7eb'}">${student.branch || '-'}</span></td>`;
-                }
-                if (visibleColumns.includes('email')) {
-                    cells += `<td>${student.email || '-'}</td>`;
-                }
-                if (visibleColumns.includes('gender')) {
-                    cells += `<td><span class="tag" style="background-color: ${genderColors[student.gender] || '#e5e7eb'}">${student.gender || '-'}</span></td>`;
-                }
-                if (visibleColumns.includes('dob')) {
-                    cells += `<td>${student.dob || '-'}</td>`;
-                }
-                if (visibleColumns.includes('contactNumber')) {
-                    cells += `<td>${student.contact_number || '-'}</td>`;
-                }
-                if (visibleColumns.includes('presentAddress')) {
-                    cells += `<td>${student.present_address || '-'}</td>`;
-                }
-                if (visibleColumns.includes('category')) {
-                    cells += `<td>${student.category || '-'}</td>`;
-                }
-                if (visibleColumns.includes('cgpa')) {
-                    cells += `<td><span class="tag" style="background-color: ${getCgpaColor(student.cgpa)}">${student.cgpa || '-'}</span></td>`;
-                }
-                if (visibleColumns.includes('viewProfile')) {
-                    cells += `<td><a href="student-profile.html?roll=${student.rollNumber}" target="_blank" class="p-1 bg-blue-100 text-blue-600 rounded text-xs">View Profile</a></td>`;
-                }
-
-                row.innerHTML = cells;
-                studentTableBody.appendChild(row);
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${details._id || '-'}</td>
+                    <td>${details.Name || company.name || '-'}</td>
+                    <td><button class="view-btn" onclick="window.open('company-profile.html?id=${details._id}', '_blank')">View</button></td>
+                    <td><span class="tag" style="background-color: ${categoryColors[details.company_category] || categoryColors.default}">${details.company_category || '-'}</span></td>
+                    <td><span class="tag" style="background-color: ${yearColors[details.year] || '#e5e7eb'}">${details.year || '-'}</span></td>
+                    <td>${event.jobtitle || '-'}</td>
+                    <td><span class="tag" style="background-color: ${eventCategoryColors[event.category] || eventCategoryColors.default}">${event.category || '-'}</span></td>
+                    <td><span class="tag" style="background-color: ${getStipendColor(event.stipend)}">${event.stipend !== undefined ? event.stipend : '-'}</span></td>
+                    <td>${event.duration || '-'}</td>
+                    <td><span class="tag" style="background-color: ${typeColors[event.type] || typeColors.default}">${event.type || '-'}</span></td>
+                    <td><span class="tag" style="background-color: ${getCgpaColor(event.graduation_cgpa)}">${event.graduation_cgpa !== undefined ? event.graduation_cgpa : '-'}</span></td>
+                    <td>${event.degree || '-'}</td>
+                    <td>${event.status || '-'}</td>
+                    <td>${event.optional_criteria !== undefined ? event.optional_criteria : '-'}</td>
+                    <td>${event.cgpa_10th !== undefined ? event.cgpa_10th : '-'}</td>
+                    <td>${event.cgpa_12th !== undefined ? event.cgpa_12th : '-'}</td>
+                    <td>${event.stipend_info || '-'}</td>
+                    <td>${(event.campus || []).join(', ') || '-'}</td>
+                    <td>${event.backlogs !== undefined ? event.backlogs : '-'}</td>
+                    <td>${branchesAllowed || '-'}</td>
+                    <td>${event.lastDate || '-'}</td>
+                    <td><span class="tag" style="background-color: ${getLocationColor(event.placeOfPosting)}">${event.placeOfPosting || '-'}</span></td>
+                    <td>${(event.degrees_allowed || []).join(', ') || '-'}</td>
+                    <td>${event.apc || '-'}</td>
+                    <td>${details.placement_interviews && details.placement_interviews.length > 0 ? details.placement_interviews.length : 'None'}</td>
+                    <td>${details.internship_shortlists && details.internship_shortlists.length > 0 ? details.internship_shortlists.length : 'None'}</td>
+                    <td>${details.published_at || '-'}</td>
+                    <td>${details.createdAt || '-'}</td>
+                    <td>${details.updatedAt || '-'}</td>
+                    <td>${event._id || '-'}</td>
+                    <td class="info-column">${details.info || '-'}</td>
+                `;
+                tableBody.appendChild(row);
             });
-
-            document.querySelectorAll('#tableHeader th').forEach(th => {
-                const key = th.getAttribute('data-key');
-                th.style.display = visibleColumns.includes(key) ? '' : 'none';
-            });
-
-            const totalPages = rowsPerPage === 'all' ? 1 : Math.ceil(filteredStudents.length / rowsPerPage);
-            const startRecord = start + 1;
-            const endRecord = Math.min(end, filteredStudents.length);
-            pageInfo.textContent = rowsPerPage === 'all' ? `1-${filteredStudents.length} of ${filteredStudents.length}` : `${startRecord}-${endRecord} of ${filteredStudents.length}`;
-            prevPageBtn.disabled = currentPage === 1 || rowsPerPage === 'all';
-            nextPageBtn.disabled = (currentPage === totalPages || totalPages === 0 || rowsPerPage === 'all');
         }
 
-        // Filter and search logic
-        function filterStudents() {
-            const searchTerm = searchInput.value.toLowerCase();
-            const batchValue = batchFilter.value;
-            const genderValue = genderFilter.value;
-
-            filteredStudents = students.filter(student => {
-                const matchesSearch = Object.values(student).some(val => 
-                    val && val.toString().toLowerCase().includes(searchTerm)
-                );
-                const matchesBranch = !selectedBranch || student.branch === selectedBranch;
-                const matchesBatch = !batchValue || student.batch === batchValue;
-                const matchesGender = !genderValue || student.gender === genderValue;
-
-                let matchesFilters = true;
-                for (const [key, filter] of Object.entries(columnFilters)) {
-                    if (filter && student[key]) {
-                        matchesFilters = matchesFilters && student[key].toString().toLowerCase().includes(filter.toLowerCase());
-                    }
-                }
-
-                return matchesSearch && matchesBranch && matchesBatch && matchesGender && matchesFilters;
+        // Export to CSV
+        function exportToCsv() {
+            const headers = [
+                'Serial No', 'ID', 'Name', 'View', 'Category', 'Year', 'Job Title', 'Event Category', 
+                'Stipend (INR)', 'Duration', 'Type', 'Graduation CGPA', 'Degree', 'Status', 'Optional Criteria', 
+                'CGPA 10th', 'CGPA 12th', 'Stipend Info', 'Campus', 'Backlogs', 'Branches Allowed', 'Deadline', 
+                'Location', 'Degrees', 'POC', 'Placement Interviews', 'Internship Shortlists', 'Published At', 
+                'Created At', 'Updated At', 'Event ID', 'Info'
+            ];
+            const rows = filteredData.map((company, index) => {
+                const details = company.details || {};
+                const event = details.events && details.events.length > 0 ? details.events[0] : {};
+                const branchesAllowed = (event.branchesAllowed || []).map(b => b.branch).join(', ');
+                return [
+                    index + 1,
+                    details._id || '-',
+                    `"${(details.Name || company.name || '-').replace(/"/g, '""')}"`,
+                    'View',
+                    details.company_category || '-',
+                    details.year || '-',
+                    `"${(event.jobtitle || '-').replace(/"/g, '""')}"`,
+                    event.category || '-',
+                    event.stipend !== undefined ? event.stipend : '-',
+                    `"${(event.duration || '-').replace(/"/g, '""')}"`,
+                    event.type || '-',
+                    event.graduation_cgpa !== undefined ? event.graduation_cgpa : '-',
+                    event.degree || '-',
+                    event.status || '-',
+                    event.optional_criteria !== undefined ? event.optional_criteria : '-',
+                    event.cgpa_10th !== undefined ? event.cgpa_10th : '-',
+                    event.cgpa_12th !== undefined ? event.cgpa_12th : '-',
+                    `"${(event.stipend_info || '-').replace(/"/g, '""')}"`,
+                    (event.campus || []).join(', ') || '-',
+                    event.backlogs !== undefined ? event.backlogs : '-',
+                    branchesAllowed || '-',
+                    event.lastDate || '-',
+                    event.placeOfPosting || '-',
+                    (event.degrees_allowed || []).join(', ') || '-',
+                    `"${(event.apc || '-').replace(/"/g, '""')}"`,
+                    details.placement_interviews && details.placement_interviews.length > 0 ? details.placement_interviews.length : 'None',
+                    details.internship_shortlists && details.internship_shortlists.length > 0 ? details.internship_shortlists.length : 'None',
+                    details.published_at || '-',
+                    details.createdAt || '-',
+                    details.updatedAt || '-',
+                    event._id || '-',
+                    `"${(details.info || '-').replace(/"/g, '""')}"`
+                ];
             });
 
-            currentPage = 1;
-            displayStudents();
+            const csvContent = [
+                headers.join(','),
+                ...rows.map(row => row.join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'company_data.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
-        // Event listeners for search and filters
-        searchInput.addEventListener('input', filterStudents);
-        batchFilter.addEventListener('change', filterStudents);
-        genderFilter.addEventListener('change', filterStudents);
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+            loading.classList.add('hidden');
+        }
 
-        prevPageBtn.addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                displayStudents();
+        // Toggle table expansion
+        expandButton.addEventListener('click', () => {
+            isExpanded = !isExpanded;
+            companyTable.classList.toggle('expanded');
+            expandButton.textContent = isExpanded ? 'Collapse' : 'Expand';
+        });
+
+        // Pause/Resume fetching
+        pauseButton.addEventListener('click', () => {
+            isPaused = !isPaused;
+            pauseButton.textContent = isPaused ? 'Resume' : 'Pause';
+            if (isPaused && fetchController) {
+                fetchController.abort();
             }
         });
 
-        nextPageBtn.addEventListener('click', () => {
-            const totalPages = rowsPerPage === 'all' ? 1 : Math.ceil(filteredStudents.length / rowsPerPage);
-            if (currentPage < totalPages) {
-                currentPage++;
-                displayStudents();
-            }
-        });
+        // Column resizing
+        document.querySelectorAll('.resize-handle').forEach(handle => {
+            handle.addEventListener('mousedown', (e) => {
+                const th = handle.parentElement;
+                const startX = e.pageX;
+                const startWidth = th.offsetWidth;
 
-        rowsPerPageSelect.addEventListener('change', () => {
-            rowsPerPage = rowsPerPageSelect.value === 'all' ? 'all' : parseInt(rowsPerPageSelect.value);
-            currentPage = 1;
-            displayStudents();
+                const onMouseMove = (e) => {
+                    const newWidth = startWidth + (e.pageX - startX);
+                    th.style.width = `${Math.max(80, newWidth)}px`;
+                    th.classList.add('resized');
+                    const index = Array.from(th.parentElement.children).indexOf(th);
+                    document.querySelectorAll(`#company-table tbody tr td:nth-child(${index + 1})`).forEach(td => {
+                        td.style.width = `${Math.max(80, newWidth)}px`;
+                        td.classList.add('resized');
+                    });
+                };
+
+                const onMouseUp = () => {
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+                };
+
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
         });
 
         // Toggle navbar on mobile
+        const menuToggle = document.getElementById('menuToggle');
+        const navbar = document.getElementById('navbar');
         menuToggle.addEventListener('click', () => {
-            navbar.classList.toggle('hidden');
+            navbar.classList.toggle('visible');
         });
 
         // Close navbar when clicking outside on mobile
         document.addEventListener('click', (e) => {
             if (window.innerWidth < 768 && !navbar.contains(e.target) && !menuToggle.contains(e.target)) {
-                navbar.classList.add('hidden');
+                navbar.classList.remove('visible');
             }
-        });
-
-        // Column customization dropdown
-        customizeColumnsBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            columnsDropdown.classList.toggle('show');
-        });
-
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!customizeColumnsBtn.contains(e.target) && !columnsDropdown.contains(e.target)) {
-                columnsDropdown.classList.remove('show');
-            }
-
-            const openDropdown = document.querySelector('.dropdown.show');
-            if (openDropdown && !e.target.closest('th')) {
-                openDropdown.classList.remove('show');
-            }
-
-            const openFilterModal = document.querySelector('.filter-modal.show');
-            if (openFilterModal && !e.target.closest('.filter-modal') && !e.target.closest('.filter-btn')) {
-                openFilterModal.classList.remove('show');
-            }
-        });
-
-        // Column sorting and filtering
-        document.querySelectorAll('#tableHeader th').forEach(th => {
-            th.addEventListener('click', (e) => {
-                if (e.target.closest('.column-options')) return;
-                const dropdown = th.querySelector('.dropdown');
-                document.querySelectorAll('.dropdown').forEach(d => {
-                    if (d !== dropdown) d.classList.remove('show');
-                });
-                dropdown.classList.toggle('show');
-            });
-        });
-
-        document.querySelectorAll('.sort-asc').forEach(item => {
-            item.addEventListener('click', (e) => {
-                const th = e.target.closest('th');
-                const key = th.getAttribute('data-key');
-                filteredStudents.sort((a, b) => {
-                    const valA = a[key] || '';
-                    const valB = b[key] || '';
-                    return valA.toString().localeCompare(valB.toString());
-                });
-                displayStudents();
-                e.target.closest('.dropdown').classList.remove('show');
-            });
-        });
-
-        document.querySelectorAll('.sort-desc').forEach(item => {
-            item.addEventListener('click', (e) => {
-                const th = e.target.closest('th');
-                const key = th.getAttribute('data-key');
-                filteredStudents.sort((a, b) => {
-                    const valA = a[key] || '';
-                    const valB = b[key] || '';
-                    return valB.toString().localeCompare(valA.toString());
-                });
-                displayStudents();
-                e.target.closest('.dropdown').classList.remove('show');
-            });
-        });
-
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const th = e.target.closest('th');
-                const key = th.getAttribute('data-key');
-                const filterModal = th.querySelector('.filter-modal');
-                document.querySelectorAll('.filter-modal').forEach(m => {
-                    if (m !== filterModal) m.classList.remove('show');
-                });
-                filterModal.classList.toggle('show');
-                const input = filterModal.querySelector('.filter-input');
-                input.value = columnFilters[key] || '';
-            });
-        });
-
-        document.querySelectorAll('.apply-filter').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const th = e.target.closest('th');
-                const key = th.getAttribute('data-key');
-                const input = th.querySelector('.filter-input');
-                columnFilters[key] = input.value;
-                filterStudents();
-                e.target.closest('.filter-modal').classList.remove('show');
-            });
         });
 
         // Navigation between pages
         const pages = {
-            'overview': document.getElementById('overviewPage'),
-            'student-profile': document.getElementById('studentProfilePage'),
-            'analytics': document.getElementById('analyticsPage'),
-            'placement': document.getElementById('placementPage'),
-            'notifications': document.getElementById('notificationsPage')
+            'overview': () => window.location.href = 'index.html',
+            'student-profile': () => window.location.href = 'student-profile.html',
+            'analytics': () => window.location.href = 'analytics.html',
+            'placement': () => window.location.href = 'placement.html',
+            'tnp': () => window.location.href = 'tnp.html',
+            'notifications': () => window.location.href = 'index.html#notificationsPage'
         };
 
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', () => {
                 const page = item.getAttribute('data-page');
-                if (page === 'analytics') {
-                    window.location.href = 'analytics.html';
-                    return;
-                }
-                if (page === 'placement') {
-                    window.location.href = 'placement.html';
-                    return;
-                }
-                document.querySelectorAll('.page-content').forEach(content => content.classList.add('hidden'));
-                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-                pages[page].classList.remove('hidden');
-                item.classList.add('active');
+                pages[page]();
             });
         });
 
-        // Set default page
-        pages['overview'].classList.remove('hidden');
-        document.querySelector('.nav-item[data-page="overview"]').classList.add('active');
+        // Event Listeners
+        fetchButton.addEventListener('click', fetchAllCompanies);
+        exportCsvButton.addEventListener('click', exportToCsv);
+
+        // Filter event listeners
+        yearFilter.addEventListener('change', applyFilters);
+        typeFilter.addEventListener('input', applyFilters);
+        cgpaFilter.addEventListener('input', applyFilters);
+        nameFilter.addEventListener('input', applyFilters);
+
+        // Sort event listeners
+        document.querySelectorAll('th[data-sort]').forEach(header => {
+            header.addEventListener('click', () => {
+                const column = header.dataset.sort;
+                if (sortColumn === column) {
+                    sortDirection *= -1;
+                } else {
+                    sortColumn = column;
+                    sortDirection = 1;
+                }
+                document.querySelectorAll('.sort-icon').forEach(icon => {
+                    icon.textContent = '↕';
+                });
+                const icon = header.querySelector('.sort-icon');
+                icon.textContent = sortDirection === 1 ? '↑' : '↓';
+                sortData();
+                renderTable();
+            });
+        });
     </script>
 </body>
 </html>
