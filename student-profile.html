@@ -6,7 +6,6 @@
     <title>Student Profile - NSUTGod</title>
     <link rel="icon" type="image/png" href="https://github.com/avashx/nsutgod/blob/main/src/logo.png?raw=true">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
@@ -65,7 +64,7 @@
             overflow: hidden;
         }
 
-        .personal-info-box {
+        .personal-info-box, .semester-wise-box, .course-wise-box {
             grid-column: span 2;
         }
 
@@ -112,7 +111,7 @@
             margin-top: 10px;
         }
 
-        .company-table, .suggestions-table, .course-table {
+        .company-table, .suggestions-table, .course-table, .semester-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
@@ -122,7 +121,7 @@
             overflow-y: auto;
         }
 
-        .company-table thead, .suggestions-table thead, .course-table thead {
+        .company-table thead, .suggestions-table thead, .course-table thead, .semester-table thead {
             position: sticky;
             top: 0;
             background-color: #f9fafb;
@@ -130,14 +129,15 @@
 
         .company-table th, .company-table td,
         .suggestions-table th, .suggestions-table td,
-        .course-table th, .course-table td {
+        .course-table th, .course-table td,
+        .semester-table th, .semester-table td {
             padding: 8px;
             text-align: left;
             border-bottom: 1px solid #e5e7eb;
             font-size: 14px;
         }
 
-        .company-table th, .suggestions-table th, .course-table th {
+        .company-table th, .suggestions-table th, .course-table th, .semester-table th {
             background-color: #f9fafb;
             font-weight: 500;
             color: #4b5563;
@@ -171,7 +171,7 @@
         }
 
         @media (max-width: 1024px) {
-            .personal-info-box {
+            .personal-info-box, .semester-wise-box, .course-wise-box {
                 grid-column: span 1;
             }
         }
@@ -187,7 +187,7 @@
             .elements {
                 grid-template-columns: 1fr;
             }
-            .personal-info-box {
+            .personal-info-box, .semester-wise-box, .course-wise-box {
                 grid-column: span 1;
             }
         }
@@ -201,7 +201,8 @@
             }
             .company-table th, .company-table td,
             .suggestions-table th, .suggestions-table td,
-            .course-table th, .course-table td {
+            .course-table th, .course-table td,
+            .semester-table th, .semester-table td {
                 font-size: 12px;
                 padding: 6px;
             }
@@ -245,8 +246,7 @@
                 Placement
             </li>
             <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="notifications">
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a率先
-
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
                 Notifications
                 <span class="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded">2</span>
             </li>
@@ -260,9 +260,9 @@
         </h1>
 
         <div class="elements">
-            <!-- Box 1: Personal Details -->
+            <!-- Box 1: Personal Information -->
             <div class="box personal-info-box">
-                <h3>👤 Personal Details</h3>
+                <h3>Personal Information</h3>
                 <div class="info-grid" id="personalInfo">
                     <p>Name: <span id="name">-</span></p>
                     <p>Gender: <span id="gender" class="tag">-</span></p>
@@ -275,39 +275,41 @@
 
             <!-- Box 2: Contact Information -->
             <div class="box">
-                <h3>📞 Contact Information</h3>
+                <h3>Contact Information</h3>
                 <div class="info-grid" id="contactInfo">
                     <p>Contact Number: <span id="contactNumber">-</span></p>
                     <p>Alternate Contact Number: <span id="alternateContact">-</span></p>
                     <p>College Email: <span id="email">-</span></p>
                     <p>Personal Email: <span id="personalEmail">-</span></p>
-                    <p>Present Address: <span id="presentAddress">-</span></p>
                     <p>Permanent Address: <span id="permanentAddress">-</span></p>
+                    <p>Present Address: <span id="presentAddress">-</span></p>
                 </div>
             </div>
 
             <!-- Box 3: Academic Information -->
             <div class="box">
-                <h3>🎓 Academic Information</h3>
+                <h3>Academic Information</h3>
                 <div class="info-grid" id="academicInfo">
                     <p>Roll Number: <span id="rollNumber">-</span></p>
                     <p>Branch: <span id="branch" class="tag">-</span></p>
                     <p>Degree: <span id="degree">-</span></p>
                     <p>Batch: <span id="batch">-</span></p>
                     <p>Campus: <span id="campus">-</span></p>
-                    <p>CGPA: <span id="cgpa">-</span></p>
+                    <p>CGPA (Current): <span id="cgpa" class="tag">-</span></p>
                     <p>CGPA Before Drop: <span id="cgpaBeforeDrop">-</span></p>
+                    <p>CGPA Updated: <span id="isCgpaUpdated">-</span></p>
+                    <p>CGPA Update Enabled: <span id="cgpaUpdateEnabled">-</span></p>
                     <p>Class 10th %: <span id="cgpa10th">-</span></p>
                     <p>Class 12th %: <span id="cgpa12th">-</span></p>
                     <p>Graduation GPA: <span id="graduationGpa">-</span></p>
                     <p>Backlogs: <span id="backlogs">-</span></p>
-                    <p>PPO: <span id="ppo">-</span></p>
+                    <p>PPO: <span id="isPPO">-</span></p>
                 </div>
             </div>
 
             <!-- Box 4: Status & Timestamps -->
             <div class="box">
-                <h3>⏰ Status & Timestamps</h3>
+                <h3>Status & Timestamps</h3>
                 <div class="info-grid" id="statusInfo">
                     <p>Account Status: <span id="status">-</span></p>
                     <p>User Created At: <span id="userCreatedAt">-</span></p>
@@ -318,12 +320,12 @@
 
             <!-- Box 5: Documents (Resume) -->
             <div class="box">
-                <h3>🧾 Documents (Resume)</h3>
+                <h3>Documents (Resume)</h3>
                 <div class="info-grid" id="resumeInfo">
                     <p>Resume Name: <span id="resumeName">-</span></p>
                     <p>Resume Size: <span id="resumeSize">-</span></p>
                     <p>Resume URL: <span id="resumeUrl">-</span></p>
-                    <p>Resume Upload Date: <span id="resumeCreatedAt">-</span></p>
+                    <p>Resume Upload Date: <span id="resumeUploadDate">-</span></p>
                     <p>Resume Mime: <span id="resumeMime">-</span></p>
                     <p>Resume Provider: <span id="resumeProvider">-</span></p>
                 </div>
@@ -331,7 +333,7 @@
 
             <!-- Box 6: Restrictions / Bans -->
             <div class="box">
-                <h3>🚫 Restrictions / Bans</h3>
+                <h3>Restrictions / Bans</h3>
                 <div class="info-grid" id="restrictionsInfo">
                     <p>Bans: <span id="bans">-</span></p>
                     <p>Current Ban: <span id="currentBan">-</span></p>
@@ -340,17 +342,17 @@
 
             <!-- Box 7: Internship & Placement -->
             <div class="box">
-                <h3>💼 Internship & Placement</h3>
+                <h3>Internship & Placement</h3>
                 <div class="info-grid" id="internshipPlacementInfo">
-                    <p>Internship Applied: <span id="internshipApplied">-</span></p>
+                    <p>Internship Applied: <span id="internApplied">-</span></p>
                     <p>Placement Applied: <span id="placementApplied">-</span></p>
                 </div>
             </div>
 
             <!-- Box 8: Semester-wise GPA Data -->
-            <div class="box">
-                <h3>🧮 Semester-Wise GPA Data</h3>
-                <table class="company-table" id="semesterGpaTable">
+            <div class="box semester-wise-box">
+                <h3>Semester-Wise GPA Data</h3>
+                <table class="semester-table" id="semesterTable">
                     <thead>
                         <tr>
                             <th>Semester</th>
@@ -359,13 +361,13 @@
                             <th>Credit Points</th>
                         </tr>
                     </thead>
-                    <tbody id="semesterGpaBody"></tbody>
+                    <tbody id="semesterTableBody"></tbody>
                 </table>
             </div>
 
             <!-- Box 9: Course-wise Data -->
-            <div class="box personal-info-box">
-                <h3>📚 Course-wise Data</h3>
+            <div class="box course-wise-box">
+                <h3>Course-Wise Data</h3>
                 <table class="course-table" id="courseTable">
                     <thead>
                         <tr>
@@ -379,7 +381,7 @@
                             <th>Credit Points</th>
                         </tr>
                     </thead>
-                    <tbody id="courseBody"></tbody>
+                    <tbody id="courseTableBody"></tbody>
                 </table>
             </div>
 
@@ -457,7 +459,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const rollNumber = urlParams.get('roll');
 
-        // Branch, Gender, and Category color mapping
+        // Branch, Gender, and Category color mapping (consistent with index.html)
         const branchColors = {
             'CSAI': '#bfdbfe',
             'CSE': '#93c5fd',
@@ -484,7 +486,7 @@
             'other': '#d1fae5'
         };
         const categoryColors = {
-            'GEN': '#e5e7eb',
+            'GENERAL': '#e5e7eb',
             'OBC': '#fef9c3',
             'SC': '#bfdbfe',
             'ST': '#ffedd5',
@@ -497,15 +499,6 @@
             'Non-Tech': '#d1fae5',
             'Core': '#fed7aa'
         };
-
-        // Function to determine company type
-        function getCompanyType(companyName) {
-            const techCompanies = ['Google', 'Microsoft', 'Amazon', 'Adobe', 'Oracle', 'Flipkart', 'Goldman Sachs', 'Uber', 'Atlassian'];
-            const coreCompanies = ['L&T', 'Siemens', 'Tata Steel', 'Bajaj', 'Maruti Suzuki'];
-            if (techCompanies.includes(companyName)) return 'Tech';
-            if (coreCompanies.includes(companyName)) return 'Core';
-            return 'Non-Tech';
-        }
 
         // Function to get color based on CGPA
         function getCgpaColor(value) {
@@ -523,11 +516,23 @@
             return '#4ade80';
         }
 
-        // Fetch student data from students.json
+        // Function to determine company type
+        function getCompanyType(companyName) {
+            const techCompanies = ['Google', 'Microsoft', 'Amazon', 'Adobe', 'Oracle', 'Flipkart', 'Goldman Sachs', 'Uber', 'Atlassian'];
+            const coreCompanies = ['L&T', 'Siemens', 'Tata Steel', 'Bajaj', 'Maruti Suzuki'];
+            if (techCompanies.includes(companyName)) return 'Tech';
+            if (coreCompanies.includes(companyName)) return 'Core';
+            return 'Non-Tech';
+        }
+
+        // Fetch student data from JSON
         fetch('https://raw.githubusercontent.com/avashx/nsutgod/main/src/students.json')
             .then(response => response.json())
             .then(data => {
-                allStudents = data;
+                allStudents = data.map(student => ({
+                    ...student,
+                    gender: student.gender ? student.gender.toLowerCase() : ''
+                }));
                 studentData = allStudents.find(student => student.rollNumber === rollNumber) || {};
                 if (!studentData.rollNumber) {
                     console.error('Student not found for roll number:', rollNumber);
@@ -563,16 +568,17 @@
                         graduation_gpa: "-",
                         dob: "-",
                         batch: "-",
+                        isPPO: "-",
+                        isCgpaUpdated: "-",
+                        cgpaUpdateEnabled: "-",
                         status: "-",
-                        createdAt: "-",
-                        updatedAt: "-",
+                        user: { createdAt: "-", updatedAt: "-", email: "-" },
                         published_at: "-",
-                        resume: [],
+                        resume: [{ name: "-", size: "-", url: "-", createdAt: "-", mime: "-", provider: "-" }],
                         bans: "-",
                         currentBan: "-",
                         intern_applied: [],
                         placement_applied: [],
-                        isPPO: "-",
                         allSemGPA: { semesterWiseData: [], courseWiseData: [] }
                     };
                 }
@@ -593,54 +599,61 @@
             });
 
         // Fetch company data from place.csv
-        Papa.parse('https://raw.githubusercontent.com/avashx/nsutgod/main/src/place.csv', {
-            download: true,
-            header: true,
-            complete: function(results) {
-                companies = results.data
-                    .filter(company => company.Company && company['Cutoff CGPA'] && company['CTC (LPA)'])
-                    .map(company => ({
-                        Company: company.Company,
-                        'CTC (LPA)': parseFloat(company['CTC (LPA)']) || 0,
-                        'Cutoff CGPA': parseFloat(company['Cutoff CGPA']) || 0
-                    }));
-                displayEligibleCompanies();
-                provideSuggestions();
-            },
-            error: function(error) {
+        fetch('https://raw.githubusercontent.com/avashx/nsutgod/main/src/place.csv')
+            .then(response => response.text())
+            .then(csvText => {
+                Papa.parse(csvText, {
+                    header: true,
+                    complete: function(results) {
+                        companies = results.data
+                            .filter(company => company.Company && company['Cutoff CGPA'] && company['CTC (LPA)'])
+                            .map(company => ({
+                                Company: company.Company,
+                                'CTC (LPA)': parseFloat(company['CTC (LPA)']) || 0,
+                                'Cutoff CGPA': parseFloat(company['Cutoff CGPA']) || 0
+                            }));
+                        displayEligibleCompanies();
+                        provideSuggestions();
+                    },
+                    error: function(error) {
+                        console.error('Error parsing companies CSV:', error);
+                        document.getElementById('eligibleCompaniesBody').innerHTML = '<tr><td colspan="3">Error loading company data.</td></tr>';
+                    }
+                });
+            })
+            .catch(error => {
                 console.error('Error fetching companies CSV:', error);
                 document.getElementById('eligibleCompaniesBody').innerHTML = '<tr><td colspan="3">Error loading company data.</td></tr>';
-            }
-        });
+            });
 
         // Display student data in the boxes
         function displayStudentData() {
-            // Display student name in the title
+            // Student Name
             document.getElementById('studentName').textContent = studentData.Name || '-';
 
-            // Personal Details
+            // Personal Information
             document.getElementById('name').textContent = studentData.Name || '-';
             const genderSpan = document.getElementById('gender');
             genderSpan.textContent = studentData.gender || '-';
             if (studentData.gender) {
-                genderSpan.style.backgroundColor = genderColors[studentData.gender.toLowerCase()] || '#e5e7eb';
+                genderSpan.style.backgroundColor = genderColors[studentData.gender] || '#e5e7eb';
             }
             document.getElementById('dob').textContent = studentData.dob || '-';
-            document.getElementById('bloodGroup').textContent = studentData.blood_group || 'Invalid format';
+            document.getElementById('bloodGroup').textContent = studentData.blood_group || 'Not Provided';
             const categorySpan = document.getElementById('category');
             categorySpan.textContent = studentData.category || '-';
             if (studentData.category) {
                 categorySpan.style.backgroundColor = categoryColors[studentData.category] || '#e5e7eb';
             }
-            document.getElementById('pwd').textContent = studentData.pwd ? 'True' : 'False';
+            document.getElementById('pwd').textContent = studentData.pwd ? 'Yes' : 'No';
 
             // Contact Information
             document.getElementById('contactNumber').textContent = studentData.contact_number || '-';
             document.getElementById('alternateContact').textContent = studentData.alt_contact_number || '-';
             document.getElementById('email').textContent = studentData.email || '-';
             document.getElementById('personalEmail').textContent = studentData.personal_email || '-';
-            document.getElementById('presentAddress').textContent = studentData.present_address || 'Missing';
-            document.getElementById('permanentAddress').textContent = studentData.perm_address || 'Missing';
+            document.getElementById('permanentAddress').textContent = studentData.perm_address || 'Not Provided';
+            document.getElementById('presentAddress').textContent = studentData.present_address || 'Not Provided';
 
             // Academic Information
             document.getElementById('rollNumber').textContent = studentData.rollNumber || '-';
@@ -652,50 +665,56 @@
             document.getElementById('degree').textContent = studentData.degree || '-';
             document.getElementById('batch').textContent = studentData.batch || '-';
             document.getElementById('campus').textContent = studentData.campus || '-';
-            document.getElementById('cgpa').textContent = studentData.cgpa || '-';
+            const cgpaSpan = document.getElementById('cgpa');
+            cgpaSpan.textContent = studentData.cgpa || '-';
+            if (studentData.cgpa) {
+                cgpaSpan.style.backgroundColor = getCgpaColor(studentData.cgpa);
+            }
             document.getElementById('cgpaBeforeDrop').textContent = studentData.cgpa_before_drop || '-';
+            document.getElementById('isCgpaUpdated').textContent = studentData.isCgpaUpdated ? 'Yes' : 'No';
+            document.getElementById('cgpaUpdateEnabled').textContent = studentData.cgpaUpdateEnabled ? 'Yes' : 'No';
             document.getElementById('cgpa10th').textContent = studentData.cgpa_10th || '-';
             document.getElementById('cgpa12th').textContent = studentData.cgpa_12th || '-';
-            document.getElementById('graduationGpa').textContent = studentData.graduation_gpa || 'Not set';
-            document.getElementById('backlogs').textContent = studentData.backlogs || '-';
-            document.getElementById('ppo').textContent = studentData.isPPO ? 'True' : 'False';
-            document.getElementById('sem1Gpa').textContent = studentData.sem1_gpa || '-';
-            document.getElementById('sem2Gpa').textContent = studentData.sem2_gpa || '-';
-            document.getElementById('sem3Gpa').textContent = studentData.sem3_gpa || '-';
-            document.getElementById('sem4Gpa').textContent = studentData.sem4_gpa || '-';
-            document.getElementById('sem5Gpa').textContent = studentData.sem5_gpa || '-';
-            document.getElementById('sem6Gpa').textContent = studentData.sem6_gpa || '-';
-            document.getElementById('sem7Gpa').textContent = studentData.sem7_gpa || '-';
-            document.getElementById('sem8Gpa').textContent = studentData.sem8_gpa || '-';
+            document.getElementById('graduationGpa').textContent = studentData.graduation_gpa !== -1 ? studentData.graduation_gpa : 'Not Set';
+            document.getElementById('backlogs').textContent = studentData.backlogs || '0';
+            document.getElementById('isPPO').textContent = studentData.isPPO ? 'Yes' : 'No';
 
             // Status & Timestamps
             document.getElementById('status').textContent = studentData.status || '-';
-            document.getElementById('userCreatedAt').textContent = studentData.user?.createdAt?.split('T')[0] || '-';
-            document.getElementById('updatedAt').textContent = studentData.updatedAt?.split('T')[0] || '-';
-            document.getElementById('publishedAt').textContent = studentData.published_at?.split('T')[0] || '-';
+            document.getElementById('userCreatedAt').textContent = studentData.user?.createdAt ? new Date(studentData.user.createdAt).toLocaleDateString() : '-';
+            document.getElementById('updatedAt').textContent = studentData.updatedAt ? new Date(studentData.updatedAt).toLocaleDateString() : '-';
+            document.getElementById('publishedAt').textContent = studentData.published_at ? new Date(studentData.published_at).toLocaleDateString() : '-';
 
             // Documents (Resume)
-            const resume = studentData.resume && studentData.resume.length > 0 ? studentData.resume[0] : {};
+            const resume = studentData.resume && studentData.resume[0] ? studentData.resume[0] : {};
             document.getElementById('resumeName').textContent = resume.name || '-';
             document.getElementById('resumeSize').textContent = resume.size ? `${resume.size} KB` : '-';
-            document.getElementById('resumeUrl').innerHTML = resume.url ? `<a href="${resume.url}" target="_blank" class="tag" style="background-color: #bfdbfe">Download</a>` : '-';
-            document.getElementById('resumeCreatedAt').textContent = resume.createdAt?.split('T')[0] || '-';
+            const resumeUrlSpan = document.getElementById('resumeUrl');
+            if (resume.url) {
+                resumeUrlSpan.innerHTML = `<a href="${resume.url}" target="_blank" class="text-blue-600 underline">Download</a>`;
+            } else {
+                resumeUrlSpan.textContent = '-';
+            }
+            document.getElementById('resumeUploadDate').textContent = resume.createdAt ? new Date(resume.createdAt).toLocaleDateString() : '-';
             document.getElementById('resumeMime').textContent = resume.mime || '-';
             document.getElementById('resumeProvider').textContent = resume.provider || '-';
 
             // Restrictions / Bans
-            document.getElementById('bans').textContent = studentData.bans || '-';
+            document.getElementById('bans').textContent = studentData.bans || '0';
             document.getElementById('currentBan').textContent = studentData.currentBan || 'None';
 
             // Internship & Placement
-            document.getElementById('internshipApplied').textContent = studentData.intern_applied?.length > 0 ? studentData.intern_applied.join(', ') : 'None';
-            document.getElementById('placementApplied').textContent = studentData.placement_applied?.length > 0 ? studentData.placement_applied.join(', ') : 'None';
+            document.getElementById('internApplied').textContent = studentData.intern_applied && studentData.intern_applied.length > 0 ? studentData.intern_applied.join(', ') : 'None';
+            document.getElementById('placementApplied').textContent = studentData.placement_applied && studentData.placement_applied.length > 0 ? studentData.placement_applied.join(', ') : 'None';
 
             // Semester-wise GPA Data
-            const semesterGpaBody = document.getElementById('semesterGpaBody');
-            semesterGpaBody.innerHTML = '';
-            if (studentData.allSemGPA?.semesterWiseData?.length > 0) {
-                studentData.allSemGPA.semesterWiseData.forEach(sem => {
+            const semesterTableBody = document.getElementById('semesterTableBody');
+            semesterTableBody.innerHTML = '';
+            const semesterWiseData = studentData.allSemGPA?.semesterWiseData || [];
+            if (semesterWiseData.length === 0) {
+                semesterTableBody.innerHTML = '<tr><td colspan="4">No semester data available.</td></tr>';
+            } else {
+                semesterWiseData.forEach(sem => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${sem.semester || '-'}</td>
@@ -703,17 +722,18 @@
                         <td>${sem.totalCredit || '-'}</td>
                         <td>${sem.totalCreditPoints || '-'}</td>
                     `;
-                    semesterGpaBody.appendChild(row);
+                    semesterTableBody.appendChild(row);
                 });
-            } else {
-                semesterGpaBody.innerHTML = '<tr><td colspan="4">No semester GPA data available.</td></tr>';
             }
 
             // Course-wise Data
-            const courseBody = document.getElementById('courseBody');
-            courseBody.innerHTML = '';
-            if (studentData.allSemGPA?.courseWiseData?.length > 0) {
-                studentData.allSemGPA.courseWiseData.forEach(course => {
+            const courseTableBody = document.getElementById('courseTableBody');
+            courseTableBody.innerHTML = '';
+            const courseWiseData = studentData.allSemGPA?.courseWiseData || [];
+            if (courseWiseData.length === 0) {
+                courseTableBody.innerHTML = '<tr><td colspan="8">No course data available.</td></tr>';
+            } else {
+                courseWiseData.forEach(course => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${course.courseCode || '-'}</td>
@@ -725,11 +745,19 @@
                         <td>${course.gradePoints || '-'}</td>
                         <td>${course.creditPoints || '-'}</td>
                     `;
-                    courseBody.appendChild(row);
+                    courseTableBody.appendChild(row);
                 });
-            } else {
-                courseBody.innerHTML = '<tr><td colspan="8">No course data available.</td></tr>';
             }
+
+            // Semester GPA Grid
+            document.getElementById('sem1Gpa').textContent = studentData.sem1_gpa || '-';
+            document.getElementById('sem2Gpa').textContent = studentData.sem2_gpa || '-';
+            document.getElementById('sem3Gpa').textContent = studentData.sem3_gpa || '-';
+            document.getElementById('sem4Gpa').textContent = studentData.sem4_gpa || '-';
+            document.getElementById('sem5Gpa').textContent = studentData.sem5_gpa || '-';
+            document.getElementById('sem6Gpa').textContent = studentData.sem6_gpa || '-';
+            document.getElementById('sem7Gpa').textContent = studentData.sem7_gpa || '-';
+            document.getElementById('sem8Gpa').textContent = studentData.sem8_gpa || '-';
         }
 
         // Render CGPA and Semester GPA charts
@@ -829,7 +857,6 @@
                 studentData.sem8_gpa || 0
             ].map(parseFloat);
 
-            // Adjust performance trend data
             const performanceTrendData = [...semesterData];
             let lastKnownValue = parseFloat(studentData.cgpa) || 0;
             let lastKnownIndex = -1;
@@ -929,7 +956,7 @@
             });
         }
 
-        // Display eligible companies
+        // Display eligible companies with color coding
         function displayEligibleCompanies() {
             const studentCgpa = parseFloat(studentData.cgpa) || 0;
             const eligibleCompanies = companies
@@ -1061,7 +1088,7 @@
                 }
             });
 
-            // Target companies
+            // Find target companies after CGPA improvement
             const targetCompanies = companies
                 .filter(company => {
                     const cutoff = parseFloat(company['Cutoff CGPA']) || 0;
