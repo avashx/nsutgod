@@ -447,138 +447,215 @@
 
     <script src="session.js"></script>
     <script>
-        // Check session on page load
-        if (typeof checkSession === 'function') {
-            checkSession();
-        } else {
-            console.warn('session.js not loaded or checkSession not defined.');
-        }
-
-        const menuToggle = document.getElementById('menuToggle');
-        const navbar = document.getElementById('navbar');
-        let studentData = {};
-        let allStudents = [];
-        let companies = [];
-
-        // Get roll number from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const rollNumber = urlParams.get('roll');
-
-        // Branch, Gender, and Category color mapping
-        const branchColors = {
-            'CSAI': '#bfdbfe',
-            'CSE': '#93c5fd',
-            'CSDS': '#60a5fa',
-            'CIOT': '#93c5fd',
-            'IT': '#bfdbfe',
-            'ITNS': '#dbeafe',
-            'MAC': '#fef9c3',
-            'ECIOT': '#fef9c3',
-            'ECE': '#fef3c7',
-            'ECAM': '#fde68a',
-            'EE': '#fce7a3',
-            'ICE': '#fef9c3',
-            'ME': '#fef3c7',
-            'MEEV': '#fef9c3',
-            'WEST': '#fef2f2',
-            'CE': '#fee2e2',
-            'BT': '#ffedd5',
-            'GI': '#fed7aa'
-        };
-        const genderColors = {
-            'male': '#bfdbfe',
-            'female': '#f9a8d4',
-            'other': '#d1fae5'
-        };
-        const categoryColors = {
-            'GENERAL': '#e5e7eb',
-            'OBC': '#fef9c3',
-            'SC': '#bfdbfe',
-            'ST': '#ffedd5',
-            'EWS': '#d1fae5'
-        };
-
-        // Company type color mapping
-        const companyTypeColors = {
-            'Tech': '#bfdbfe',
-            'Non-Tech': '#d1fae5',
-            'Core': '#fed7aa'
-        };
-
-        // Function to get color based on CGPA
-        function getCgpaColor(value) {
-            value = parseFloat(value) || 0;
-            if (value < 7) return '#f87171';
-            if (value <= 8.5) return '#facc15';
-            return '#4ade80';
-        }
-
-        // Function to get color based on CTC
-        function getCtcColor(ctc) {
-            ctc = parseFloat(ctc) || 0;
-            if (ctc < 10) return '#f87171';
-            if (ctc <= 20) return '#facc15';
-            return '#4ade80';
-        }
-
-        // Function to determine company type
-        function getCompanyType(companyName) {
-            const techCompanies = ['Google', 'Microsoft', 'Amazon', 'Adobe', 'Oracle', 'Flipkart', 'Goldman Sachs', 'Uber', 'Atlassian'];
-            const coreCompanies = ['L&T', 'Siemens', 'Tata Steel', 'Bajaj', 'Maruti Suzuki'];
-            if (techCompanies.includes(companyName)) return 'Tech';
-            if (coreCompanies.includes(companyName)) return 'Core';
-            return 'Non-Tech';
-        }
-
-        // Safely set text content
-        function safeSetText(elementId, value) {
-            const element = document.getElementById(elementId);
-            if (element) {
-                element.textContent = value;
+        // Ensure the page is fully loaded before running scripts
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check session on page load
+            if (typeof checkSession === 'function') {
+                checkSession();
             } else {
-                console.warn(`Element with ID ${elementId} not found.`);
+                console.warn('session.js not loaded or checkSession not defined.');
             }
-        }
 
-        // Safely set innerHTML
-        function safeSetHTML(elementId, html) {
-            const element = document.getElementById(elementId);
-            if (element) {
-                element.innerHTML = html;
-            } else {
-                console.warn(`Element with ID ${elementId} not found.`);
+            const menuToggle = document.getElementById('menuToggle');
+            const navbar = document.getElementById('navbar');
+            let studentData = {};
+            let allStudents = [];
+            let companies = [];
+
+            // Get roll number from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const rollNumber = urlParams.get('roll');
+            console.log('Roll number from URL:', rollNumber);
+
+            if (!rollNumber) {
+                console.error('No roll number provided in URL.');
+                displayErrorState('No roll number provided.');
+                return;
             }
-        }
 
-        // Safely set style
-        function safeSetStyle(elementId, property, value) {
-            const element = document.getElementById(elementId);
-            if (element) {
-                element.style[property] = value;
-            } else {
-                console.warn(`Element with ID ${elementId} not found for styling.`);
+            // Branch, Gender, and Category color mapping
+            const branchColors = {
+                'CSAI': '#bfdbfe',
+                'CSE': '#93c5fd',
+                'CSDS': '#60a5fa',
+                'CIOT': '#93c5fd',
+                'IT': '#bfdbfe',
+                'ITNS': '#dbeafe',
+                'MAC': '#fef9c3',
+                'ECIOT': '#fef9c3',
+                'ECE': '#fef3c7',
+                'ECAM': '#fde68a',
+                'EE': '#fce7a3',
+                'ICE': '#fef9c3',
+                'ME': '#fef3c7',
+                'MEEV': '#fef9c3',
+                'WEST': '#fef2f2',
+                'CE': '#fee2e2',
+                'BT': '#ffedd5',
+                'GI': '#fed7aa'
+            };
+            const genderColors = {
+                'male': '#bfdbfe',
+                'female': '#f9a8d4',
+                'other': '#d1fae5'
+            };
+            const categoryColors = {
+                'GENERAL': '#e5e7eb',
+                'OBC': '#fef9c3',
+                'SC': '#bfdbfe',
+                'ST': '#ffedd5',
+                'EWS': '#d1fae5'
+            };
+
+            // Company type color mapping
+            const companyTypeColors = {
+                'Tech': '#bfdbfe',
+                'Non-Tech': '#d1fae5',
+                'Core': '#fed7aa'
+            };
+
+            // Function to get color based on CGPA
+            function getCgpaColor(value) {
+                value = parseFloat(value) || 0;
+                if (value < 7) return '#f87171';
+                if (value <= 8.5) return '#facc15';
+                return '#4ade80';
             }
-        }
 
-        // Fetch student data from JSON
-        fetch('https://raw.githubusercontent.com/avashx/nsutgod/main/src/students.json')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+            // Function to get color based on CTC
+            function getCtcColor(ctc) {
+                ctc = parseFloat(ctc) || 0;
+                if (ctc < 10) return '#f87171';
+                if (ctc <= 20) return '#facc15';
+                return '#4ade80';
+            }
+
+            // Function to determine company type
+            function getCompanyType(companyName) {
+                const techCompanies = ['Google', 'Microsoft', 'Amazon', 'Adobe', 'Oracle', 'Flipkart', 'Goldman Sachs', 'Uber', 'Atlassian'];
+                const coreCompanies = ['L&T', 'Siemens', 'Tata Steel', 'Bajaj', 'Maruti Suzuki'];
+                if (techCompanies.includes(companyName)) return 'Tech';
+                if (coreCompanies.includes(companyName)) return 'Core';
+                return 'Non-Tech';
+            }
+
+            // Safely set text content
+            function safeSetText(elementId, value) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = value || '-';
+                } else {
+                    console.warn(`Element with ID ${elementId} not found.`);
                 }
-                return response.json();
-            })
-            .then(data => {
-                allStudents = data.map(student => ({
-                    ...student,
-                    gender: student.gender ? student.gender.toLowerCase() : '-'
-                }));
-                studentData = allStudents.find(student => student.rollNumber === rollNumber) || {};
-                if (!studentData.rollNumber) {
-                    console.error('Student not found for roll number:', rollNumber);
+            }
+
+            // Safely set innerHTML
+            function safeSetHTML(elementId, html) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.innerHTML = html || '-';
+                } else {
+                    console.warn(`Element with ID ${elementId} not found.`);
+                }
+            }
+
+            // Safely set style
+            function safeSetStyle(elementId, property, value) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.style[property] = value;
+                } else {
+                    console.warn(`Element with ID ${elementId} not found for styling.`);
+                }
+            }
+
+            // Display error state
+            function displayErrorState(message) {
+                safeSetText('studentName', 'Error');
+                safeSetText('name', 'Error');
+                safeSetText('rollNumber', message);
+                safeSetHTML('semesterTableBody', '<tr><td colspan="4">No data available.</td></tr>');
+                safeSetHTML('courseTableBody', '<tr><td colspan="8">No data available.</td></tr>');
+                safeSetHTML('eligibleCompaniesBody', '<tr><td colspan="3">No data available.</td></tr>');
+                safeSetHTML('targetCompaniesBody', '<tr><td colspan="3">No data available.</td></tr>');
+                console.error('Error state displayed:', message);
+            }
+
+            // Fetch student data from JSON
+            fetch('https://raw.githubusercontent.com/avashx/nsutgod/main/src/students.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Fetched student data:', data);
+                    allStudents = data.map(student => ({
+                        ...student,
+                        gender: student.gender ? student.gender.toLowerCase() : '-'
+                    }));
+                    studentData = allStudents.find(student => student.rollNumber === rollNumber) || {};
+                    console.log('Selected student data:', studentData);
+                    if (!studentData.rollNumber) {
+                        console.error('Student not found for roll number:', rollNumber);
+                        studentData = {
+                            rollNumber: "Not Found",
+                            Name: "Unknown",
+                            branch: "-",
+                            email: "-",
+                            personal_email: "-",
+                            degree: "-",
+                            campus: "-",
+                            gender: "-",
+                            contact_number: "-",
+                            alt_contact_number: "-",
+                            cgpa_10th: "-",
+                            cgpa_12th: "-",
+                            cgpa: 0,
+                            cgpa_before_drop: 0,
+                            sem1_gpa: 0,
+                            sem2_gpa: 0,
+                            sem3_gpa: 0,
+                            sem4_gpa: 0,
+                            sem5_gpa: 0,
+                            sem6_gpa: 0,
+                            sem7_gpa: 0,
+                            sem8_gpa: 0,
+                            backlogs: "-",
+                            blood_group: "-",
+                            present_address: "-",
+                            perm_address: "-",
+                            category: "-",
+                            pwd: false,
+                            graduation_gpa: "-",
+                            dob: "-",
+                            batch: "-",
+                            isPPO: false,
+                            isCgpaUpdated: false,
+                            cgpaUpdateEnabled: false,
+                            status: "-",
+                            user: { createdAt: "-", updatedAt: "-", email: "-" },
+                            published_at: "-",
+                            resume: [{ name: "-", size: "-", url: "-", createdAt: "-", mime: "-", provider: "-" }],
+                            bans: "0",
+                            currentBan: "-",
+                            intern_applied: [],
+                            placement_applied: [],
+                            allSemGPA: { semesterWiseData: [], courseWiseData: [] }
+                        };
+                        displayErrorState(`Student with roll number ${rollNumber} not found.`);
+                    }
+                    displayStudentData();
+                    renderCharts();
+                    provideSuggestions();
+                })
+                .catch(error => {
+                    console.error('Error fetching students JSON:', error);
                     studentData = {
-                        rollNumber: "Not Found",
-                        Name: "Unknown",
+                        rollNumber: "Error",
+                        Name: "Error",
+                        cgpa: 0,
                         branch: "-",
                         email: "-",
                         personal_email: "-",
@@ -589,7 +666,6 @@
                         alt_contact_number: "-",
                         cgpa_10th: "-",
                         cgpa_12th: "-",
-                        cgpa: 0,
                         cgpa_before_drop: 0,
                         sem1_gpa: 0,
                         sem2_gpa: 0,
@@ -621,605 +697,556 @@
                         placement_applied: [],
                         allSemGPA: { semesterWiseData: [], courseWiseData: [] }
                     };
-                }
-                displayStudentData();
-                renderCharts();
-                provideSuggestions();
-            })
-            .catch(error => {
-                console.error('Error fetching students JSON:', error);
-                studentData = {
-                    rollNumber: "Error",
-                    Name: "Error",
-                    cgpa: 0,
-                    branch: "-",
-                    email: "-",
-                    personal_email: "-",
-                    degree: "-",
-                    campus: "-",
-                    gender: "-",
-                    contact_number: "-",
-                    alt_contact_number: "-",
-                    cgpa_10th: "-",
-                    cgpa_12th: "-",
-                    cgpa_before_drop: 0,
-                    sem1_gpa: 0,
-                    sem2_gpa: 0,
-                    sem3_gpa: 0,
-                    sem4_gpa: 0,
-                    sem5_gpa: 0,
-                    sem6_gpa: 0,
-                    sem7_gpa: 0,
-                    sem8_gpa: 0,
-                    backlogs: "-",
-                    blood_group: "-",
-                    present_address: "-",
-                    perm_address: "-",
-                    category: "-",
-                    pwd: false,
-                    graduation_gpa: "-",
-                    dob: "-",
-                    batch: "-",
-                    isPPO: false,
-                    isCgpaUpdated: false,
-                    cgpaUpdateEnabled: false,
-                    status: "-",
-                    user: { createdAt: "-", updatedAt: "-", email: "-" },
-                    published_at: "-",
-                    resume: [{ name: "-", size: "-", url: "-", createdAt: "-", mime: "-", provider: "-" }],
-                    bans: "0",
-                    currentBan: "-",
-                    intern_applied: [],
-                    placement_applied: [],
-                    allSemGPA: { semesterWiseData: [], courseWiseData: [] }
-                };
-                displayStudentData();
-                renderCharts();
-                provideSuggestions();
-            });
-
-        // Fetch company data from place.csv
-        fetch('https://raw.githubusercontent.com/avashx/nsutgod/main/src/place.csv')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.text();
-            })
-            .then(csvText => {
-                Papa.parse(csvText, {
-                    header: true,
-                    complete: function(results) {
-                        companies = results.data
-                            .filter(company => company.Company && company['Cutoff CGPA'] && company['CTC (LPA)'])
-                            .map(company => ({
-                                Company: company.Company,
-                                'CTC (LPA)': parseFloat(company['CTC (LPA)']) || 0,
-                                'Cutoff CGPA': parseFloat(company['Cutoff CGPA']) || 0
-                            }));
-                        displayEligibleCompanies();
-                        provideSuggestions();
-                    },
-                    error: function(error) {
-                        console.error('Error parsing companies CSV:', error);
-                        safeSetHTML('eligibleCompaniesBody', '<tr><td colspan="3">Error loading company data.</td></tr>');
-                    }
+                    displayErrorState('Failed to load student data.');
+                    displayStudentData();
+                    renderCharts();
+                    provideSuggestions();
                 });
-            })
-            .catch(error => {
-                console.error('Error fetching companies CSV:', error);
-                safeSetHTML('eligibleCompaniesBody', '<tr><td colspan="3">Error loading company data.</td></tr>');
-            });
 
-        // Display student data in the boxes
-        function displayStudentData() {
-            // Student Name
-            safeSetText('studentName', studentData.Name || '-');
-
-            // Personal Information
-            safeSetText('name', studentData.Name || '-');
-            safeSetText('gender', studentData.gender || '-');
-            if (studentData.gender && genderColors[studentData.gender]) {
-                safeSetStyle('gender', 'backgroundColor', genderColors[studentData.gender]);
-            }
-            safeSetText('dob', studentData.dob || '-');
-            safeSetText('bloodGroup', studentData.blood_group || 'Not Provided');
-            safeSetText('category', studentData.category || '-');
-            if (studentData.category && categoryColors[studentData.category]) {
-                safeSetStyle('category', 'backgroundColor', categoryColors[studentData.category]);
-            }
-            safeSetText('pwd', studentData.pwd ? 'Yes' : 'No');
-
-            // Contact Information
-            safeSetText('contactNumber', studentData.contact_number || '-');
-            safeSetText('alternateContact', studentData.alt_contact_number || '-');
-            safeSetText('email', studentData.email || '-');
-            safeSetText('personalEmail', studentData.personal_email || '-');
-            safeSetText('permanentAddress', studentData.perm_address || 'Not Provided');
-            safeSetText('presentAddress', studentData.present_address || 'Not Provided');
-
-            // Academic Information
-            safeSetText('rollNumber', studentData.rollNumber || '-');
-            safeSetText('branch', studentData.branch || '-');
-            if (studentData.branch && branchColors[studentData.branch]) {
-                safeSetStyle('branch', 'backgroundColor', branchColors[studentData.branch]);
-            }
-            safeSetText('degree', studentData.degree || '-');
-            safeSetText('batch', studentData.batch || '-');
-            safeSetText('campus', studentData.campus || '-');
-            safeSetText('cgpa', studentData.cgpa || '-');
-            if (studentData.cgpa) {
-                safeSetStyle('cgpa', 'backgroundColor', getCgpaColor(studentData.cgpa));
-            }
-            safeSetText('cgpaBeforeDrop', studentData.cgpa_before_drop || '-');
-            safeSetText('isCgpaUpdated', studentData.isCgpaUpdated ? 'Yes' : 'No');
-            safeSetText('cgpaUpdateEnabled', studentData.cgpaUpdateEnabled ? 'Yes' : 'No');
-            safeSetText('cgpa10th', studentData.cgpa_10th || '-');
-            safeSetText('cgpa12th', studentData.cgpa_12th || '-');
-            safeSetText('graduationGpa', studentData.graduation_gpa !== -1 ? studentData.graduation_gpa : 'Not Set');
-            safeSetText('backlogs', studentData.backlogs || '0');
-            safeSetText('isPPO', studentData.isPPO ? 'Yes' : 'No');
-
-            // Status & Timestamps
-            safeSetText('status', studentData.status || '-');
-            safeSetText('userCreatedAt', studentData.user?.createdAt ? new Date(studentData.user.createdAt).toLocaleDateString() : '-');
-            safeSetText('updatedAt', studentData.updatedAt ? new Date(studentData.updatedAt).toLocaleDateString() : '-');
-            safeSetText('publishedAt', studentData.published_at ? new Date(studentData.published_at).toLocaleDateString() : '-');
-
-            // Documents (Resume)
-            const resume = studentData.resume && studentData.resume[0] ? studentData.resume[0] : {};
-            safeSetText('resumeName', resume.name || '-');
-            safeSetText('resumeSize', resume.size ? `${resume.size} KB` : '-');
-            if (resume.url) {
-                safeSetHTML('resumeUrl', `<a href="${resume.url}" target="_blank" class="text-blue-600 underline">Download</a>`);
-            } else {
-                safeSetText('resumeUrl', '-');
-            }
-            safeSetText('resumeUploadDate', resume.createdAt ? new Date(resume.createdAt).toLocaleDateString() : '-');
-            safeSetText('resumeMime', resume.mime || '-');
-            safeSetText('resumeProvider', resume.provider || '-');
-
-            // Restrictions / Bans
-            safeSetText('bans', studentData.bans || '0');
-            safeSetText('currentBan', studentData.currentBan || 'None');
-
-            // Internship & Placement
-            safeSetText('internApplied', studentData.intern_applied && studentData.intern_applied.length > 0 ? studentData.intern_applied.join(', ') : 'None');
-            safeSetText('placementApplied', studentData.placement_applied && studentData.placement_applied.length > 0 ? studentData.placement_applied.join(', ') : 'None');
-
-            // Semester-wise GPA Data
-            const semesterTableBody = document.getElementById('semesterTableBody');
-            if (semesterTableBody) {
-                semesterTableBody.innerHTML = '';
-                const semesterWiseData = studentData.allSemGPA?.semesterWiseData || [];
-                if (semesterWiseData.length === 0) {
-                    semesterTableBody.innerHTML = '<tr><td colspan="4">No semester data available.</td></tr>';
-                } else {
-                    semesterWiseData.forEach(sem => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${sem.semester || '-'}</td>
-                            <td><span class="tag" style="background-color: ${getCgpaColor(sem.sgpa)}">${sem.sgpa || '-'}</span></td>
-                            <td>${sem.totalCredit || '-'}</td>
-                            <td>${sem.totalCreditPoints || '-'}</td>
-                        `;
-                        semesterTableBody.appendChild(row);
+            // Fetch company data from place.csv
+            fetch('https://raw.githubusercontent.com/avashx/nsutgod/main/src/place.csv')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(csvText => {
+                    Papa.parse(csvText, {
+                        header: true,
+                        complete: function(results) {
+                            console.log('Fetched company data:', results.data);
+                            companies = results.data
+                                .filter(company => company.Company && company['Cutoff CGPA'] && company['CTC (LPA)'])
+                                .map(company => ({
+                                    Company: company.Company,
+                                    'CTC (LPA)': parseFloat(company['CTC (LPA)']) || 0,
+                                    'Cutoff CGPA': parseFloat(company['Cutoff CGPA']) || 0
+                                }));
+                            displayEligibleCompanies();
+                            provideSuggestions();
+                        },
+                        error: function(error) {
+                            console.error('Error parsing companies CSV:', error);
+                            safeSetHTML('eligibleCompaniesBody', '<tr><td colspan="3">Error loading company data.</td></tr>');
+                        }
                     });
+                })
+                .catch(error => {
+                    console.error('Error fetching companies CSV:', error);
+                    safeSetHTML('eligibleCompaniesBody', '<tr><td colspan="3">Error loading company data.</td></tr>');
+                });
+
+            // Display student data in the boxes
+            function displayStudentData() {
+                console.log('Displaying student data:', studentData);
+                // Student Name
+                safeSetText('studentName', studentData.Name || '-');
+
+                // Personal Information
+                safeSetText('name', studentData.Name || '-');
+                safeSetText('gender', studentData.gender || '-');
+                if (studentData.gender && genderColors[studentData.gender]) {
+                    safeSetStyle('gender', 'backgroundColor', genderColors[studentData.gender]);
+                }
+                safeSetText('dob', studentData.dob || '-');
+                safeSetText('bloodGroup', studentData.blood_group || 'Not Provided');
+                safeSetText('category', studentData.category || '-');
+                if (studentData.category && categoryColors[studentData.category]) {
+                    safeSetStyle('category', 'backgroundColor', categoryColors[studentData.category]);
+                }
+                safeSetText('pwd', studentData.pwd ? 'Yes' : 'No');
+
+                // Contact Information
+                safeSetText('contactNumber', studentData.contact_number || '-');
+                safeSetText('alternateContact', studentData.alt_contact_number || '-');
+                safeSetText('email', studentData.email || '-');
+                safeSetText('personalEmail', studentData.personal_email || '-');
+                safeSetText('permanentAddress', studentData.perm_address || 'Not Provided');
+                safeSetText('presentAddress', studentData.present_address || 'Not Provided');
+
+                // Academic Information
+                safeSetText('rollNumber', studentData.rollNumber || '-');
+                safeSetText('branch', studentData.branch || '-');
+                if (studentData.branch && branchColors[studentData.branch]) {
+                    safeSetStyle('branch', 'backgroundColor', branchColors[studentData.branch]);
+                }
+                safeSetText('degree', studentData.degree || '-');
+                safeSetText('batch', studentData.batch || '-');
+                safeSetText('campus', studentData.campus || '-');
+                safeSetText('cgpa', studentData.cgpa || '-');
+                if (studentData.cgpa) {
+                    safeSetStyle('cgpa', 'backgroundColor', getCgpaColor(studentData.cgpa));
+                }
+                safeSetText('cgpaBeforeDrop', studentData.cgpa_before_drop || '-');
+                safeSetText('isCgpaUpdated', studentData.isCgpaUpdated ? 'Yes' : 'No');
+                safeSetText('cgpaUpdateEnabled', studentData.cgpaUpdateEnabled ? 'Yes' : 'No');
+                safeSetText('cgpa10th', studentData.cgpa_10th || '-');
+                safeSetText('cgpa12th', studentData.cgpa_12th || '-');
+                safeSetText('graduationGpa', studentData.graduation_gpa !== -1 ? studentData.graduation_gpa : 'Not Set');
+                safeSetText('backlogs', studentData.backlogs || '0');
+                safeSetText('isPPO', studentData.isPPO ? 'Yes' : 'No');
+
+                // Status & Timestamps
+                safeSetText('status', studentData.status || '-');
+                safeSetText('userCreatedAt', studentData.user?.createdAt ? new Date(studentData.user.createdAt).toLocaleDateString() : '-');
+                safeSetText('updatedAt', studentData.updatedAt ? new Date(studentData.updatedAt).toLocaleDateString() : '-');
+                safeSetText('publishedAt', studentData.published_at ? new Date(studentData.published_at).toLocaleDateString() : '-');
+
+                // Documents (Resume)
+                const resume = studentData.resume && studentData.resume[0] ? studentData.resume[0] : {};
+                safeSetText('resumeName', resume.name || '-');
+                safeSetText('resumeSize', resume.size ? `${resume.size} KB` : '-');
+                if (resume.url) {
+                    safeSetHTML('resumeUrl', `<a href="${resume.url}" target="_blank" class="text-blue-600 underline">Download</a>`);
+                } else {
+                    safeSetText('resumeUrl', '-');
+                }
+                safeSetText('resumeUploadDate', resume.createdAt ? new Date(resume.createdAt).toLocaleDateString() : '-');
+                safeSetText('resumeMime', resume.mime || '-');
+                safeSetText('resumeProvider', resume.provider || '-');
+
+                // Restrictions / Bans
+                safeSetText('bans', studentData.bans || '0');
+                safeSetText('currentBan', studentData.currentBan || 'None');
+
+                // Internship & Placement
+                safeSetText('internApplied', studentData.intern_applied && studentData.intern_applied.length > 0 ? studentData.intern_applied.join(', ') : 'None');
+                safeSetText('placementApplied', studentData.placement_applied && studentData.placement_applied.length > 0 ? studentData.placement_applied.join(', ') : 'None');
+
+                // Semester-wise GPA Data
+                const semesterTableBody = document.getElementById('semesterTableBody');
+                if (semesterTableBody) {
+                    semesterTableBody.innerHTML = '';
+                    const semesterWiseData = studentData.allSemGPA?.semesterWiseData || [];
+                    if (semesterWiseData.length === 0) {
+                        semesterTableBody.innerHTML = '<tr><td colspan="4">No semester data available.</td></tr>';
+                    } else {
+                        semesterWiseData.forEach(sem => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${sem.semester || '-'}</td>
+                                <td><span class="tag" style="background-color: ${getCgpaColor(sem.sgpa)}">${sem.sgpa || '-'}</span></td>
+                                <td>${sem.totalCredit || '-'}</td>
+                                <td>${sem.totalCreditPoints || '-'}</td>
+                            `;
+                            semesterTableBody.appendChild(row);
+                        });
+                    }
+                }
+
+                // Course-wise Data
+                const courseTableBody = document.getElementById('courseTableBody');
+                if (courseTableBody) {
+                    courseTableBody.innerHTML = '';
+                    const courseWiseData = studentData.allSemGPA?.courseWiseData || [];
+                    if (courseWiseData.length === 0) {
+                        courseTableBody.innerHTML = '<tr><td colspan="8">No course data available.</td></tr>';
+                    } else {
+                        courseWiseData.forEach(course => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${course.courseCode || '-'}</td>
+                                <td>${course.courseTitle || '-'}</td>
+                                <td>${course.courseType || '-'}</td>
+                                <td>${course.sem || '-'}</td>
+                                <td>${course.credits || '-'}</td>
+                                <td><span class="tag" style="background-color: ${getCgpaColor(course.gradePoints)}">${course.gradeLetter || '-'}</span></td>
+                                <td>${course.gradePoints || '-'}</td>
+                                <td>${course.creditPoints || '-'}</td>
+                            `;
+                            courseTableBody.appendChild(row);
+                        });
+                    }
                 }
             }
 
-            // Course-wise Data
-            const courseTableBody = document.getElementById('courseTableBody');
-            if (courseTableBody) {
-                courseTableBody.innerHTML = '';
-                const courseWiseData = studentData.allSemGPA?.courseWiseData || [];
-                if (courseWiseData.length === 0) {
-                    courseTableBody.innerHTML = '<tr><td colspan="8">No course data available.</td></tr>';
-                } else {
-                    courseWiseData.forEach(course => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${course.courseCode || '-'}</td>
-                            <td>${course.courseTitle || '-'}</td>
-                            <td>${course.courseType || '-'}</td>
-                            <td>${course.sem || '-'}</td>
-                            <td>${course.credits || '-'}</td>
-                            <td><span class="tag" style="background-color: ${getCgpaColor(course.gradePoints)}">${course.gradeLetter || '-'}</span></td>
-                            <td>${course.gradePoints || '-'}</td>
-                            <td>${course.creditPoints || '-'}</td>
-                        `;
-                        courseTableBody.appendChild(row);
-                    });
-                }
-            }
+            // Render CGPA and Semester GPA charts
+            function renderCharts() {
+                const branchStudents = allStudents.filter(s => s.branch === studentData.branch);
+                const branchAvgCgpa = branchStudents.length ? branchStudents.reduce((sum, s) => sum + (parseFloat(s.cgpa) || 0), 0) / branchStudents.length : 0;
+                const universityAvgCgpa = allStudents.length ? allStudents.reduce((sum, s) => sum + (parseFloat(s.cgpa) || 0), 0) / allStudents.length : 0;
+                const branchHighestCgpa = branchStudents.length ? Math.max(...branchStudents.map(s => parseFloat(s.cgpa) || 0)) : 0;
+                const universityHighestCgpa = allStudents.length ? Math.max(...allStudents.map(s => parseFloat(s.cgpa) || 0)) : 0;
+                const yourCgpa = parseFloat(studentData.cgpa) || 0;
 
-            // Semester GPA Grid
-            safeSetText('sem1Gpa', studentData.sem1_gpa || '-');
-            safeSetText('sem2Gpa', studentData.sem2_gpa || '-');
-            safeSetText('sem3Gpa', studentData.sem3_gpa || '-');
-            safeSetText('sem4Gpa', studentData.sem4_gpa || '-');
-            safeSetText('sem5Gpa', studentData.sem5_gpa || '-');
-            safeSetText('sem6Gpa', studentData.sem6_gpa || '-');
-            safeSetText('sem7Gpa', studentData.sem7_gpa || '-');
-            safeSetText('sem8Gpa', studentData.sem8_gpa || '-');
-        }
-
-        // Render CGPA and Semester GPA charts
-        function renderCharts() {
-            const branchStudents = allStudents.filter(s => s.branch === studentData.branch);
-            const branchAvgCgpa = branchStudents.length ? branchStudents.reduce((sum, s) => sum + (parseFloat(s.cgpa) || 0), 0) / branchStudents.length : 0;
-            const universityAvgCgpa = allStudents.length ? allStudents.reduce((sum, s) => sum + (parseFloat(s.cgpa) || 0), 0) / allStudents.length : 0;
-            const branchHighestCgpa = branchStudents.length ? Math.max(...branchStudents.map(s => parseFloat(s.cgpa) || 0)) : 0;
-            const universityHighestCgpa = allStudents.length ? Math.max(...allStudents.map(s => parseFloat(s.cgpa) || 0)) : 0;
-            const yourCgpa = parseFloat(studentData.cgpa) || 0;
-
-            const cgpaChartCtx = document.getElementById('cgpaChart')?.getContext('2d');
-            if (cgpaChartCtx) {
-                new Chart(cgpaChartCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Branch Avg', 'University Avg', 'Branch Highest', 'University Highest', 'Your CGPA'],
-                        datasets: [{
-                            label: 'CGPA',
-                            data: [
-                                branchAvgCgpa.toFixed(2),
-                                universityAvgCgpa.toFixed(2),
-                                branchHighestCgpa.toFixed(2),
-                                universityHighestCgpa.toFixed(2),
-                                yourCgpa.toFixed(2)
-                            ],
-                            backgroundColor: ['#888e95', '#888e95', '#888e95', '#888e95', '#2c3038'],
-                            barThickness: 20
-                        }]
-                    },
-                    plugins: [ChartDataLabels],
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            datalabels: {
-                                color: '#fff',
-                                anchor: 'center',
-                                align: 'center',
-                                formatter: (value) => value,
-                                font: {
-                                    weight: 'bold',
-                                    size: 12
-                                }
-                            },
-                            annotation: {
-                                annotations: {
-                                    yourCgpaLine: {
-                                        type: 'line',
-                                        yMin: yourCgpa,
-                                        yMax: yourCgpa,
-                                        xMin: -0.5,
-                                        xMax: 4.5,
-                                        borderColor: '#2c3038',
-                                        borderWidth: 2,
-                                        borderDash: [5, 5],
-                                        label: {
-                                            enabled: true,
-                                            content: `Your CGPA: ${yourCgpa.toFixed(2)}`,
-                                            position: 'end',
-                                            backgroundColor: '#2c3038',
-                                            color: '#fff'
+                const cgpaChartCtx = document.getElementById('cgpaChart')?.getContext('2d');
+                if (cgpaChartCtx) {
+                    new Chart(cgpaChartCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Branch Avg', 'University Avg', 'Branch Highest', 'University Highest', 'Your CGPA'],
+                            datasets: [{
+                                label: 'CGPA',
+                                data: [
+                                    branchAvgCgpa.toFixed(2),
+                                    universityAvgCgpa.toFixed(2),
+                                    branchHighestCgpa.toFixed(2),
+                                    universityHighestCgpa.toFixed(2),
+                                    yourCgpa.toFixed(2)
+                                ],
+                                backgroundColor: ['#888e95', '#888e95', '#888e95', '#888e95', '#2c3038'],
+                                barThickness: 20
+                            }]
+                        },
+                        plugins: [ChartDataLabels],
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                datalabels: {
+                                    color: '#fff',
+                                    anchor: 'center',
+                                    align: 'center',
+                                    formatter: (value) => value,
+                                    font: {
+                                        weight: 'bold',
+                                        size: 12
+                                    }
+                                },
+                                annotation: {
+                                    annotations: {
+                                        yourCgpaLine: {
+                                            type: 'line',
+                                            yMin: yourCgpa,
+                                            yMax: yourCgpa,
+                                            xMin: -0.5,
+                                            xMax: 4.5,
+                                            borderColor: '#2c3038',
+                                            borderWidth: 2,
+                                            borderDash: [5, 5],
+                                            label: {
+                                                enabled: true,
+                                                content: `Your CGPA: ${yourCgpa.toFixed(2)}`,
+                                                position: 'end',
+                                                backgroundColor: '#2c3038',
+                                                color: '#fff'
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 10,
-                                title: {
-                                    display: true,
-                                    text: 'CGPA'
-                                }
                             },
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Category'
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            const semesterData = [
-                studentData.sem1_gpa || 0,
-                studentData.sem2_gpa || 0,
-                studentData.sem3_gpa || 0,
-                studentData.sem4_gpa || 0,
-                studentData.sem5_gpa || 0,
-                studentData.sem6_gpa || 0,
-                studentData.sem7_gpa || 0,
-                studentData.sem8_gpa || 0
-            ].map(parseFloat);
-
-            const performanceTrendData = [...semesterData];
-            let lastKnownValue = parseFloat(studentData.cgpa) || 0;
-            let lastKnownIndex = -1;
-            for (let i = 0; i < semesterData.length; i++) {
-                if (semesterData[i] > 0) {
-                    lastKnownValue = semesterData[i];
-                    lastKnownIndex = i;
-                }
-            }
-            for (let i = lastKnownIndex + 1; i < performanceTrendData.length; i++) {
-                performanceTrendData[i] = lastKnownValue;
-            }
-
-            const semesterGpaChartCtx = document.getElementById('semesterGpaChart')?.getContext('2d');
-            if (semesterGpaChartCtx) {
-                new Chart(semesterGpaChartCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6', 'Sem 7', 'Sem 8'],
-                        datasets: [
-                            {
-                                type: 'bar',
-                                label: 'Semester GPA',
-                                data: semesterData,
-                                backgroundColor: '#2c3038'
-                            },
-                            {
-                                type: 'line',
-                                label: 'Performance Trend',
-                                data: performanceTrendData,
-                                borderColor: '#ff0000',
-                                borderWidth: 2,
-                                fill: false,
-                                tension: 0.1
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 10,
-                                title: {
-                                    display: true,
-                                    text: 'GPA'
-                                },
-                                grid: {
-                                    drawBorder: true,
-                                    drawOnChartArea: true
-                                },
-                                afterFit: (scale) => {
-                                    scale.paddingTop = 20;
-                                },
-                                afterDataLimits: (scale) => {
-                                    scale.max = Math.max(scale.max, 10);
-                                },
-                                afterBuildTicks: (scale) => {
-                                    const cgpa = parseFloat(studentData.cgpa) || 0;
-                                    const cgpaBeforeDrop = parseFloat(studentData.cgpa_before_drop) || 0;
-                                    scale.ticks.push({ value: cgpa, label: `CGPA (${cgpa.toFixed(2)})` });
-                                    scale.ticks.push({ value: cgpaBeforeDrop, label: `CGPA Before Drop (${cgpaBeforeDrop.toFixed(2)})` });
-                                    scale.ticks = scale.ticks.filter((tick, index, self) =>
-                                        index === self.findIndex(t => t.value === tick.value)
-                                    );
-                                },
-                                gridLines: {
-                                    color: (context) => {
-                                        const cgpa = parseFloat(studentData.cgpa) || 0;
-                                        const cgpaBeforeDrop = parseFloat(studentData.cgpa_before_drop) || 0;
-                                        if (context.tick.value === cgpa) return '#00ff00';
-                                        if (context.tick.value === cgpaBeforeDrop) return '#0000ff';
-                                        return '#e5e7eb';
-                                    },
-                                    lineWidth: (context) => {
-                                        const cgpa = parseFloat(studentData.cgpa) || 0;
-                                        const cgpaBeforeDrop = parseFloat(studentData.cgpa_before_drop) || 0;
-                                        if (context.tick.value === cgpa || context.tick.value === cgpaBeforeDrop) return 2;
-                                        return 1;
-                                    },
-                                    borderDash: (context) => {
-                                        const cgpa = parseFloat(studentData.cgpa) || 0;
-                                        const cgpaBeforeDrop = parseFloat(studentData.cgpa_before_drop) || 0;
-                                        if (context.tick.value === cgpa || context.tick.value === cgpaBeforeDrop) return [5, 5];
-                                        return [];
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 10,
+                                    title: {
+                                        display: true,
+                                        text: 'CGPA'
                                     }
-                                }
-                            },
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Semester'
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        }
-
-        // Display eligible companies with color coding
-        function displayEligibleCompanies() {
-            const studentCgpa = parseFloat(studentData.cgpa) || 0;
-            const eligibleCompanies = companies
-                .filter(company => {
-                    const cutoff = parseFloat(company['Cutoff CGPA']) || 0;
-                    return studentCgpa >= cutoff;
-                })
-                .sort((a, b) => b['CTC (LPA)'] - a['CTC (LPA)']);
-
-            const tbody = document.getElementById('eligibleCompaniesBody');
-            if (tbody) {
-                tbody.innerHTML = '';
-                if (eligibleCompanies.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="3">No companies found for your CGPA.</td></tr>';
-                } else {
-                    eligibleCompanies.forEach(company => {
-                        const companyType = getCompanyType(company.Company);
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td><span class="tag" style="background-color: ${companyTypeColors[companyType]}">${company.Company || '-'}</span></td>
-                            <td><span class="tag" style="background-color: ${getCtcColor(company['CTC (LPA)'])}">${company['CTC (LPA)'] || '-'}</span></td>
-                            <td><span class="tag" style="background-color: ${getCgpaColor(company['Cutoff CGPA'])}">${company['Cutoff CGPA'] || '-'}</span></td>
-                        `;
-                        tbody.appendChild(row);
-                    });
-                }
-            }
-        }
-
-        // Provide CGPA improvement suggestions
-        function provideSuggestions() {
-            const currentCgpa = parseFloat(studentData.cgpa) || 0;
-            const semesters = [
-                studentData.sem1_gpa,
-                studentData.sem2_gpa,
-                studentData.sem3_gpa,
-                studentData.sem4_gpa,
-                studentData.sem5_gpa,
-                studentData.sem6_gpa,
-                studentData.sem7_gpa,
-                studentData.sem8_gpa
-            ].map(parseFloat).filter(val => !isNaN(val) && val > 0);
-            const currentSemester = semesters.length;
-            const remainingSemesters = 8 - currentSemester;
-            const creditsPerSemester = 20;
-            const totalCreditsSoFar = currentSemester * creditsPerSemester;
-            const totalCredits = 8 * creditsPerSemester;
-
-            safeSetText('currentCgpa', currentCgpa.toFixed(2));
-            safeSetStyle('currentCgpa', 'backgroundColor', getCgpaColor(currentCgpa));
-
-            const lastSemesterSgpa = semesters[semesters.length - 1] || currentCgpa;
-            const performanceTrend = semesters.length > 1 ? (semesters[semesters.length - 1] - semesters[semesters.length - 2]) : 0;
-            let targetSgpa;
-
-            if (currentCgpa < 7.0) {
-                targetSgpa = Math.min(lastSemesterSgpa + 0.5 + (performanceTrend > 0 ? 0.3 : 0), 8.5);
-            } else if (currentCgpa < 8.5) {
-                targetSgpa = Math.min(lastSemesterSgpa + 0.3 + (performanceTrend > 0 ? 0.2 : 0), 9.0);
-            } else {
-                targetSgpa = Math.min(lastSemesterSgpa + 0.1 + (performanceTrend > 0 ? 0.1 : 0), 9.5);
-            }
-
-            targetSgpa = Math.max(currentCgpa + 0.3, Math.min(targetSgpa, 9.5));
-            safeSetText('targetSgpa', targetSgpa.toFixed(2));
-            safeSetStyle('targetSgpa', 'backgroundColor', getCgpaColor(targetSgpa));
-
-            const currentPoints = currentCgpa * totalCreditsSoFar;
-            const remainingCredits = remainingSemesters * creditsPerSemester;
-            const projectedPoints = currentPoints + (targetSgpa * remainingCredits);
-            const projectedCgpa = projectedPoints / totalCredits;
-            safeSetText('projectedCgpa', projectedCgpa.toFixed(2));
-            safeSetStyle('projectedCgpa', 'backgroundColor', getCgpaColor(projectedCgpa));
-
-            const cgpaImprovementChartCtx = document.getElementById('cgpaImprovementChart')?.getContext('2d');
-            if (cgpaImprovementChartCtx) {
-                new Chart(cgpaImprovementChartCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Current CGPA', 'Projected CGPA'],
-                        datasets: [{
-                            label: 'CGPA',
-                            data: [currentCgpa.toFixed(2), projectedCgpa.toFixed(2)],
-                            backgroundColor: [getCgpaColor(currentCgpa), getCgpaColor(projectedCgpa)],
-                            barThickness: 20
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            annotation: {
-                                annotations: {
-                                    improvementLine: {
-                                        type: 'line',
-                                        xMin: 0,
-                                        xMax: 1,
-                                        yMin: currentCgpa,
-                                        yMax: projectedCgpa,
-                                        borderColor: '#2c3038',
-                                        borderWidth: 2,
-                                        borderDash: [5, 5]
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Category'
                                     }
                                 }
                             }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 10,
-                                title: {
-                                    display: true,
-                                    text: 'CGPA'
+                        }
+                    });
+                }
+
+                const semesterData = [
+                    studentData.sem1_gpa || 0,
+                    studentData.sem2_gpa || 0,
+                    studentData.sem3_gpa || 0,
+                    studentData.sem4_gpa || 0,
+                    studentData.sem5_gpa || 0,
+                    studentData.sem6_gpa || 0,
+                    studentData.sem7_gpa || 0,
+                    studentData.sem8_gpa || 0
+                ].map(parseFloat);
+
+                const performanceTrendData = [...semesterData];
+                let lastKnownValue = parseFloat(studentData.cgpa) || 0;
+                let lastKnownIndex = -1;
+                for (let i = 0; i < semesterData.length; i++) {
+                    if (semesterData[i] > 0) {
+                        lastKnownValue = semesterData[i];
+                        lastKnownIndex = i;
+                    }
+                }
+                for (let i = lastKnownIndex + 1; i < performanceTrendData.length; i++) {
+                    performanceTrendData[i] = lastKnownValue;
+                }
+
+                const semesterGpaChartCtx = document.getElementById('semesterGpaChart')?.getContext('2d');
+                if (semesterGpaChartCtx) {
+                    new Chart(semesterGpaChartCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6', 'Sem 7', 'Sem 8'],
+                            datasets: [
+                                {
+                                    type: 'bar',
+                                    label: 'Semester GPA',
+                                    data: semesterData,
+                                    backgroundColor: '#2c3038'
+                                },
+                                {
+                                    type: 'line',
+                                    label: 'Performance Trend',
+                                    data: performanceTrendData,
+                                    borderColor: '#ff0000',
+                                    borderWidth: 2,
+                                    fill: false,
+                                    tension: 0.1
                                 }
-                            },
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Category'
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 10,
+                                    title: {
+                                        display: true,
+                                        text: 'GPA'
+                                    },
+                                    grid: {
+                                        drawBorder: true,
+                                        drawOnChartArea: true
+                                    },
+                                    afterFit: (scale) => {
+                                        scale.paddingTop = 20;
+                                    },
+                                    afterDataLimits: (scale) => {
+                                        scale.max = Math.max(scale.max, 10);
+                                    },
+                                    afterBuildTicks: (scale) => {
+                                        const cgpa = parseFloat(studentData.cgpa) || 0;
+                                        const cgpaBeforeDrop = parseFloat(studentData.cgpa_before_drop) || 0;
+                                        scale.ticks.push({ value: cgpa, label: `CGPA (${cgpa.toFixed(2)})` });
+                                        scale.ticks.push({ value: cgpaBeforeDrop, label: `CGPA Before Drop (${cgpaBeforeDrop.toFixed(2)})` });
+                                        scale.ticks = scale.ticks.filter((tick, index, self) =>
+                                            index === self.findIndex(t => t.value === tick.value)
+                                        );
+                                    },
+                                    gridLines: {
+                                        color: (context) => {
+                                            const cgpa = parseFloat(studentData.cgpa) || 0;
+                                            const cgpaBeforeDrop = parseFloat(studentData.cgpa_before_drop) || 0;
+                                            if (context.tick.value === cgpa) return '#00ff00';
+                                            if (context.tick.value === cgpaBeforeDrop) return '#0000ff';
+                                            return '#e5e7eb';
+                                        },
+                                        lineWidth: (context) => {
+                                            const cgpa = parseFloat(studentData.cgpa) || 0;
+                                            const cgpaBeforeDrop = parseFloat(studentData.cgpa_before_drop) || 0;
+                                            if (context.tick.value === cgpa || context.tick.value === cgpaBeforeDrop) return 2;
+                                            return 1;
+                                        },
+                                        borderDash: (context) => {
+                                            const cgpa = parseFloat(studentData.cgpa) || 0;
+                                            const cgpaBeforeDrop = parseFloat(studentData.cgpa_before_drop) || 0;
+                                            if (context.tick.value === cgpa || context.tick.value === cgpaBeforeDrop) return [5, 5];
+                                            return [];
+                                        }
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Semester'
+                                    }
                                 }
                             }
                         }
-                    }
-                });
-            }
-
-            const targetCompanies = companies
-                .filter(company => {
-                    const cutoff = parseFloat(company['Cutoff CGPA']) || 0;
-                    return cutoff > currentCgpa && cutoff <= projectedCgpa;
-                })
-                .sort((a, b) => b['CTC (LPA)'] - a['CTC (LPA)']);
-
-            const targetCompaniesBody = document.getElementById('targetCompaniesBody');
-            if (targetCompaniesBody) {
-                targetCompaniesBody.innerHTML = '';
-                if (targetCompanies.length === 0) {
-                    targetCompaniesBody.innerHTML = '<tr><td colspan="3">No additional companies available.</td></tr>';
-                } else {
-                    targetCompanies.forEach(company => {
-                        const companyType = getCompanyType(company.Company);
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td><span class="tag" style="background-color: ${companyTypeColors[companyType]}">${company.Company}</span></td>
-                            <td><span class="tag" style="background-color: ${getCtcColor(company['CTC (LPA)'])}">${company['CTC (LPA)']} LPA</span></td>
-                            <td><span class="tag" style="background-color: ${getCgpaColor(company['Cutoff CGPA'])}">${company['Cutoff CGPA']}</span></td>
-                        `;
-                        targetCompaniesBody.appendChild(row);
                     });
                 }
             }
-        }
 
-        // Toggle navbar on mobile
-        menuToggle.addEventListener('click', () => {
-            navbar.classList.toggle('hidden');
-        });
+            // Display eligible companies with color coding
+            function displayEligibleCompanies() {
+                const studentCgpa = parseFloat(studentData.cgpa) || 0;
+                const eligibleCompanies = companies
+                    .filter(company => {
+                        const cutoff = parseFloat(company['Cutoff CGPA']) || 0;
+                        return studentCgpa >= cutoff;
+                    })
+                    .sort((a, b) => b['CTC (LPA)'] - a['CTC (LPA)']);
 
-        // Close navbar when clicking outside on mobile
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth < 768 && !navbar.contains(e.target) && !menuToggle.contains(e.target)) {
-                navbar.classList.add('hidden');
+                const tbody = document.getElementById('eligibleCompaniesBody');
+                if (tbody) {
+                    tbody.innerHTML = '';
+                    if (eligibleCompanies.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="3">No companies found for your CGPA.</td></tr>';
+                    } else {
+                        eligibleCompanies.forEach(company => {
+                            const companyType = getCompanyType(company.Company);
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td><span class="tag" style="background-color: ${companyTypeColors[companyType]}">${company.Company || '-'}</span></td>
+                                <td><span class="tag" style="background-color: ${getCtcColor(company['CTC (LPA)'])}">${company['CTC (LPA)'] || '-'}</span></td>
+                                <td><span class="tag" style="background-color: ${getCgpaColor(company['Cutoff CGPA'])}">${company['Cutoff CGPA'] || '-'}</span></td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    }
+                }
             }
-        });
 
-        // Navigation between pages
-        const pages = {
-            'overview': () => window.location.href = 'index.html',
-            'student-profile': () => {},
-            'analytics': () => window.location.href = 'analytics.html',
-            'placement': () => window.location.href = 'placement.html',
-            'notifications': () => window.location.href = 'index.html#notificationsPage'
-        };
+            // Provide CGPA improvement suggestions
+            function provideSuggestions() {
+                const currentCgpa = parseFloat(studentData.cgpa) || 0;
+                const semesters = [
+                    studentData.sem1_gpa,
+                    studentData.sem2_gpa,
+                    studentData.sem3_gpa,
+                    studentData.sem4_gpa,
+                    studentData.sem5_gpa,
+                    studentData.sem6_gpa,
+                    studentData.sem7_gpa,
+                    studentData.sem8_gpa
+                ].map(parseFloat).filter(val => !isNaN(val) && val > 0);
+                const currentSemester = semesters.length;
+                const remainingSemesters = 8 - currentSemester;
+                const creditsPerSemester = 20;
+                const totalCreditsSoFar = currentSemester * creditsPerSemester;
+                const totalCredits = 8 * creditsPerSemester;
 
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const page = item.getAttribute('data-page');
-                pages[page]();
+                safeSetText('currentCgpa', currentCgpa.toFixed(2));
+                safeSetStyle('currentCgpa', 'backgroundColor', getCgpaColor(currentCgpa));
+
+                const lastSemesterSgpa = semesters[semesters.length - 1] || currentCgpa;
+                const performanceTrend = semesters.length > 1 ? (semesters[semesters.length - 1] - semesters[semesters.length - 2]) : 0;
+                let targetSgpa;
+
+                if (currentCgpa < 7.0) {
+                    targetSgpa = Math.min(lastSemesterSgpa + 0.5 + (performanceTrend > 0 ? 0.3 : 0), 8.5);
+                } else if (currentCgpa < 8.5) {
+                    targetSgpa = Math.min(lastSemesterSgpa + 0.3 + (performanceTrend > 0 ? 0.2 : 0), 9.0);
+                } else {
+                    targetSgpa = Math.min(lastSemesterSgpa + 0.1 + (performanceTrend > 0 ? 0.1 : 0), 9.5);
+                }
+
+                targetSgpa = Math.max(currentCgpa + 0.3, Math.min(targetSgpa, 9.5));
+                safeSetText('targetSgpa', targetSgpa.toFixed(2));
+                safeSetStyle('targetSgpa', 'backgroundColor', getCgpaColor(targetSgpa));
+
+                const currentPoints = currentCgpa * totalCreditsSoFar;
+                const remainingCredits = remainingSemesters * creditsPerSemester;
+                const projectedPoints = currentPoints + (targetSgpa * remainingCredits);
+                const projectedCgpa = projectedPoints / totalCredits;
+                safeSetText('projectedCgpa', projectedCgpa.toFixed(2));
+                safeSetStyle('projectedCgpa', 'backgroundColor', getCgpaColor(projectedCgpa));
+
+                const cgpaImprovementChartCtx = document.getElementById('cgpaImprovementChart')?.getContext('2d');
+                if (cgpaImprovementChartCtx) {
+                    new Chart(cgpaImprovementChartCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Current CGPA', 'Projected CGPA'],
+                            datasets: [{
+                                label: 'CGPA',
+                                data: [currentCgpa.toFixed(2), projectedCgpa.toFixed(2)],
+                                backgroundColor: [getCgpaColor(currentCgpa), getCgpaColor(projectedCgpa)],
+                                barThickness: 20
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                annotation: {
+                                    annotations: {
+                                        improvementLine: {
+                                            type: 'line',
+                                            xMin: 0,
+                                            xMax: 1,
+                                            yMin: currentCgpa,
+                                            yMax: projectedCgpa,
+                                            borderColor: '#2c3038',
+                                            borderWidth: 2,
+                                            borderDash: [5, 5]
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 10,
+                                    title: {
+                                        display: true,
+                                        text: 'CGPA'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Category'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                const targetCompanies = companies
+                    .filter(company => {
+                        const cutoff = parseFloat(company['Cutoff CGPA']) || 0;
+                        return cutoff > currentCgpa && cutoff <= projectedCgpa;
+                    })
+                    .sort((a, b) => b['CTC (LPA)'] - a['CTC (LPA)']);
+
+                const targetCompaniesBody = document.getElementById('targetCompaniesBody');
+                if (targetCompaniesBody) {
+                    targetCompaniesBody.innerHTML = '';
+                    if (targetCompanies.length === 0) {
+                        targetCompaniesBody.innerHTML = '<tr><td colspan="3">No additional companies available.</td></tr>';
+                    } else {
+                        targetCompanies.forEach(company => {
+                            const companyType = getCompanyType(company.Company);
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td><span class="tag" style="background-color: ${companyTypeColors[companyType]}">${company.Company}</span></td>
+                                <td><span class="tag" style="background-color: ${getCtcColor(company['CTC (LPA)'])}">${company['CTC (LPA)']} LPA</span></td>
+                                <td><span class="tag" style="background-color: ${getCgpaColor(company['Cutoff CGPA'])}">${company['Cutoff CGPA']}</span></td>
+                            `;
+                            targetCompaniesBody.appendChild(row);
+                        });
+                    }
+                }
+            }
+
+            // Toggle navbar on mobile
+            menuToggle.addEventListener('click', () => {
+                navbar.classList.toggle('hidden');
+            });
+
+            // Close navbar when clicking outside on mobile
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth < 768 && !navbar.contains(e.target) && !menuToggle.contains(e.target)) {
+                    navbar.classList.add('hidden');
+                }
+            });
+
+            // Navigation between pages
+            const pages = {
+                'overview': () => window.location.href = 'index.html',
+                'student-profile': () => window.location.reload(), // Reload to ensure fresh state
+                'analytics': () => window.location.href = 'analytics.html',
+                'placement': () => window.location.href = 'placement.html',
+                'notifications': () => window.location.href = 'index.html#notificationsPage'
+            };
+
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const page = item.getAttribute('data-page');
+                    pages[page]();
+                });
+            });
+
+            // Handle browser navigation (back/forward)
+            window.addEventListener('popstate', () => {
+                const newRollNumber = new URLSearchParams(window.location.search).get('roll');
+                console.log('Popstate event, new roll number:', newRollNumber);
+                if (newRollNumber && newRollNumber !== rollNumber) {
+                    window.location.reload(); // Reload page to fetch new student data
+                }
             });
         });
     </script>
