@@ -235,9 +235,9 @@
         </h1>
 
         <div class="elements">
-            <!-- Box 1: Personal Information -->
+            <!-- Box 1: Personal Details -->
             <div class="box personal-info-box">
-                <h3>Personal Information</h3>
+                <h3>👤 Personal Details</h3>
                 <div class="info-grid" id="personalInfo">
                     <p>Name: <span id="name">-</span></p>
                     <p>Gender: <span id="gender" class="tag">-</span></p>
@@ -245,36 +245,35 @@
                     <p>Blood Group: <span id="bloodGroup">-</span></p>
                     <p>Category: <span id="category" class="tag">-</span></p>
                     <p>PWD: <span id="pwd">-</span></p>
+                    <p>Aadhaar: <span id="aadhaar">-</span></p>
+                    <p>PAN: <span id="pan">-</span></p>
                 </div>
             </div>
 
             <!-- Box 2: Contact Information -->
             <div class="box">
-                <h3>Contact Information</h3>
+                <h3>📞 Contact Information</h3>
                 <div class="info-grid" id="contactInfo">
                     <p>Contact Number: <span id="contactNumber">-</span></p>
-                    <p>Alternate Contact: <span id="alternateContact">-</span></p>
+                    <p>Alternate Contact Number: <span id="alternateContact">-</span></p>
                     <p>College Email: <span id="email">-</span></p>
                     <p>Personal Email: <span id="personalEmail">-</span></p>
-                    <p>Permanent Address: <span id="permanentAddress">-</span></p>
                     <p>Present Address: <span id="presentAddress">-</span></p>
+                    <p>Permanent Address: <span id="permanentAddress">-</span></p>
                 </div>
             </div>
 
             <!-- Box 3: Academic Information -->
             <div class="box">
-                <h3>Academic Information</h3>
+                <h3>🎓 Academic Information</h3>
                 <div class="info-grid" id="academicInfo">
                     <p>Roll Number: <span id="rollNumber">-</span></p>
                     <p>Branch: <span id="branch" class="tag">-</span></p>
                     <p>Degree: <span id="degree">-</span></p>
-                    <p>Course: <span id="course">-</span></p>
                     <p>Batch: <span id="batch">-</span></p>
                     <p>Campus: <span id="campus">-</span></p>
-                    <p>CGPA (Current): <span id="cgpa" class="tag">-</span></p>
+                    <p>CGPA: <span id="cgpa" class="tag">-</span></p>
                     <p>CGPA Before Drop: <span id="cgpaBeforeDrop">-</span></p>
-                    <p>CGPA Updated: <span id="isCgpaUpdated">-</span></p>
-                    <p>CGPA Update Enabled: <span id="cgpaUpdateEnabled">-</span></p>
                     <p>Class 10th %: <span id="cgpa10th">-</span></p>
                     <p>Class 12th %: <span id="cgpa12th">-</span></p>
                     <p>Graduation GPA: <span id="graduationGpa">-</span></p>
@@ -285,23 +284,23 @@
 
             <!-- Box 4: Status & Timestamps -->
             <div class="box">
-                <h3>Status & Timestamps</h3>
+                <h3>⏰ Status & Timestamps</h3>
                 <div class="info-grid" id="statusInfo">
                     <p>Account Status: <span id="status">-</span></p>
                     <p>User Created At: <span id="createdAt">-</span></p>
-                    <p>Profile Last Updated: <span id="updatedAt">-</span></p>
+                    <p>Profile Last Updated At: <span id="updatedAt">-</span></p>
                     <p>Published At: <span id="publishedAt">-</span></p>
                 </div>
             </div>
 
             <!-- Box 5: Documents (Resume) -->
             <div class="box">
-                <h3>Documents (Resume)</h3>
+                <h3>🧾 Documents (Resume)</h3>
                 <div class="info-grid" id="resumeInfo">
                     <p>Resume Name: <span id="resumeName">-</span></p>
                     <p>Resume Size: <span id="resumeSize">-</span></p>
                     <p>Resume URL: <span id="resumeUrl">-</span></p>
-                    <p>Upload Date: <span id="resumeUploadDate">-</span></p>
+                    <p>Resume Upload Date: <span id="resumeUploadDate">-</span></p>
                     <p>Resume Mime: <span id="resumeMime">-</span></p>
                     <p>Resume Provider: <span id="resumeProvider">-</span></p>
                 </div>
@@ -309,7 +308,7 @@
 
             <!-- Box 6: Semester-Wise GPA Data -->
             <div class="box semester-wise-box">
-                <h3>Semester-Wise GPA Data</h3>
+                <h3>🧮 Semester-Wise GPA Data</h3>
                 <table class="semester-table" id="semesterTable">
                     <thead>
                         <tr>
@@ -325,7 +324,7 @@
 
             <!-- Box 7: Course-Wise Data -->
             <div class="box course-wise-box">
-                <h3>Course-Wise Data</h3>
+                <h3>📚 Course-Wise Data</h3>
                 <table class="course-table" id="courseTable">
                     <thead>
                         <tr>
@@ -374,14 +373,14 @@
                 </table>
             </div>
 
-            <!-- Box 11: Suggestions -->
+            <!-- Box 11: CGPA Improvement Suggestions -->
             <div class="box">
                 <h3>CGPA Improvement Suggestions</h3>
                 <div class="suggestions" id="suggestions">
                     <div class="info-grid">
                         <p>Current CGPA: <span id="currentCgpa" class="tag">-</span></p>
-                        <p>Target SGPA: <span id="targetSgpa" class="tag">-</span></p>
-                        <p>Projected CGPA: <span id="projectedCgpa" class="tag">-</span></p>
+                        <p>Target SGPA for Next Semester: <span id="targetSgpa" class="tag">-</span></p>
+                        <p>Projected CGPA After Improvement: <span id="projectedCgpa" class="tag">-</span></p>
                     </div>
                     <div class="cgpa-improvement-chart">
                         <canvas id="cgpaImprovementChart" height="150"></canvas>
@@ -402,7 +401,7 @@
 
             <!-- Box 12: Restrictions / Bans -->
             <div class="box">
-                <h3>Restrictions / Bans</h3>
+                <h3>🚫 Restrictions / Bans</h3>
                 <div class="info-grid" id="bansInfo">
                     <p>Bans: <span id="bans">-</span></p>
                     <p>Current Ban: <span id="currentBan">-</span></p>
@@ -411,7 +410,7 @@
 
             <!-- Box 13: Internship & Placement -->
             <div class="box">
-                <h3>Internship & Placement</h3>
+                <h3>💼 Internship & Placement</h3>
                 <div class="info-grid" id="internPlacementInfo">
                     <p>Internship Applied: <span id="internApplied">-</span></p>
                     <p>Placement Applied: <span id="placementApplied">-</span></p>
@@ -487,10 +486,9 @@
         // Initialize default student data for error cases
         const defaultStudentData = {
             rollNumber: rollNumber,
-            name: 'Not Found',
+            name: 'Error',
             branch: '-',
             degree: '-',
-            course: '-',
             batch: '-',
             campus: '-',
             cgpa: 0,
@@ -509,16 +507,16 @@
             alt_contact_number: '-',
             gender: '-',
             dob: '-',
-            blood_group: '-',
+            blood_group: 'Invalid format',
             category: '-',
-            pwd: '-',
+            pwd: 'False',
+            aadhaar: '-',
+            pan: '-',
             cgpa_10th: '-',
             cgpa_12th: '-',
-            graduation_gpa: '-',
+            graduation_gpa: 'Not set',
             backlogs: '-',
-            isPPO: 'No',
-            isCgpaUpdated: 'No',
-            cgpaUpdateEnabled: 'No',
+            isPPO: 'False',
             status: '-',
             user: { createdAt: null, updatedAt: null },
             published_at: null,
@@ -526,7 +524,9 @@
             bans: '-',
             currentBan: '-',
             intern_applied: '-',
-            placement_applied: '-'
+            placement_applied: '-',
+            present_address: 'Missing',
+            perm_address: 'Missing'
         };
 
         // Fetch student data from JSON
@@ -540,7 +540,7 @@
             .then(data => {
                 allStudents = data;
                 studentData = allStudents.find(student => student.rollNumber === rollNumber) || defaultStudentData;
-                if (!studentData.rollNumber || studentData.name === 'Not Found') {
+                if (!studentData.rollNumber || studentData.name === 'Error') {
                     console.error('Student not found for roll number:', rollNumber);
                     studentData = defaultStudentData;
                     document.getElementById('academicInfo').innerHTML += `<p class="text-red-500">Student with roll number ${rollNumber} not found in JSON data.</p>`;
@@ -581,41 +581,42 @@
 
         // Display student data
         function displayStudentData() {
-            document.getElementById('studentName').textContent = studentData.name || 'Not Found';
-            document.getElementById('name').textContent = studentData.name || '-';
+            document.getElementById('studentName').textContent = studentData.name || 'Error';
+            document.getElementById('name').textContent = studentData.name || 'Error';
 
-            // Personal Information
+            // Personal Details
             const genderSpan = document.getElementById('gender');
             genderSpan.textContent = studentData.gender || '-';
             if (studentData.gender && genderColors[studentData.gender.toLowerCase()]) {
                 genderSpan.style.backgroundColor = genderColors[studentData.gender.toLowerCase()];
             }
             document.getElementById('dob').textContent = studentData.dob ? new Date(studentData.dob).toLocaleDateString() : '-';
-            document.getElementById('bloodGroup').textContent = studentData.blood_group || '-';
+            document.getElementById('bloodGroup').textContent = studentData.blood_group || 'Invalid format';
             const categorySpan = document.getElementById('category');
             categorySpan.textContent = studentData.category || '-';
             if (studentData.category && categoryColors[studentData.category]) {
                 categorySpan.style.backgroundColor = categoryColors[studentData.category];
             }
-            document.getElementById('pwd').textContent = studentData.pwd || '-';
+            document.getElementById('pwd').textContent = studentData.pwd || 'False';
+            document.getElementById('aadhaar').textContent = studentData.aadhaar || '-';
+            document.getElementById('pan').textContent = studentData.pan || '-';
 
             // Contact Information
             document.getElementById('contactNumber').textContent = studentData.contact_number || '-';
             document.getElementById('alternateContact').textContent = studentData.alt_contact_number || '-';
             document.getElementById('email').textContent = studentData.email || '-';
             document.getElementById('personalEmail').textContent = studentData.personal_email || '-';
-            document.getElementById('permanentAddress').textContent = studentData.perm_address || '-';
-            document.getElementById('presentAddress').textContent = studentData.present_address || '-';
+            document.getElementById('presentAddress').textContent = studentData.present_address || 'Missing';
+            document.getElementById('permanentAddress').textContent = studentData.perm_address || 'Missing';
 
             // Academic Information
-            document.getElementById('rollNumber').textContent = studentData.rollNumber || '-';
+            document.getElementById('rollNumber').textContent = studentData.rollNumber || 'Error';
             const branchSpan = document.getElementById('branch');
             branchSpan.textContent = studentData.branch || '-';
             if (studentData.branch && branchColors[studentData.branch]) {
                 branchSpan.style.backgroundColor = branchColors[studentData.branch];
             }
             document.getElementById('degree').textContent = studentData.degree || '-';
-            document.getElementById('course').textContent = studentData.degree && studentData.branch ? `${studentData.degree} in ${studentData.branch}` : '-';
             document.getElementById('batch').textContent = studentData.batch || '-';
             document.getElementById('campus').textContent = studentData.campus || '-';
             const cgpaSpan = document.getElementById('cgpa');
@@ -624,13 +625,11 @@
                 cgpaSpan.style.backgroundColor = getCgpaColor(studentData.cgpa);
             }
             document.getElementById('cgpaBeforeDrop').textContent = studentData.cgpa_before_drop || '-';
-            document.getElementById('isCgpaUpdated').textContent = studentData.isCgpaUpdated || 'No';
-            document.getElementById('cgpaUpdateEnabled').textContent = studentData.cgpaUpdateEnabled || 'No';
             document.getElementById('cgpa10th').textContent = studentData.cgpa_10th || '-';
             document.getElementById('cgpa12th').textContent = studentData.cgpa_12th || '-';
-            document.getElementById('graduationGpa').textContent = studentData.graduation_gpa || '-';
+            document.getElementById('graduationGpa').textContent = studentData.graduation_gpa || 'Not set';
             document.getElementById('backlogs').textContent = studentData.backlogs || '-';
-            document.getElementById('isPPO').textContent = studentData.isPPO || 'No';
+            document.getElementById('isPPO').textContent = studentData.isPPO || 'False';
 
             // Status & Timestamps
             document.getElementById('status').textContent = studentData.status || '-';
@@ -828,7 +827,7 @@
             let targetSgpa = currentCgpa < 7.0 ? Math.min(lastSemesterSgpa + 0.5 + (performanceTrend > 0 ? 0.3 : 0), 8.5) :
                             currentCgpa < 8.5 ? Math.min(lastSemesterSgpa + 0.3 + (performanceTrend > 0 ? 0.2 : 0), 9.0) :
                             Math.min(lastSemesterSgpa + 0.1 + (performanceTrend > 0 ? 0.1 : 0), 9.5);
-            targetSgpa = Math.max(currentCgpa + 0.3, Math.min(targetSgpa, 9.5));
+            targetSgpa = Math.max(currentCgpa + 0.5, Math.min(targetSgpa, 9.5));
 
             const targetSgpaSpan = document.getElementById('targetSgpa');
             targetSgpaSpan.textContent = targetSgpa.toFixed(2);
