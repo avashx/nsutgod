@@ -1405,112 +1405,111 @@
         batchFilter.addEventListener('change', filterStudents);
         genderFilter.addEventListener('change', filterStudents);
 
-              
+// Event listeners for pagination
+rowsPerPageSelect.addEventListener('change', () => {
+    rowsPerPage = parseInt(rowsPerPageSelect.value);
+    currentPage = 1;
+    displayStudents();
+});
 
-        // Event listeners for pagination
-        prevPageBtn.addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                displayStudents();
-            }
-        });
-
-        nextPageBtn.addEventListener('click', () => {
-            const totalPages = rowsPerPage === 'all' ? 1 : Math.ceil(filteredStudents.length / rowsPerPage);
-            if (currentPage < totalPages) {
-                currentPage++;
-                displayStudents();
-            }
-        });
-
-        rowsPerPageSelect.addEventListener('change', () => {
-            rowsPerPage = parseInt(rowsPerPageSelect.value);
-            currentPage = 1;
-            displayStudents();
-        });
-
-        // Toggle navbar on mobile
-        menuToggle.addEventListener('click', () => {
-            navbar.classList.toggle('hidden');
-        });
-
-        // Customize columns dropdown
-        customizeColumnsBtn.addEventListener('click', () => {
-            columnsDropdown.classList.toggle('show');
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!customizeColumnsBtn.contains(e.target) && !columnsDropdown.contains(e.target)) {
-                columnsDropdown.classList.remove('show');
-            }
-        });
-
-        // Column options dropdown and sorting/filtering
-        document.querySelectorAll('.options-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const dropdown = btn.nextElementSibling;
-                const filterModal = dropdown.nextElementSibling;
-                dropdown.classList.toggle('show');
-                filterModal.classList.remove('show');
-
-                const th = btn.closest('th');
-                const key = th.getAttribute('data-key');
-
-                // Handle sort and filter options
-                dropdown.querySelectorAll('.dropdown-item').forEach(item => {
-                    item.addEventListener('click', () => {
-                        if (item.classList.contains('sort-asc')) {
-                            filteredStudents.sort((a, b) => {
-                                const aValue = a[key] || '';
-                                const bValue = b[key] || '';
-                                return aValue.toString().localeCompare(bValue.toString());
-                            });
-                        } else if (item.classList.contains('sort-desc')) {
-                            filteredStudents.sort((a, b) => {
-                                const aValue = a[key] || '';
-                                const bValue = b[key] || '';
-                                return bValue.toString().localeCompare(aValue.toString());
-                            });
-                        } else if (item.classList.contains('filter-btn')) {
-                            filterModal.classList.toggle('show');
-                            const filterInput = filterModal.querySelector('.filter-input');
-                            const applyFilterBtn = filterModal.querySelector('.apply-filter');
-
-                            applyFilterBtn.addEventListener('click', () => {
-                                columnFilters[key] = filterInput.value;
-                                filterStudents();
-                                filterModal.classList.remove('show');
-                            });
-
-                            filterInput.addEventListener('keypress', (e) => {
-                                if (e.key === 'Enter') {
-                                    columnFilters[key] = filterInput.value;
-                                    filterStudents();
-                                    filterModal.classList.remove('show');
-                                }
-                            });
-                        }
-                        dropdown.classList.remove('show');
-                        displayStudents();
-                    });
-                });
-            });
-        });
-
-        // Page navigation
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', () => {
-                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-                item.classList.add('active');
-                document.querySelectorAll('.page-content').forEach(page => page.classList.add('hidden'));
-                const pageId = item.getAttribute('data-page') + 'Page';
-                document.getElementById(pageId).classList.remove('hidden');
-            });
-        });
-
-        // Initial display
+prevPageBtn.addEventListener('click', () => {
+    if (currentPage > 1) {
+        currentPage--;
         displayStudents();
-    </script>
-</body>
-</html>
+    }
+});
+
+nextPageBtn.addEventListener('click', () => {
+    const totalPages = Math.ceil(filteredStudents.length / rowsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        displayStudents();
+    }
+});
+
+// Toggle navbar on mobile
+menuToggle.addEventListener('click', () => {
+    navbar.classList.toggle('hidden');
+});
+
+// Column customization
+customizeColumnsBtn.addEventListener('click', () => {
+    columnsDropdown.classList.toggle('show');
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+    if (!customizeColumnsBtn.contains(e.target) && !columnsDropdown.contains(e.target)) {
+        columnsDropdown.classList.remove('show');
+    }
+});
+
+// Column options (sort and filter)
+document.querySelectorAll('.options-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const dropdown = btn.nextElementSibling;
+        const filterModal = dropdown.nextElementSibling;
+        dropdown.classList.toggle('show');
+
+        // Close other dropdowns
+        document.querySelectorAll('.dropdown').forEach(d => {
+            if (d !== dropdown) d.classList.remove('show');
+        });
+
+        // Sort functionality
+        dropdown.querySelectorAll('.sort-asc, .sort-desc').forEach(sortItem => {
+            sortItem.addEventListener('click', () => {
+                const key = btn.parentElement.parentElement.getAttribute('data-key');
+                const isAsc = sortItem.classList.contains('sort-asc');
+                filteredStudents.sort((a, b) => {
+                    const aValue = a[key] || '';
+                    const bValue = b[key] || '';
+                    return isAsc ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+                });
+                displayStudents();
+                dropdown.classList.remove('show');
+            });
+        });
+
+        // Filter functionality
+        dropdown.querySelector('.filter-btn').addEventListener('click', () => {
+            dropdown.classList.remove('show');
+            filterModal.classList.toggle('show');
+            const filterInput = filterModal.querySelector('.filter-input');
+            const applyFilterBtn = filterModal.querySelector('.apply-filter');
+
+            applyFilterBtn.addEventListener('click', () => {
+                const key = btn.parentElement.parentElement.getAttribute('data-key');
+                columnFilters[key] = filterInput.value;
+                filterStudents();
+                filterModal.classList.remove('show');
+            });
+
+            // Close filter modal when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!filterModal.contains(e.target) && !btn.contains(e.target)) {
+                    filterModal.classList.remove('show');
+                }
+            }, { once: true });
+        });
+    });
+});
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', (e) => {
+    document.querySelectorAll('.dropdown').forEach(dropdown => {
+        if (!dropdown.contains(e.target) && !e.target.classList.contains('options-btn')) {
+            dropdown.classList.remove('show');
+        }
+    });
+});
+
+// Navigation
+document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        document.querySelectorAll('.page-content').forEach(page => page.classList.add('hidden'));
+        document.getElementById(`${item.getAttribute('data-page')}Page`).classList.remove('hidden');
+    });
+});
