@@ -3,1037 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NSUTGod Student Fetch</title>
-    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/avashx/nsutgod/refs/heads/main/src/logo.png">
+    <title>Student Data Fetcher</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f5f5f5;
-        }
-        .main-content {
-            padding: 1.5rem;
-            background-color: #f5f5f5;
-        }
-        .student-table-container {
-            background-color: #fff;
-            border-radius: 8px;
-            padding: 16px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            margin-top: 16px;
-        }
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-top: 16px;
-        }
-        .realtime-list-container, .network-log {
-            background-color: #fff;
-            border-radius: 8px;
-            padding: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .realtime-list-container h3, .network-log h3 {
-            font-size: 13px;
-            margin-bottom: 8px;
-        }
-        .realtime-list-container li, .network-log div {
-            font-size: 11px;
-        }
-        .network-log .status {
-            color: #dc2626;
-            font-weight: 500;
-        }
-        .network-log .time {
-            color: #16a34a;
-            font-weight: 500;
-        }
-        .circular-progress-container {
-            width: 50px;
-            height: 50px;
-            position: relative;
-            margin: 8px 0;
-        }
-        .circular-progress {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: conic-gradient(#10b981 0% 0%, #e5e7eb 0% 100%);
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .circular-progress::before {
-            content: '';
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            background-color: #fff;
-            border-radius: 50%;
-        }
-        .circular-progress span {
-            position: relative;
-            font-size: 12px;
-            color: #4b5563;
-        }
-        .table-wrapper {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        .student-table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 2000px;
-        }
-        .student-table th {
-            padding: 4px 8px;
-            text-align: left;
-            border-bottom: 2px solid #e5e7eb;
-            font-size: 13px;
-            font-weight: 500;
-            color: #4b5563;
-            background-color: #fafafa;
-            position: relative;
-            cursor: pointer;
-            white-space: nowrap;
-            max-width: 120px;
-            min-width: 80px;
-        }
-        .student-table th[data-sort="name"] {
-            width: 120px;
-        }
-        .student-table th:hover {
-            background-color: #f5f5f5;
-        }
-        .student-table th .resize-handle {
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 4px;
-            height: 100%;
-            cursor: col-resize;
-            background-color: transparent;
-        }
-        .student-table th .resize-handle:hover {
-            background-color: #d1d5db;
-        }
-        .student-table td {
-            padding: 2px 8px;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb;
-            font-size: 13px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            height: 24px;
-            line-height: 24px;
-            max-width: 120px;
-        }
-        .student-table.expanded td {
-            white-space: normal;
-            height: 48px;
-            line-height: 24px;
-        }
-        .student-table td.info-column {
-            max-width: 120px;
-        }
-        .student-table th.resized, .student-table td.resized {
-            width: auto !important;
-            max-width: none !important;
-        }
-        .student-table .sort-icon {
-            display: inline-block;
-            margin-left: 4px;
-            font-size: 12px;
-        }
-        .tag {
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        .new-sticker {
-            background-color: #ff6b6b;
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 10px;
-            margin-left: 4px;
-            vertical-align: middle;
-        }
-        .view-btn {
-            padding: 4px 8px;
-            background-color: #10b981;
-            color: #fff;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-            transition: background-color 0.2s ease;
-        }
-        .view-btn:hover {
-            background-color: #059669;
-        }
-        .action-btn {
-            padding: 6px 12px;
-            background-color: #4b5563;
-            color: #fff;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            transition: background-color 0.2s ease;
-        }
-        .action-btn:hover {
-            background-color: #374151;
-        }
-        .expand-btn {
-            padding: 6px 12px;
-            background-color: #6b7280;
-            color: #fff;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            transition: background-color 0.2s ease;
-        }
-        .expand-btn:hover {
-            background-color: #4b5563;
-        }
-        .pause-btn {
-            padding: 6px 12px;
-            background-color: #ef4444;
-            color: #fff;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            transition: background-color 0.2s ease;
-        }
-        .pause-btn:hover {
-            background-color: #dc2626;
-        }
-        .navbar {
-            width: 220px;
-            background-color: #fff;
-            border-right: 1px solid #e5e7eb;
-            padding: 20px;
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 40;
-            transition: transform 0.3s ease-in-out;
-        }
-        .navbar.hidden {
-            transform: translateX(-100%);
-        }
-        .nav-item {
-            cursor: pointer;
-        }
-        .nav-item.active {
-            background-color: #f3f4f6;
-            color: #1f2937;
-            font-weight: 500;
-        }
-        @media (max-width: 768px) {
-            .main-content {
-                padding: 1rem;
-                margin-left: 0 !important;
-            }
-            .student-table th, .student-table td {
-                font-size: 12px;
-            }
-            .student-table td {
-                padding: 1px 6px;
-                height: 20px;
-                line-height: 20px;
-            }
-            .student-table.expanded td {
-                height: 40px;
-                line-height: 20px;
-            }
-            .action-btn, .expand-btn, .pause-btn {
-                padding: 5px 10px;
-                font-size: 12px;
-            }
-            .grid-container {
-                grid-template-columns: 1fr;
-            }
-            .realtime-list-container h3, .network-log h3 {
-                font-size: 12px;
-            }
-            .realtime-list-container li, .network-log div {
-                font-size: 10px;
-            }
-            .navbar {
-                width: 200px;
-                transform: translateX(-100%);
-            }
-            .navbar.visible {
-                transform: translateX(0);
-            }
-        }
-        @media (max-width: 480px) {
-            .main-content {
-                padding: 0.75rem;
-            }
-            .student-table th, .student-table td {
-                font-size: 11px;
-            }
-            .student-table td {
-                padding: 1px 4px;
-                height: 18px;
-                line-height: 18px;
-            }
-            .student-table.expanded td {
-                height: 36px;
-                line-height: 18px;
-            }
-            .action-btn, .expand-btn, .pause-btn {
-                padding: 4px 8px;
-                font-size: 11px;
-            }
-            .filter-group {
-                flex-direction: column;
-                gap: 8px;
-            }
-            .filter-group div {
-                width: 100%;
-            }
-            .filter-group input,
-            .filter-group select {
-                width: 100%;
-            }
-            .realtime-list-container h3, .network-log h3 {
-                font-size: 11px;
-            }
-            .realtime-list-container li, .network-log div {
-                font-size: 9px;
-            }
-            .navbar {
-                width: 180px;
-            }
-        }
-    </style>
 </head>
-<body class="bg-[#f5f5f5]">
-    <!-- Hamburger Menu for Mobile -->
-    <div class="md:hidden fixed top-4 left-4 z-50">
-        <button id="menuToggle" class="p-2 bg-gray-200 rounded-lg">
-            <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-        </button>
-    </div>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold mb-4 text-center">Student Data Fetcher</h1>
 
-    <!-- Left Sidebar Navbar -->
-    <div id="navbar" class="navbar">
-        <div class="flex items-center mb-6">
-            <img src="https://raw.githubusercontent.com/avashx/nsutgod/refs/heads/main/src/logo.png" alt="NSUTGod Logo" class="h-10 w-10 mr-2">
-            <h2 class="text-xl font-bold text-gray-800">NSUTGod</h2>
+        <!-- API Parameters -->
+        <div class="mb-4 p-4 bg-white rounded shadow">
+            <h2 class="text-xl font-semibold mb-2">API Parameters</h2>
+            <p><strong>Endpoint:</strong> <span id="api-endpoint">https://api.tnpnsut.in/students</span></p>
+            <p><strong>Parameters:</strong> batch (optional, e.g., 2024, 2025), _limit (default: 4000), _sort (default: rollNumber)</p>
         </div>
-        <ul class="space-y-2">
-            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg active" data-page="overview">
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                </svg>
-                Overview
-            </li>
-            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="student-profile">
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                Student Profile
-            </li>
-            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="analytics">
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10"/>
-                </svg>
-                Analytics
-            </li>
-            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="placement">
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
-                Placement
-            </li>
-            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="tnp">
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
-                TnP
-            </li>
-            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="notifications">
-                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                </svg>
-                Notifications
-                <span class="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded">2</span>
-            </li>
-        </ul>
-    </div>
 
-    <!-- Main Content -->
-    <div class="md:ml-56 p-8 main-content">
-        <div class="max-w-7xl mx-auto">
-            <div class="flex justify-between items-center mb-6">
-                <div class="flex items-center">
-                    <img src="https://raw.githubusercontent.com/avashx/nsutgod/refs/heads/main/src/logo.png" alt="NSUTGod Logo" class="h-8 w-8 mr-2">
-                    <h1 class="text-2xl font-bold text-gray-800">NSUTGod Student Fetch</h1>
-                </div>
-            </div>
+        <!-- Batch Selection and Fetch Button -->
+        <div class="mb-4 flex flex-col sm:flex-row gap-4">
+            <select id="batchSelect" class="p-2 border rounded">
+                <option value="">All Batches</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+                <option value="2028">2028</option>
+            </select>
+            <button id="fetchButton" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Fetch Data</button>
+            <button id="downloadButton" class="bg-green-500 text-white p-2 rounded hover:bg-green-600 hidden">Download CSV</button>
+        </div>
 
-            <!-- Fetch Options and Filters -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
-                <div class="flex space-x-2">
-                    <button id="fetch-students" class="action-btn">Fetch Students</button>
-                    <select id="fetch-limit" class="border border-gray-300 rounded px-2 py-1 text-sm">
-                        <option value="all">Fetch All</option>
-                        <option value="100">Fetch 100</option>
-                        <option value="150">Fetch 150</option>
-                        <option value="200">Fetch 200</option>
-                        <option value="500">Fetch 500</option>
-                    </select>
-                    <button id="export-csv" class="action-btn hidden">Export to CSV</button>
-                    <button id="expand-table" class="expand-btn">Expand</button>
-                    <button id="pause-fetch" class="pause-btn hidden">Pause</button>
-                </div>
-                <div class="flex flex-wrap gap-2 filter-group">
-                    <div>
-                        <label for="batch-filter" class="text-sm text-gray-600 mr-2">Batch:</label>
-                        <select id="batch-filter" class="border border-gray-300 rounded px-2 py-1 text-sm">
-                            <option value="">All</option>
-                            <option value="2023">2023</option>
-                            <option value="2024">2024</option>
-                            <option value="2025">2025</option>
-                            <option value="2026">2026</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="branch-filter" class="text-sm text-gray-600 mr-2">Branch:</label>
-                        <input id="branch-filter" type="text" class="border border-gray-300 rounded px-2 py-1 text-sm">
-                    </div>
-                    <div>
-                        <label for="cgpa-filter" class="text-sm text-gray-600 mr-2">CGPA:</label>
-                        <input id="cgpa-filter" type="number" step="0.1" class="border border-gray-300 rounded px-2 py-1 text-sm w-16">
-                    </div>
-                    <div>
-                        <label for="name-filter" class="text-sm text-gray-600 mr-2">Name:</label>
-                        <input id="name-filter" type="text" class="border border-gray-300 rounded px-2 py-1 text-sm">
-                    </div>
-                </div>
-            </div>
+        <!-- Console Log -->
+        <div class="mb-4 p-4 bg-gray-800 text-white rounded shadow" style="height: 150px; overflow-y: auto;">
+            <h2 class="text-xl font-semibold mb-2">Console Log</h2>
+            <div id="consoleLog"></div>
+        </div>
 
-            <!-- Grid for Realtime List and Network Log -->
-            <div class="grid-container">
-                <div class="realtime-list-container" id="realtime-list">
-                    <h3 class="font-semibold mb-4">Fetching Students...</h3>
-                    <div class="circular-progress-container">
-                        <div class="circular-progress" id="circular-progress">
-                            <span id="progress-text">0%</span>
-                        </div>
-                    </div>
-                    <ul id="realtime-list-body" class="space-y-2 mt-4"></ul>
-                </div>
-                <div class="network-log" id="network-log-body">
-                    <h3 class="font-semibold mb-4">Network Activity Log</h3>
-                </div>
-            </div>
-
-            <!-- Student Table -->
-            <div class="student-table-container">
-                <h3 class="text-lg font-semibold mb-4">Student Details</h3>
-                <div class="table-wrapper">
-                    <table class="student-table" id="student-table">
-                        <thead>
-                            <tr>
-                                <th data-sort="serial">Serial No <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="studentId">Student ID <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="name">Name <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th>View <div class="resize-handle"></div></th>
-                                <th data-sort="rollNumber">Roll Number <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="email">Email <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="phone">Phone <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="address">Address <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="gender">Gender <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="degree">Degree <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="branch">Branch <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="batch">Batch <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="cgpa">CGPA <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="cgpa10th">10th CGPA <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="cgpa12th">12th CGPA <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="backlogs">Backlogs <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="placementStatus">Placement Status <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="companyName">Company Name <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="jobTitle">Job Title <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="package">Package (LPA) <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="internshipShortlists">Internship Shortlists <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="placementInterviews">Placement Interviews <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="campus">Campus <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="resumeUrl">Resume URL <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="linkedinProfile">LinkedIn <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="createdAt">Created At <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                                <th data-sort="updatedAt">Updated At <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
-                            </tr>
-                        </thead>
-                        <tbody id="student-table-body"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Loading Indicator -->
-            <div id="loading" class="text-center text-gray-500 mt-4 hidden">Loading...</div>
-
-            <!-- Error Message -->
-            <div id="error-message" class="text-center text-red-500 mt-4 hidden"></div>
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table id="studentTable" class="min-w-full bg-white border rounded shadow hidden">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="p-2 border">Name</th>
+                        <th class="p-2 border">Roll Number</th>
+                        <th class="p-2 border">Batch</th>
+                        <th class="p-2 border">Branch</th>
+                        <th class="p-2 border">Campus</th>
+                        <th class="p-2 border">Category</th>
+                        <th class="p-2 border">CGPA</th>
+                        <th class="p-2 border">Aadhar</th>
+                        <th class="p-2 border">Contact Number</th>
+                        <th class="p-2 border">Alt Contact</th>
+                        <th class="p-2 border">Email</th>
+                        <th class="p-2 border">Personal Email</th>
+                        <th class="p-2 border">DOB</th>
+                        <th class="p-2 border">Gender</th>
+                        <th class="p-2 border">Blood Group</th>
+                        <th class="p-2 border">Permanent Address</th>
+                        <th class="p-2 border">Present Address</th>
+                        <th class="p-2 border">PAN</th>
+                        <th class="p-2 border">10th CGPA</th>
+                        <th class="p-2 border">12th CGPA</th>
+                        <th class="p-2 border">Sem 1 GPA</th>
+                        <th class="p-2 border">Sem 2 GPA</th>
+                        <th class="p-2 border">Sem 3 GPA</th>
+                        <th class="p-2 border">Sem 4 GPA</th>
+                        <th class="p-2 border">Sem 5 GPA</th>
+                        <th class="p-2 border">Sem 6 GPA</th>
+                        <th class="p-2 border">Sem 7 GPA</th>
+                        <th class="p-2 border">Sem 8 GPA</th>
+                        <th class="p-2 border">Backlogs</th>
+                        <th class="p-2 border">Bans</th>
+                        <th class="p-2 border">Status</th>
+                        <th class="p-2 border">Resume URL</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        // DOM Elements
-        const fetchButton = document.getElementById('fetch-students');
-        const fetchLimit = document.getElementById('fetch-limit');
-        const exportCsvButton = document.getElementById('export-csv');
-        const expandButton = document.getElementById('expand-table');
-        const pauseButton = document.getElementById('pause-fetch');
-        const tableBody = document.getElementById('student-table-body');
-        const studentTable = document.getElementById('student-table');
-        const networkLogBody = document.getElementById('network-log-body');
-        const loading = document.getElementById('loading');
-        const errorMessage = document.getElementById('error-message');
-        const batchFilter = document.getElementById('batch-filter');
-        const branchFilter = document.getElementById('branch-filter');
-        const cgpaFilter = document.getElementById('cgpa-filter');
-        const nameFilter = document.getElementById('name-filter');
-        const realtimeListBody = document.getElementById('realtime-list-body');
-        const circularProgress = document.getElementById('circular-progress');
-        const progressText = document.getElementById('progress-text');
-
-        // State
+        const fetchButton = document.getElementById('fetchButton');
+        const downloadButton = document.getElementById('downloadButton');
+        const batchSelect = document.getElementById('batchSelect');
+        const apiEndpoint = document.getElementById('apiendpoint');
+        const consoleLog = document.getElementById('consoleLog');
+        const table = document.getElementById('studentTable');
+        const tableBody = document.getElementById('tableBody');
         let studentData = [];
-        let filteredData = [];
-        let sortColumn = null;
-        let sortDirection = 1;
-        let isExpanded = false;
-        let isPaused = false;
-        let fetchController = null;
-        let storedStudentIds = new Set();
 
-        // Bearer Token
-        const bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc1MDg3NTg3NywiZXhwIjoxNzUzNDY3ODc3fQ.RRvoUFo76Q65vECK3P8cIHy7MSgGTd8zkmYYaqE89Dw";
-
-        // Headers for API requests
-        const headers = {
-            "Authorization": `Bearer ${bearerToken}`,
-            "connection": "keep-alive",
-            "host": "api.tnpnsut.in",
-            "origin": "https://admin.tnpnsut.in",
-            "referer": "https://admin.tnpnsut.in/",
-            "sec-ch-ua": '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": '"macOS"',
-            "sec-fetch-dest": "empty"
-        };
-
-        // Tag Colors
-        const branchColors = {
-            'Computer Science and Engineering': '#bfdbfe',
-            'Electronics and Communication Engineering': '#d1fae5',
-            'Mechanical Engineering': '#ffedd5',
-            'Electrical Engineering': '#fef9c3',
-            'default': '#e5e7eb'
-        };
-
-        const batchColors = {
-            '2023': '#ffedd5',
-            '2024': '#d1fae5',
-            '2025': '#bfdbfe',
-            '2026': '#fce7f3'
-        };
-
-        const placementStatusColors = {
-            'Placed': '#d1fae5',
-            'Unplaced': '#fee2e2',
-            'Opted Out': '#fef9c3',
-            'default': '#e5e7eb'
-        };
-
-        function getCgpaColor(cgpa) {
-            const value = parseFloat(cgpa);
-            if (isNaN(value)) return '#e5e7eb';
-            if (value < 6) return '#fee2e2';
-            if (value <= 8) return '#fef9c3';
-            return '#d1fae5';
-        }
-
-        function getPackageColor(packageValue) {
-            const value = parseFloat(packageValue);
-            if (isNaN(value)) return '#e5e7eb';
-            if (value < 10) return '#fee2e2';
-            if (value <= 20) return '#fef9c3';
-            return '#d1fae5';
-        }
-
-        // Fetch list of students
-        async function fetchStudentsList() {
-            const url = 'https://api.tnpnsut.in/branches?degree=BTech';
-            const startTime = performance.now();
-            try {
-                console.log('Fetching students from:', url);
-                fetchController = new AbortController();
-                const response = await fetch(url, {
-                    headers,
-                    signal: fetchController.signal
-                });
-                const endTime = performance.now();
-                const size = response.headers.get('content-length') || 'Unknown';
-                logNetworkActivity(url, response.status, size, endTime - startTime, 'fetch');
-
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch students list - Status: ${response.status} ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                console.log('API Response:', data);
-
-                // Validate response structure
-                if (!Array.isArray(data)) {
-                    throw new Error('API response is not an array');
-                }
-
-                // Map response to ensure consistent field names
-                const students = data.map(student => ({
-                    studentId: student.studentId || student._id || '-',
-                    name: student.name || '-',
-                    rollNumber: student.rollNumber || '-',
-                    email: student.email || '-',
-                    phone: student.phone || '-',
-                    address: student.address || '-',
-                    gender: student.gender || '-',
-                    degree: student.degree || 'BTech',
-                    branch: student.branch || '-',
-                    batch: student.batch || '-',
-                    cgpa: student.cgpa !== undefined ? parseFloat(student.cgpa) : undefined,
-                    cgpa10th: student.cgpa10th || student.tenthPercentage || '-',
-                    cgpa12th: student.cgpa12th || student.twelfthPercentage || '-',
-                    backlogs: student.backlogs !== undefined ? parseInt(student.backlogs) : undefined,
-                    placementStatus: student.placementStatus || '-',
-                    companyId: student.companyId || '-',
-                    companyName: student.companyName || '-',
-                    jobTitle: student.jobTitle || '-',
-                    package: student.package || student.stipend || '-',
-                    internshipShortlists: student.internshipShortlists || [],
-                    placementInterviews: student.placementInterviews || [],
-                    campus: student.campus || '-',
-                    resumeUrl: student.resumeUrl || '-',
-                    linkedinProfile: student.linkedinProfile || '-',
-                    createdAt: student.createdAt || '-',
-                    updatedAt: student.updatedAt || '-',
-                    isNew: false
-                }));
-
-                const limit = fetchLimit.value;
-                if (limit !== 'all') {
-                    return students.slice(0, parseInt(limit));
-                }
-                return students;
-            } catch (error) {
-                console.error('Fetch Error:', error.message);
-                logNetworkActivity(url, error.name === 'AbortError' ? 'Paused' : 'Failed', '0', performance.now() - startTime, 'fetch');
-                throw error;
-            }
-        }
-
-        // Log network activity
-        function logNetworkActivity(name, status, size, time, type) {
+        function logMessage(message, isError = false) {
             const logEntry = document.createElement('div');
-            logEntry.innerHTML = `Request: ${name} | <span class="status">Status: ${status}</span> | Size: ${size} bytes | <span class="time">Time: ${time.toFixed(2)} ms</span> | Type: ${type}`;
-            networkLogBody.appendChild(logEntry);
-            networkLogBody.scrollTop = networkLogBody.scrollHeight;
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logEntry.className = isError ? 'text-red-400' : 'text-white';
+            consoleLog.appendChild(logEntry);
+            consoleLog.scrollTop = consoleLog.scrollHeight;
         }
 
-        // Update real-time student list and circular progress
-        function updateRealtimeList(student, currentCount, totalCount) {
-            const listItem = document.createElement('li');
-            listItem.textContent = `Fetched: ${student.name || 'Unknown'} (ID: ${student.studentId})`;
-            listItem.className = 'text-gray-600';
-            realtimeListBody.insertBefore(listItem, realtimeListBody.firstChild);
-
-            // Update circular progress (based on totalCount from response)
-            const progress = Math.min((currentCount / totalCount) * 100, 100);
-            circularProgress.style.background = `conic-gradient(#10b981 0% ${progress}%, #e5e7eb ${progress}% 100%)`;
-            progressText.textContent = `${Math.round(progress)}%`;
-        }
-
-        // Load students from localStorage (fallback)
-        function loadStoredStudents() {
-            const stored = localStorage.getItem('studentData');
-            if (stored) {
-                studentData = JSON.parse(stored);
-                storedStudentIds = new Set(studentData.map(s => s.studentId));
-                filteredData = [...studentData];
-                applyFilters();
-                console.log('Loaded from localStorage:', studentData.length, 'students');
+        async function fetchData() {
+            const batch = batchSelect.value;
+            let url = 'https://api.tnpnsut.in/students';
+            if (batch) {
+                url += `?batch=${batch}&_limit=4000&_sort=rollNumber`;
             } else {
-                console.log('No data in localStorage');
+                url += '?_limit=4000&_sort=rollNumber';
             }
-        }
-
-        // Save students to localStorage
-        function saveStudentsToStorage() {
-            localStorage.setItem('studentData', JSON.stringify(studentData));
-            storedStudentIds = new Set(studentData.map(s => s.studentId));
-            console.log('Saved to localStorage:', studentData.length, 'students');
-        }
-
-        // Fetch all student data
-        async function fetchAllStudents() {
-            console.log('Fetch Students button clicked');
-            loading.classList.remove('hidden');
-            errorMessage.classList.add('hidden');
-            networkLogBody.innerHTML = '';
-            realtimeListBody.innerHTML = '';
-            circularProgress.style.background = `conic-gradient(#10b981 0% 0%, #e5e7eb 0% 100%)`;
-            progressText.textContent = '0%';
-            exportCsvButton.classList.add('hidden');
-            pauseButton.classList.remove('hidden');
-            isPaused = false;
-            pauseButton.textContent = 'Pause';
+            apiEndpoint.textContent = url;
+            logMessage(`Fetching data from ${url}`);
+            fetchButton.disabled = true;
+            table.classList.add('hidden');
+            downloadButton.classList.add('hidden');
+            tableBody.innerHTML = '';
 
             try {
-                const students = await fetchStudentsList();
-                console.log('Fetched students:', students.length);
-                if (!students || students.length === 0) {
-                    throw new Error('No students found in the API response.');
-                }
-
-                const newStudents = [];
-                let currentCount = 0;
-
-                for (const student of students) {
-                    if (isPaused) {
-                        console.log('Fetch paused, waiting to resume...');
-                        await new Promise(resolve => {
-                            const checkPause = setInterval(() => {
-                                if (!isPaused) {
-                                    clearInterval(checkPause);
-                                    resolve();
-                                }
-                            }, 100);
-                        });
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc1MDg3NTg3NywiZXhwIjoxNzUzNDY3ODc3fQ.RRvoUFo76Q65vECK3P8cIHy7MSgGTd8zkmYYaqE89Dw'
                     }
-                    try {
-                        currentCount++;
-                        updateRealtimeList(student, currentCount, students.length);
-                        const isNew = !storedStudentIds.has(student.studentId);
-                        if (isNew) {
-                            newStudents.push({ ...student, isNew: true });
-                        }
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                    } catch (error) {
-                        if (error.name !== 'AbortError') {
-                            console.error('Error processing student:', error.message);
-                        }
-                    }
-                }
-
-                // Merge new students with existing ones (no removals)
-                studentData = [
-                    ...studentData.map(s => ({ ...s, isNew: false })), // Reset isNew for existing students
-                    ...newStudents
-                ];
-                filteredData = [...studentData];
-                saveStudentsToStorage();
-                applyFilters();
-
-                if (studentData.length === 0) {
-                    throw new Error('No student details fetched. Please check the API or token.');
-                }
-
-                exportCsvButton.classList.remove('hidden');
-                console.log('Fetch completed, total students:', studentData.length);
+                });
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                studentData = await response.json();
+                logMessage(`Successfully fetched ${studentData.length} records`);
+                renderTable(studentData);
             } catch (error) {
-                if (error.name !== 'AbortError') {
-                    showError(`Error: ${error.message}`);
-                    console.error('FetchAllStudents Error:', error);
-                }
+                logMessage(`Error: ${error.message}`, true);
             } finally {
-                loading.classList.add('hidden');
-                pauseButton.classList.add('hidden');
-                fetchController = null;
+                fetchButton.disabled = false;
             }
         }
 
-        // Apply filters
-        function applyFilters() {
-            const batch = batchFilter.value;
-            const branch = branchFilter.value.toLowerCase();
-            const cgpa = parseFloat(cgpaFilter.value) || null;
-            const name = nameFilter.value.toLowerCase();
-
-            filteredData = studentData.filter(student => {
-                const matchesBatch = batch ? student.batch === batch : true;
-                const matchesBranch = branch ? (student.branch || '').toLowerCase().includes(branch) : true;
-                const matchesCgpa = cgpa !== null ? (student.cgpa || 0) >= cgpa : true;
-                const matchesName = name ? (student.name || '').toLowerCase().includes(name) : true;
-                return matchesBatch && matchesBranch && matchesCgpa && matchesName;
-            });
-
-            console.log('Filtered data:', filteredData.length, 'students');
-            sortData();
-            renderTable();
-        }
-
-        // Sort data
-        function sortData() {
-            if (!sortColumn) return;
-
-            filteredData.sort((a, b) => {
-                let valueA, valueB;
-
-                if (sortColumn === 'serial') {
-                    valueA = studentData.indexOf(a);
-                    valueB = studentData.indexOf(b);
-                } else if (sortColumn === 'internshipShortlists' || sortColumn === 'placementInterviews') {
-                    valueA = (a[sortColumn] || []).length;
-                    valueB = (b[sortColumn] || []).length;
-                } else if (sortColumn === 'cgpa' || sortColumn === 'cgpa10th' || sortColumn === 'cgpa12th' || sortColumn === 'package' || sortColumn === 'backlogs') {
-                    valueA = parseFloat(a[sortColumn]) || 0;
-                    valueB = parseFloat(b[sortColumn]) || 0;
-                } else {
-                    valueA = (a[sortColumn] || '').toString().toLowerCase();
-                    valueB = (b[sortColumn] || '').toString().toLowerCase();
-                }
-
-                if (valueA < valueB) return -1 * sortDirection;
-                if (valueA > valueB) return 1 * sortDirection;
-                return 0;
-            });
-        }
-
-        // Render the table
-        function renderTable() {
+        function renderTable(data) {
             tableBody.innerHTML = '';
-            filteredData.forEach((student, index) => {
+            data.forEach(student => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${student.studentId || '-'}</td>
-                    <td>${student.name || '-'}${student.isNew ? '<span class="new-sticker">New</span>' : ''}</td>
-                    <td><button class="view-btn" onclick="window.open('student-profile.html?id=${student.studentId}', '_blank')">View</button></td>
-                    <td>${student.rollNumber || '-'}</td>
-                    <td>${student.email || '-'}</td>
-                    <td>${student.phone || '-'}</td>
-                    <td>${student.address || '-'}</td>
-                    <td>${student.gender || '-'}</td>
-                    <td>${student.degree || '-'}</td>
-                    <td><span class="tag" style="background-color: ${branchColors[student.branch] || branchColors.default}">${student.branch || '-'}</span></td>
-                    <td><span class="tag" style="background-color: ${batchColors[student.batch] || '#e5e7eb'}">${student.batch || '-'}</span></td>
-                    <td><span class="tag" style="background-color: ${getCgpaColor(student.cgpa)}">${student.cgpa !== undefined ? student.cgpa : '-'}</span></td>
-                    <td><span class="tag" style="background-color: ${getCgpaColor(student.cgpa10th)}">${student.cgpa10th !== undefined ? student.cgpa10th : '-'}</span></td>
-                    <td><span class="tag" style="background-color: ${getCgpaColor(student.cgpa12th)}">${student.cgpa12th !== undefined ? student.cgpa12th : '-'}</span></td>
-                    <td>${student.backlogs !== undefined ? student.backlogs : '-'}</td>
-                    <td><span class="tag" style="background-color: ${placementStatusColors[student.placementStatus] || placementStatusColors.default}">${student.placementStatus || '-'}</span></td>
-                    <td>${student.companyName || '-'}</td>
-                    <td>${student.jobTitle || '-'}</td>
-                    <td><span class="tag" style="background-color: ${getPackageColor(student.package)}">${student.package !== undefined ? student.package : '-'}</span></td>
-                    <td>${student.internshipShortlists && student.internshipShortlists.length > 0 ? student.internshipShortlists.length : 'None'}</td>
-                    <td>${student.placementInterviews && student.placementInterviews.length > 0 ? student.placementInterviews.length : 'None'}</td>
-                    <td>${student.campus || '-'}</td>
-                    <td><a href="${student.resumeUrl || '#'}" target="_blank">${student.resumeUrl ? 'Link' : '-'}</a></td>
-                    <td><a href="${student.linkedinProfile || '#'}" target="_blank">${student.linkedinProfile ? 'Link' : '-'}</a></td>
-                    <td>${student.createdAt || '-'}</td>
-                    <td>${student.updatedAt || '-'}</td>
+                    <td class="p-2 border">${student.Name || '-'}</td>
+                    <td class="p-2 border">${student.rollNumber || '-'}</td>
+                    <td class="p-2 border">${student.batch || '-'}</td>
+                    <td class="p-2 border">${student.branch || '-'}</td>
+                    <td class="p-2 border">${student.campus || '-'}</td>
+                    <td class="p-2 border">${student.category || '-'}</td>
+                    <td class="p-2 border">${student.cgpa || '-'}</td>
+                    <td class="p-2 border">${student.aadhar || '-'}</td>
+                    <td class="p-2 border">${student.contact_number || '-'}</td>
+                    <td class="p-2 border">${student.alt_contact_number || '-'}</td>
+                    <td class="p-2 border">${student.email || '-'}</td>
+                    <td class="p-2 border">${student.personal_email || '-'}</td>
+                    <td class="p-2 border">${student.dob || '-'}</td>
+                    <td class="p-2 border">${student.gender || '-'}</td>
+                    <td class="p-2 border">${student.blood_group || '-'}</td>
+                    <td class="p-2 border">${student.perm_address || '-'}</td>
+                    <td class="p-2 border">${student.present_address || '-'}</td>
+                    <td class="p-2 border">${student.pan || '-'}</td>
+                    <td class="p-2 border">${student.cgpa_10th || '-'}</td>
+                    <td class="p-2 border">${student.cgpa_12th || '-'}</td>
+                    <td class="p-2 border">${student.sem1_gpa || '-'}</td>
+                    <td class="p-2 border">${student.sem2_gpa || '-'}</td>
+                    <td class="p-2 border">${student.sem3_gpa || '-'}</td>
+                    <td class="p-2 border">${student.sem4_gpa || '-'}</td>
+                    <td class="p-2 border">${student.sem5_gpa || '-'}</td>
+                    <td class="p-2 border">${student.sem6_gpa || '-'}</td>
+                    <td class="p-2 border">${student.sem7_gpa || '-'}</td>
+                    <td class="p-2 border">${student.sem8_gpa || '-'}</td>
+                    <td class="p-2 border">${student.backlogs || '-'}</td>
+                    <td class="p-2 border">${student.bans || '-'}</td>
+                    <td class="p-2 border">${student.status || '-'}</td>
+                    <td class="p-2 border">${student.resume?.[0]?.url ? `<a href="${student.resume[0].url}" target="_blank">View</a>` : '-'}</td>
                 `;
                 tableBody.appendChild(row);
             });
-            console.log('Table rendered with', filteredData.length, 'rows');
+            table.classList.remove('hidden');
+            downloadButton.classList.remove('hidden');
         }
 
-        // Export to CSV
-        function exportToCsv() {
+        function downloadCSV() {
             const headers = [
-                'Serial No', 'Student ID', 'Name', 'View', 'Roll Number', 'Email', 'Phone', 'Address', 'Gender', 
-                'Degree', 'Branch', 'Batch', 'CGPA', '10th CGPA', '12th CGPA', 'Backlogs', 'Placement Status', 
-                'Company Name', 'Job Title', 'Package (LPA)', 'Internship Shortlists', 'Placement Interviews', 
-                'Campus', 'Resume URL', 'LinkedIn', 'Created At', 'Updated At'
+                'Name', 'Roll Number', 'Batch', 'Branch', 'Campus', 'Category', 'CGPA', 'Aadhar', 
+                'Contact Number', 'Alt Contact', 'Email', 'Personal Email', 'DOB', 'Gender', 
+                'Blood Group', 'Permanent Address', 'Present Address', 'PAN', '10th CGPA', 
+                '12th CGPA', 'Sem 1 GPA', '主体', 'Sem 2 GPA', 'Sem 3 GPA', 'Sem 4 GPA', 
+                'Sem 5 GPA', 'Sem 6 GPA', 'Sem 7 GPA', 'Sem 8 GPA', 'Backlogs', 'Bans', 
+                'Status', 'Resume URL'
             ];
-            const rows = studentData.map((student, index) => {
-                return [
-                    index + 1,
-                    student.studentId || '-',
-                    `"${(student.name || '-').replace(/"/g, '""')}"`,
-                    'View',
-                    student.rollNumber || '-',
-                    `"${(student.email || '-').replace(/"/g, '""')}"`,
-                    student.phone || '-',
-                    `"${(student.address || '-').replace(/"/g, '""')}"`,
-                    student.gender || '-',
-                    student.degree || '-',
-                    student.branch || '-',
-                    student.batch || '-',
-                    student.cgpa !== undefined ? student.cgpa : '-',
-                    student.cgpa10th !== undefined ? student.cgpa10th : '-',
-                    student.cgpa12th !== undefined ? student.cgpa12th : '-',
-                    student.backlogs !== undefined ? student.backlogs : '-',
-                    student.placementStatus || '-',
-                    `"${(student.companyName || '-').replace(/"/g, '""')}"`,
-                    `"${(student.jobTitle || '-').replace(/"/g, '""')}"`,
-                    student.package !== undefined ? student.package : '-',
-                    student.internshipShortlists && student.internshipShortlists.length > 0 ? student.internshipShortlists.length : 'None',
-                    student.placementInterviews && student.placementInterviews.length > 0 ? student.placementInterviews.length : 'None',
-                    student.campus || '-',
-                    `"${(student.resumeUrl || '-').replace(/"/g, '""')}"`,
-                    `"${(student.linkedinProfile || '-').replace(/"/g, '""')}"`,
-                    student.createdAt || '-',
-                    student.updatedAt || '-'
+            const csvRows = [headers.join(',')];
+            studentData.forEach(student => {
+                const row = [
+                    `"${student.Name || ''}"`, student.rollNumber || '', student.batch || '', 
+                    student.branch || '', student.campus || '', student.category || '', 
+                    student.cgpa || '', student.aadhar || '', student.contact_number || '', 
+                    student.alt_contact_number || '', student.email || '', 
+                    student.personal_email || '', student.dob || '', student.gender || '', 
+                    student.blood_group || '', `"${student.perm_address || ''}"`, 
+                    `"${student.present_address || ''}"`, student.pan || '', 
+                    student.cgpa_10th || '', student.cgpa_12th || '', student.sem1_gpa || '', 
+                    student.sem2_gpa || '', student.sem3_gpa || '', student.sem4_gpa || '', 
+                    student.sem5_gpa || '', student.sem6_gpa || '', student.sem7_gpa || '', 
+                    student.sem8_gpa || '', student.backlogs || '', student.bans || '', 
+                    student.status || '', student.resume?.[0]?.url || ''
                 ];
+                csvRows.push(row.join(','));
             });
-
-            const csvContent = [
-                headers.join(','),
-                ...rows.map(row => row.join(','))
-            ].join('\n');
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'student_data.csv');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            console.log('Exported CSV with', studentData.length, 'rows');
+            const csvContent = csvRows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'student_data.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+            logMessage('CSV downloaded successfully');
         }
 
-        // Show error message
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.classList.remove('hidden');
-            loading.classList.add('hidden');
-        }
-
-        // Toggle table expansion
-        expandButton.addEventListener('click', () => {
-            isExpanded = !isExpanded;
-            studentTable.classList.toggle('expanded');
-            expandButton.textContent = isExpanded ? 'Collapse' : 'Expand';
-            console.log('Table expansion toggled:', isExpanded);
-        });
-
-        // Pause/Resume fetching
-        pauseButton.addEventListener('click', () => {
-            isPaused = !isPaused;
-            pauseButton.textContent = isPaused ? 'Resume' : 'Pause';
-            if (isPaused && fetchController) {
-                fetchController.abort();
-                console.log('Fetch paused');
-            } else {
-                console.log('Fetch resumed');
-            }
-        });
-
-        // Column resizing
-        document.querySelectorAll('.resize-handle').forEach(handle => {
-            handle.addEventListener('mousedown', (e) => {
-                const th = handle.parentElement;
-                const startX = e.pageX;
-                const startWidth = th.offsetWidth;
-
-                const onMouseMove = (e) => {
-                    const newWidth = startWidth + (e.pageX - startX);
-                    th.style.width = `${Math.max(80, newWidth)}px`;
-                    th.classList.add('resized');
-                    const index = Array.from(th.parentElement.children).indexOf(th);
-                    document.querySelectorAll(`#student-table tbody tr td:nth-child(${index + 1})`).forEach(td => {
-                        td.style.width = `${Math.max(80, newWidth)}px`;
-                        td.classList.add('resized');
-                    });
-                };
-
-                const onMouseUp = () => {
-                    document.removeEventListener('mousemove', onMouseMove);
-                    document.removeEventListener('mouseup', onMouseUp);
-                };
-
-                document.addEventListener('mousemove', onMouseMove);
-                document.addEventListener('mouseup', onMouseUp);
-            });
-        });
-
-        // Toggle navbar on mobile
-        const menuToggle = document.getElementById('menuToggle');
-        const navbar = document.getElementById('navbar');
-        menuToggle.addEventListener('click', () => {
-            navbar.classList.toggle('visible');
-            console.log('Navbar toggled:', navbar.classList.contains('visible'));
-        });
-
-        // Close navbar when clicking outside on mobile
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth < 768 && !navbar.contains(e.target) && !menuToggle.contains(e.target)) {
-                navbar.classList.remove('visible');
-            }
-        });
-
-        // Navigation between pages
-        const pages = {
-            'overview': () => window.location.href = 'index.html',
-            'student-profile': () => window.location.href = 'student-profile.html',
-            'analytics': () => window.location.href = 'analytics.html',
-            'placement': () => window.location.href = 'placement.html',
-            'tnp': () => window.location.href = 'tnp.html',
-            'notifications': () => window.location.href = 'index.html#notificationsPage'
-        };
-
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const page = item.getAttribute('data-page');
-                pages[page]();
-            });
-        });
-
-        // Event Listeners
-        fetchButton.addEventListener('click', () => {
-            console.log('Fetch Students button event triggered');
-            fetchAllStudents();
-        });
-        exportCsvButton.addEventListener('click', exportToCsv);
-
-        // Filter event listeners
-        batchFilter.addEventListener('change', applyFilters);
-        branchFilter.addEventListener('input', applyFilters);
-        cgpaFilter.addEventListener('input', applyFilters);
-        nameFilter.addEventListener('input', applyFilters);
-
-        // Sort event listeners
-        document.querySelectorAll('th[data-sort]').forEach(header => {
-            header.addEventListener('click', () => {
-                const column = header.dataset.sort;
-                if (sortColumn === column) {
-                    sortDirection *= -1;
-                } else {
-                    sortColumn = column;
-                    sortDirection = 1;
-                }
-                document.querySelectorAll('.sort-icon').forEach(icon => {
-                    icon.textContent = '↕';
-                });
-                const icon = header.querySelector('.sort-icon');
-                icon.textContent = sortDirection === 1 ? '↑' : '↓';
-                sortData();
-                renderTable();
-                console.log('Sorted by:', column, 'Direction:', sortDirection);
-            });
-        });
-
-        // Load stored students on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM Content Loaded, loading stored students');
-            loadStoredStudents();
-        });
+        fetchButton.addEventListener('click', fetchData);
+        downloadButton.addEventListener('click', downloadCSV);
     </script>
 </body>
 </html>
