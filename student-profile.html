@@ -294,6 +294,7 @@
                     <p>Roll Number: <span id="rollNumber">-</span></p>
                     <p>Branch: <span id="branch" class="tag">-</span></p>
                     <p>Degree: <span id="degree">-</span></p>
+                    <p>Course: <span id="course">-</span></p>
                     <p>Batch: <span id="batch">-</span></p>
                     <p>Campus: <span id="campus">-</span></p>
                     <p>CGPA (Current): <span id="cgpa" class="tag">-</span></p>
@@ -772,6 +773,7 @@
                     safeSetStyle('branch', 'backgroundColor', branchColors[studentData.branch]);
                 }
                 safeSetText('degree', studentData.degree || '-');
+                safeSetText('course', studentData.degree ? `${studentData.degree} in ${studentData.branch || '-'}` : '-');
                 safeSetText('batch', studentData.batch || '-');
                 safeSetText('campus', studentData.campus || '-');
                 safeSetText('cgpa', studentData.cgpa || '-');
