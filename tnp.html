@@ -601,82 +601,73 @@
         // Parse CSV content
         function parseCsv(csvText) {
             if (!csvText || csvText.trim() === '') {
-                throw new Error('CSV file is empty');
+                throw new Error('CSV is empty');
             }
 
             const rows = csvText.trim().split('\n').map(row => {
+                // Handle CSV rows with commas within quoted fields
                 const cells = [];
                 let currentCell = '';
                 let inQuotes = false;
+
                 for (let i = 0; i < row.length; i++) {
                     const char = row[i];
-                    if (char === '"' && row[i + 1] === '"') {
-                        currentCell += '"';
-                        i++;
-                    } else if (char === '"') {
+                    if (char === '"') {
                         inQuotes = !inQuotes;
                     } else if (char === ',' && !inQuotes) {
-                        cells.push(currentCell);
+                        cells.push(currentCell.replace(/^"|"$/g, '').replace(/""/g, '"'));
                         currentCell = '';
                     } else {
                         currentCell += char;
                     }
                 }
-                cells.push(currentCell);
-                return cells.map(cell => cell.replace(/^"|"$/g, '').replace(/""/g, '"'));
+                cells.push(currentCell.replace(/^"|"$/g, '').replace(/""/g, '"'));
+                return cells;
             });
 
-            const headers = rows[0];
-            if (!headers || headers.length < 32) {
-                throw new Error('Invalid CSV format: Missing headers');
+            if (rows.length < 1) {
+                throw new Error('No rows found in CSV');
             }
 
-            const expectedHeaders = [
-                'Serial No', 'ID', 'Name', 'View', 'Category', 'Year', 'Job Title', 'Event Category',
-                'Stipend (INR)', 'Duration', 'Type', 'Graduation CGPA', 'Degree', 'Status', 'Optional Criteria',
-                'CGPA 10th', 'CGPA 12th', 'Stipend Info', 'Campus', 'Backlogs', 'Branches Allowed', 'Deadline',
-                'Location', 'Degrees', 'POC', 'Placement Interviews', 'Internship Shortlists', 'Published At',
-                'Created At', 'Updated At', 'Event ID', 'Info'
-            ];
-
-            if (!headers.every((h, i) => h === expectedHeaders[i])) {
-                throw new Error('Invalid CSV format: Header mismatch');
+            const headers = rows[0];
+            if (headers.length < 32) {
+                throw new Error(`Invalid CSV format: Expected 32 columns, found ${headers.length}`);
             }
 
             const data = rows.slice(1).filter(row => row.length === headers.length).map((row, index) => {
                 const company = { id: row[1], name: row[2], details: {}, isNew: false };
                 company.details._id = row[1];
                 company.details.Name = row[2];
-                company.details.company_category = row[4] !== '-' ? row[4] : undefined;
-                company.details.year = row[5] !== '-' ? row[5] : undefined;
+                company.details.company_category = row[4];
+                company.details.year = row[5];
                 company.details.events = [{
-                    jobtitle: row[6] !== '-' ? row[6] : undefined,
-                    category: row[7] !== '-' ? row[7] : undefined,
+                    jobtitle: row[6],
+                    category: row[7],
                     stipend: row[8] !== '-' ? parseFloat(row[8]) : undefined,
-                    duration: row[9] !== '-' ? row[9] : undefined,
-                    type: row[10] !== '-' ? row[10] : undefined,
+                    duration: row[9],
+                    type: row[10],
                     graduation_cgpa: row[11] !== '-' ? parseFloat(row[11]) : undefined,
-                    degree: row[12] !== '-' ? row[12] : undefined,
-                    status: row[13] !== '-' ? row[13] : undefined,
+                    degree: row[12],
+                    status: row[13],
                     optional_criteria: row[14] !== '-' ? parseFloat(row[14]) : undefined,
                     cgpa_10th: row[15] !== '-' ? parseFloat(row[15]) : undefined,
                     cgpa_12th: row[16] !== '-' ? parseFloat(row[16]) : undefined,
-                    stipend_info: row[17] !== '-' ? row[17] : undefined,
-                    campus: row[18] !== '-' ? row[18].split(', ').filter(c => c) : [],
+                    stipend_info: row[17],
+                    campus: row[18] !== '-' ? row[18].split(', ') : [],
                     backlogs: row[19] !== '-' ? parseInt(row[19]) : undefined,
-                    branchesAllowed: row[20] !== '-' ? row[20].split(', ').filter(b => b).map(branch => ({ branch })) : [],
-                    lastDate: row[21] !== '-' ? row[21] : undefined,
-                    placeOfPosting: row[22] !== '-' ? row[22] : undefined,
-                    degrees_allowed: row[23] !== '-' ? row[23].split(', ').filter(d => d) : [],
-                    apc: row[24] !== '-' ? row[24] : undefined,
-                    _id: row[30] !== '-' ? row[30] : undefined
+                    branchesAllowed: row[20] !== '-' ? row[20].split(', ').map(branch => ({ branch })) : [],
+                    lastDate: row[21],
+                    placeOfPosting: row[22],
+                    degrees_allowed: row[23] !== '-' ? row[23].split(', ') : [],
+                    apc: row[24],
+                    _id: row[30]
                 }];
-                company.details.placement_interviews = row[25] !== 'None' ? new Array(parseInt(row[25]) || 0) : [];
-                company.details.internship_shortlists = row[26] !== 'None' ? new Array(parseInt(row[26]) || 0) : [];
-                company.details.published_at = row[27] !== '-' ? row[27] : undefined;
-                company.details.createdAt = row[28] !== '-' ? row[28] : undefined;
-                company.details.updatedAt = row[29] !== '-' ? row[29] : undefined;
-                company.details.info = row[31] !== '-' ? row[31] : undefined;
+                company.details.placement_interviews = row[25] !== 'None' ? new Array(parseInt(row[25])) : [];
+                company.details.internship_shortlists = row[26] !== 'None' ? new Array(parseInt(row[26])) : [];
+                company.details.published_at = row[27];
+                company.details.createdAt = row[28];
+                company.details.updatedAt = row[29];
+                company.details.info = row[31];
                 return company;
             });
 
@@ -684,6 +675,7 @@
                 throw new Error('No valid data rows in CSV');
             }
 
+            console.log(`Parsed ${data.length} companies from CSV`);
             return data;
         }
 
@@ -705,11 +697,12 @@
                     filteredData = [...companyData];
                     saveCompaniesToStorage();
                     applyFilters();
+                    logNetworkActivity(csvUrl, `Success: Loaded ${companyData.length} companies`, size, endTime - startTime, 'fetch');
                 } else {
                     throw new Error(`Failed to fetch CSV - Status: ${response.status}`);
                 }
             } catch (error) {
-                logNetworkActivity(csvUrl, 'Failed', '0', performance.now() - startTime, 'fetch');
+                logNetworkActivity(csvUrl, `Failed: ${error.message}`, '0', performance.now() - startTime, 'fetch');
                 showError(`Error loading CSV: ${error.message}. Loading from localStorage instead.`);
                 loadStoredCompanies();
             } finally {
@@ -725,6 +718,9 @@
                 storedCompanyIds = new Set(companyData.map(c => c.id));
                 filteredData = [...companyData];
                 applyFilters();
+                logNetworkActivity('localStorage', `Success: Loaded ${companyData.length} companies`, 'Unknown', 0, 'load');
+            } else {
+                showError('No data in localStorage. Please fetch companies or ensure CSV is available.');
             }
         }
 
@@ -772,7 +768,7 @@
                 if (error.name === 'AbortError') {
                     logNetworkActivity(url, 'Paused', '0', performance.now() - startTime, 'fetch');
                 } else {
-                    logNetworkActivity(url, 'Failed', '0', performance.now() - startTime, 'fetch');
+                    logNetworkActivity(url, `Failed: ${error.message}`, '0', performance.now() - startTime, 'fetch');
                     throw error;
                 }
             }
@@ -799,7 +795,7 @@
                 if (error.name === 'AbortError') {
                     logNetworkActivity(url, 'Paused', '0', performance.now() - startTime, 'fetch');
                 } else {
-                    logNetworkActivity(url, 'Failed', '0', performance.now() - startTime, 'fetch');
+                    logNetworkActivity(url, `Failed: ${error.message}`, '0', performance.now() - startTime, 'fetch');
                     throw error;
                 }
             }
@@ -858,6 +854,7 @@
                     } catch (error) {
                         if (error.name !== 'AbortError') {
                             console.error(error.message);
+                            logNetworkActivity(`Company ${company.id}`, `Failed: ${error.message}`, '0', 0, 'fetch');
                         }
                     }
                 }
@@ -876,6 +873,7 @@
                 }
 
                 exportCsvButton.classList.remove('hidden');
+                logNetworkActivity('Fetch Complete', `Success: Added ${newCompanies.length} new companies, Total: ${companyData.length}`, 'Unknown', 0, 'fetch');
             } catch (error) {
                 if (error.name !== 'AbortError') {
                     showError(error.message);
