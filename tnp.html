@@ -331,7 +331,7 @@
     <!-- Left Sidebar Navbar -->
     <div id="navbar" class="navbar">
         <div class="flex items-center mb-6">
-            <img src="https://raw.githubusercontent.com/avashx/nsutgod/refs/heads/main/src/logo.png" alt="NSUTGod Logo" class="h-10 w-10 pacote mr-2">
+            <img src="https://raw.githubusercontent.com/avashx/nsutgod/refs/heads/main/src/logo.png" alt="NSUTGod Logo" class="h-10 w-10 mr-2">
             <h2 class="text-xl font-bold text-gray-800">NSUTGod</h2>
         </div>
         <ul class="space-y-2">
@@ -598,7 +598,76 @@
             return '#d1fae5';
         }
 
-        // Load stored companies from localStorage
+        // Parse CSV content
+        function parseCsv(csvText) {
+            const rows = csvText.trim().split('\n').map(row => row.split(',').map(cell => cell.replace(/^"|"$/g, '').replace(/""/g, '"')));
+            const headers = rows[0];
+            const data = rows.slice(1).map((row, index) => {
+                const company = { id: row[1], name: row[2], details: {}, isNew: false };
+                company.details._id = row[1];
+                company.details.Name = row[2];
+                company.details.company_category = row[4];
+                company.details.year = row[5];
+                company.details.events = [{
+                    jobtitle: row[6],
+                    category: row[7],
+                    stipend: row[8] !== '-' ? parseFloat(row[8]) : undefined,
+                    duration: row[9],
+                    type: row[10],
+                    graduation_cgpa: row[11] !== '-' ? parseFloat(row[11]) : undefined,
+                    degree: row[12],
+                    status: row[13],
+                    optional_criteria: row[14] !== '-' ? parseFloat(row[14]) : undefined,
+                    cgpa_10th: row[15] !== '-' ? parseFloat(row[15]) : undefined,
+                    cgpa_12th: row[16] !== '-' ? parseFloat(row[16]) : undefined,
+                    stipend_info: row[17],
+                    campus: row[18] !== '-' ? row[18].split(', ') : [],
+                    backlogs: row[19] !== '-' ? parseInt(row[19]) : undefined,
+                    branchesAllowed: row[20] !== '-' ? row[20].split(', ').map(branch => ({ branch })) : [],
+                    lastDate: row[21],
+                    placeOfPosting: row[22],
+                    degrees_allowed: row[23] !== '-' ? row[23].split(', ') : [],
+                    apc: row[24],
+                    _id: row[30]
+                }];
+                company.details.placement_interviews = row[25] !== 'None' ? new Array(parseInt(row[25])) : [];
+                company.details.internship_shortlists = row[26] !== 'None' ? new Array(parseInt(row[26])) : [];
+                company.details.published_at = row[27];
+                company.details.createdAt = row[28];
+                company.details.updatedAt = row[29];
+                company.details.info = row[31];
+                return company;
+            });
+            return data;
+        }
+
+        // Load companies from CSV
+        async function loadCompaniesFromCsv() {
+            const csvUrl = 'https://raw.githubusercontent.com/avashx/nsutgod/main/src/com_data.csv';
+            const startTime = performance.now();
+            try {
+                const response = await fetch(csvUrl);
+                const endTime = performance.now();
+                const size = response.headers.get('content-length') || 'Unknown';
+                logNetworkActivity(csvUrl, response.status, size, endTime - startTime, 'fetch');
+                
+                if (response.ok) {
+                    const csvText = await response.text();
+                    companyData = parseCsv(csvText);
+                    storedCompanyIds = new Set(companyData.map(c => c.id));
+                    filteredData = [...companyData];
+                    saveCompaniesToStorage();
+                    applyFilters();
+                } else {
+                    throw new Error(`Failed to fetch CSV - Status: ${response.status}`);
+                }
+            } catch (error) {
+                showError(`Error loading CSV: ${error.message}. Loading from localStorage instead.`);
+                loadStoredCompanies();
+            }
+        }
+
+        // Load stored companies from localStorage (fallback)
         function loadStoredCompanies() {
             const stored = localStorage.getItem('companyData');
             if (stored) {
@@ -743,7 +812,7 @@
                     }
                 }
 
-                // Merge new companies with existing ones
+                // Merge new companies with existing ones (no removals)
                 companyData = [
                     ...companyData.map(c => ({ ...c, isNew: false })), // Reset isNew for existing companies
                     ...newCompanies
@@ -887,7 +956,7 @@
                 'Location', 'Degrees', 'POC', 'Placement Interviews', 'Internship Shortlists', 'Published At', 
                 'Created At', 'Updated At', 'Event ID', 'Info'
             ];
-            const rows = filteredData.map((company, index) => {
+            const rows = companyData.map((company, index) => {
                 const details = company.details || {};
                 const event = details.events && details.events.length > 0 ? details.events[0] : {};
                 const branchesAllowed = (event.branchesAllowed || []).map(b => b.branch).join(', ');
@@ -936,7 +1005,7 @@
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.setAttribute('href', url);
-            link.setAttribute('download', 'company_data.csv');
+            link.setAttribute('download', 'com_data.csv');
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -1054,9 +1123,9 @@
             });
         });
 
-        // Load stored companies on page load
+        // Load companies from CSV on page load
         document.addEventListener('DOMContentLoaded', () => {
-            loadStoredCompanies();
+            loadCompaniesFromCsv();
         });
     </script>
 </body>
