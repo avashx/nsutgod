@@ -198,7 +198,7 @@
     </div>
 
     <!-- Left Navbar -->
-    <div id="navbar" class="navbar hidden md:block">
+    <div id="navbar" class="navbar">
         <div class="flex items-center mb-6">
             <img src="https://github.com/avashx/nsutgod/blob/main/src/logo.png?raw=true" alt="NSUTGod Logo" class="h-10 w-10 mr-2">
             <h2 class="text-xl font-bold text-gray-800">NSUTGod</h2>
@@ -437,7 +437,7 @@
 
         // Get roll number from URL
         const urlParams = new URLSearchParams(window.location.search);
-        const rollNumber = urlParams.get('roll');
+        const rollNumber = urlParams.get('roll') || 'Unknown';
 
         // Color mappings
         const branchColors = {
@@ -484,56 +484,65 @@
             return '#4ade80';
         }
 
+        // Initialize default student data for error cases
+        const defaultStudentData = {
+            rollNumber: rollNumber,
+            name: 'Not Found',
+            branch: '-',
+            degree: '-',
+            course: '-',
+            batch: '-',
+            campus: '-',
+            cgpa: 0,
+            sem1_gpa: 0,
+            sem2_gpa: 0,
+            sem3_gpa: 0,
+            sem4_gpa: 0,
+            sem5_gpa: 0,
+            sem6_gpa: 0,
+            sem7_gpa: 0,
+            sem8_gpa: 0,
+            allSemGPA: { semesterWiseData: [], courseWiseData: [] },
+            email: '-',
+            personal_email: '-',
+            contact_number: '-',
+            alt_contact_number: '-',
+            gender: '-',
+            dob: '-',
+            blood_group: '-',
+            category: '-',
+            pwd: '-',
+            cgpa_10th: '-',
+            cgpa_12th: '-',
+            graduation_gpa: '-',
+            backlogs: '-',
+            isPPO: 'No',
+            isCgpaUpdated: 'No',
+            cgpaUpdateEnabled: 'No',
+            status: '-',
+            user: { createdAt: null, updatedAt: null },
+            published_at: null,
+            resume: [],
+            bans: '-',
+            currentBan: '-',
+            intern_applied: '-',
+            placement_applied: '-'
+        };
+
         // Fetch student data from JSON
         fetch('https://raw.githubusercontent.com/avashx/nsutgod/main/src/students.json')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 allStudents = data;
-                studentData = allStudents.find(student => student.rollNumber === rollNumber) || {};
-                if (!studentData.rollNumber) {
+                studentData = allStudents.find(student => student.rollNumber === rollNumber) || defaultStudentData;
+                if (!studentData.rollNumber || studentData.name === 'Not Found') {
                     console.error('Student not found for roll number:', rollNumber);
-                    studentData = {
-                        rollNumber: rollNumber,
-                        name: 'Error',
-                        branch: '-',
-                        degree: '-',
-                        course: '-',
-                        batch: '-',
-                        campus: '-',
-                        cgpa: 0,
-                        sem1_gpa: 0,
-                        sem2_gpa: 0,
-                        sem3_gpa: 0,
-                        sem4_gpa: 0,
-                        sem5_gpa: 0,
-                        sem6_gpa: 0,
-                        sem7_gpa: 0,
-                        sem8_gpa: 0,
-                        allSemGPA: { semesterWiseData: [], courseWiseData: [] },
-                        email: '-',
-                        personal_email: '-',
-                        contact_number: '-',
-                        gender: '-',
-                        dob: '-',
-                        blood_group: '-',
-                        category: '-',
-                        pwd: '-',
-                        cgpa_10th: '-',
-                        cgpa_12th: '-',
-                        graduation_gpa: '-',
-                        backlogs: '-',
-                        isPPO: '-',
-                        isCgpaUpdated: '-',
-                        cgpaUpdateEnabled: '-',
-                        status: '-',
-                        user: { createdAt: '-', updatedAt: '-' },
-                        published_at: '-',
-                        resume: [],
-                        bans: '-',
-                        currentBan: '-',
-                        intern_applied: '-',
-                        placement_applied: '-'
-                    };
+                    studentData = defaultStudentData;
                     document.getElementById('academicInfo').innerHTML += `<p class="text-red-500">Student with roll number ${rollNumber} not found in JSON data.</p>`;
                 }
                 displayStudentData();
@@ -541,9 +550,9 @@
                 provideSuggestions();
             })
             .catch(error => {
-                console.error('Error fetching students JSON:', error);
-                studentData = { rollNumber: 'Error', name: 'Error', cgpa: 0 };
-                document.getElementById('academicInfo').innerHTML += `<p class="text-red-500">Error loading student data.</p>`;
+                console.error('Error fetching students JSON:', error.message);
+                studentData = defaultStudentData;
+                document.getElementById('academicInfo').innerHTML += `<p class="text-red-500">Error loading student data: ${error.message}</p>`;
                 displayStudentData();
                 renderCharts();
                 provideSuggestions();
@@ -572,21 +581,21 @@
 
         // Display student data
         function displayStudentData() {
-            document.getElementById('studentName').textContent = studentData.name || 'Error';
+            document.getElementById('studentName').textContent = studentData.name || 'Not Found';
             document.getElementById('name').textContent = studentData.name || '-';
 
             // Personal Information
             const genderSpan = document.getElementById('gender');
             genderSpan.textContent = studentData.gender || '-';
-            if (studentData.gender) {
-                genderSpan.style.backgroundColor = genderColors[studentData.gender.toLowerCase()] || '#e5e7eb';
+            if (studentData.gender && genderColors[studentData.gender.toLowerCase()]) {
+                genderSpan.style.backgroundColor = genderColors[studentData.gender.toLowerCase()];
             }
             document.getElementById('dob').textContent = studentData.dob ? new Date(studentData.dob).toLocaleDateString() : '-';
             document.getElementById('bloodGroup').textContent = studentData.blood_group || '-';
             const categorySpan = document.getElementById('category');
             categorySpan.textContent = studentData.category || '-';
-            if (studentData.category) {
-                categorySpan.style.backgroundColor = categoryColors[studentData.category] || '#e5e7eb';
+            if (studentData.category && categoryColors[studentData.category]) {
+                categorySpan.style.backgroundColor = categoryColors[studentData.category];
             }
             document.getElementById('pwd').textContent = studentData.pwd || '-';
 
@@ -602,8 +611,8 @@
             document.getElementById('rollNumber').textContent = studentData.rollNumber || '-';
             const branchSpan = document.getElementById('branch');
             branchSpan.textContent = studentData.branch || '-';
-            if (studentData.branch) {
-                branchSpan.style.backgroundColor = branchColors[studentData.branch] || '#e5e7eb';
+            if (studentData.branch && branchColors[studentData.branch]) {
+                branchSpan.style.backgroundColor = branchColors[studentData.branch];
             }
             document.getElementById('degree').textContent = studentData.degree || '-';
             document.getElementById('course').textContent = studentData.degree && studentData.branch ? `${studentData.degree} in ${studentData.branch}` : '-';
@@ -615,13 +624,13 @@
                 cgpaSpan.style.backgroundColor = getCgpaColor(studentData.cgpa);
             }
             document.getElementById('cgpaBeforeDrop').textContent = studentData.cgpa_before_drop || '-';
-            document.getElementById('isCgpaUpdated').textContent = studentData.isCgpaUpdated || '-';
-            document.getElementById('cgpaUpdateEnabled').textContent = studentData.cgpaUpdateEnabled || '-';
+            document.getElementById('isCgpaUpdated').textContent = studentData.isCgpaUpdated || 'No';
+            document.getElementById('cgpaUpdateEnabled').textContent = studentData.cgpaUpdateEnabled || 'No';
             document.getElementById('cgpa10th').textContent = studentData.cgpa_10th || '-';
             document.getElementById('cgpa12th').textContent = studentData.cgpa_12th || '-';
             document.getElementById('graduationGpa').textContent = studentData.graduation_gpa || '-';
             document.getElementById('backlogs').textContent = studentData.backlogs || '-';
-            document.getElementById('isPPO').textContent = studentData.isPPO || '-';
+            document.getElementById('isPPO').textContent = studentData.isPPO || 'No';
 
             // Status & Timestamps
             document.getElementById('status').textContent = studentData.status || '-';
