@@ -3,20 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student and Company Data Fetcher</title>
+    <title>Company Data Fetcher</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl">
-        <h1 class="text-2xl font-bold mb-6 text-center">Student and Company Data Fetcher</h1>
+        <h1 class="text-2xl font-bold mb-6 text-center">Company Data Fetcher</h1>
         <div class="flex justify-center space-x-4 mb-4">
-            <button id="fetchStudentsBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Fetch All Students</button>
-            <button id="fetchCompaniesBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Fetch All Companies</button>
+            <button id="fetchBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Fetch All</button>
             <button id="pauseBtn" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 hidden">Pause</button>
-            <button id="exportStudentJsonBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 hidden">Export Students JSON</button>
-            <button id="exportStudentCsvBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 hidden">Export Students CSV</button>
-            <button id="exportCompanyJsonBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 hidden">Export Companies JSON</button>
+            <button id="exportJsonBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 hidden">Export JSON</button>
         </div>
         <div class="w-full bg-gray-200 rounded-full h-4 mb-4">
             <div id="progressBar" class="bg-blue-500 h-4 rounded-full" style="width: 0%"></div>
@@ -25,23 +21,18 @@
     </div>
 
     <script>
-        const apiBase = 'https://api.tnpnsut.in';
+        const apiBase = 'https://api.tnpnsut.in/companies';
         const token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc1MDg3NTg3NywiZXhwIjoxNzUzNDY3ODc3fQ.RRvoUFo76Q65vECK3P8cIHy7MSgGTd8zkmYYaqE89Dw';
-        const studentBatches = [2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029];
-        const companyYears = [2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
-        let students = [];
+        const years = [2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
         let companies = [];
         let isFetching = false;
         let isPaused = false;
-        let currentIndex = 0;
-        let fetchType = ''; // 'students' or 'companies'
+        let currentYearIndex = 0;
+        let totalCompanies = 0;
 
-        const fetchStudentsBtn = document.getElementById('fetchStudentsBtn');
-        const fetchCompaniesBtn = document.getElementById('fetchCompaniesBtn');
+        const fetchBtn = document.getElementById('fetchBtn');
         const pauseBtn = document.getElementById('pauseBtn');
-        const exportStudentJsonBtn = document.getElementById('exportStudentJsonBtn');
-        const exportStudentCsvBtn = document.getElementById('exportStudentCsvBtn');
-        const exportCompanyJsonBtn = document.getElementById('exportCompanyJsonBtn');
+        const exportJsonBtn = document.getElementById('exportJsonBtn');
         const logDiv = document.getElementById('log');
         const progressBar = document.getElementById('progressBar');
 
@@ -67,240 +58,107 @@
             }, {});
         }
 
-        async function fetchStudents(batch) {
-            const url = `${apiBase}/students?batch=${batch}&_limit=20000&_sort=rollNumber`;
+        async function fetchCompanies(year) {
+            const url = `${apiBase}?year=${year}&_limit=20000`;
             try {
                 const response = await fetch(url, {
                     headers: { Authorization: token }
                 });
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const data = await response.json();
-                if (!Array.isArray(data)) {
-                    log(`Invalid student data for batch ${batch}: Expected array`);
-                    return [];
-                }
                 return data;
             } catch (error) {
-                log(`Error fetching students for batch ${batch}: ${error.message}`);
-                return [];
-            }
-        }
-
-        async function fetchCompanyIds(year) {
-            const url = `${apiBase}/companies?year=${year}`;
-            try {
-                const response = await fetch(url, {
-                    headers: { Authorization: token }
-                });
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const data = await response.json();
-                if (!Array.isArray(data)) {
-                    log(`Invalid company IDs for year ${year}: Expected array`);
-                    return [];
-                }
-                return data.map(company => company.id || company._id).filter(id => id);
-            } catch (error) {
-                log(`Error fetching company IDs for year ${year}: ${error.message}`);
+                log(`Error fetching companies for year ${year}: ${error.message}`);
                 return [];
             }
         }
 
         async function fetchCompanyDetails(id) {
-            const url = `${apiBase}/companies/${id}`;
+            const url = `${apiBase}/${id}`;
             try {
                 const response = await fetch(url, {
                     headers: { Authorization: token }
                 });
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const data = await response.json();
-                if (!data || !data._id) {
-                    log(`Invalid company data for ID ${id}: Missing _id`);
-                    return null;
-                }
                 return data;
             } catch (error) {
-                log(`Error fetching company details for ID ${id}: ${error.message}`);
+                log(`Error fetching details for company ID ${id}: ${error.message}`);
                 return null;
-            }
-        }
-
-        async function fetchAllStudents() {
-            isFetching = true;
-            fetchType = 'students';
-            fetchStudentsBtn.classList.add('hidden');
-            fetchCompaniesBtn.classList.add('hidden');
-            pauseBtn.classList.remove('hidden');
-            exportStudentJsonBtn.classList.add('hidden');
-            exportStudentCsvBtn.classList.add('hidden');
-            exportCompanyJsonBtn.classList.add('hidden');
-            students = [];
-            currentIndex = 0;
-
-            for (let i = currentIndex; i < studentBatches.length; i++) {
-                if (isPaused) {
-                    log('Student fetching paused');
-                    break;
-                }
-                currentIndex = i;
-                const batch = studentBatches[i];
-                log(`Fetching students for batch ${batch}...`);
-                const batchStudents = await fetchStudents(batch);
-                students.push(...batchStudents);
-                log(`Fetched ${batchStudents.length} students for batch ${batch}. Total: ${students.length}`);
-                updateProgress(i + 1, studentBatches.length);
-            }
-
-            if (!isPaused) {
-                isFetching = false;
-                fetchStudentsBtn.classList.remove('hidden');
-                fetchCompaniesBtn.classList.remove('hidden');
-                pauseBtn.classList.add('hidden');
-                exportStudentJsonBtn.classList.remove('hidden');
-                exportStudentCsvBtn.classList.remove('hidden');
-                exportCompanyJsonBtn.classList.remove('hidden');
-                log('Student fetching complete');
-                updateProgress(studentBatches.length, studentBatches.length);
             }
         }
 
         async function fetchAllCompanies() {
             isFetching = true;
-            fetchType = 'companies';
-            fetchStudentsBtn.classList.add('hidden');
-            fetchCompaniesBtn.classList.add('hidden');
+            fetchBtn.classList.add('hidden');
             pauseBtn.classList.remove('hidden');
-            exportStudentJsonBtn.classList.add('hidden');
-            exportStudentCsvBtn.classList.add('hidden');
-            exportCompanyJsonBtn.classList.add('hidden');
+            exportJsonBtn.classList.add('hidden');
             companies = [];
-            currentIndex = 0;
+            totalCompanies = 0;
+            currentYearIndex = 0;
 
-            for (let i = currentIndex; i < companyYears.length; i++) {
+            for (let i = currentYearIndex; i < years.length; i++) {
                 if (isPaused) {
-                    log('Company fetching paused');
+                    log('Fetching paused');
                     break;
                 }
-                currentIndex = i;
-                const year = companyYears[i];
-                log(`Fetching company IDs for year ${year}...`);
-                const companyIds = await fetchCompanyIds(year);
-                log(`Fetched ${companyIds.length} company IDs for year ${year}`);
-                
-                for (const id of companyIds) {
+                currentYearIndex = i;
+                const year = years[i];
+                log(`Fetching companies for year ${year}...`);
+                const yearCompanies = await fetchCompanies(year);
+                log(`Fetched ${yearCompanies.length} companies for year ${year}`);
+
+                for (const company of yearCompanies) {
                     if (isPaused) {
-                        log('Company fetching paused');
+                        log('Fetching paused');
                         break;
                     }
-                    log(`Fetching details for company ID ${id}...`);
-                    const companyDetails = await fetchCompanyDetails(id);
-                    if (companyDetails) {
-                        companies.push(companyDetails);
-                        log(`Fetched details for company ${companyDetails.Name || 'Unknown'}. Total: ${companies.length}`);
+                    const details = await fetchCompanyDetails(company._id);
+                    if (details) {
+                        companies.push(details);
+                        totalCompanies++;
+                        log(`Fetched details for company ${details.Name}. Total companies: ${totalCompanies}`);
                     }
                 }
-                updateProgress(i + 1, companyYears.length);
+
+                updateProgress(i + 1, years.length);
             }
 
             if (!isPaused) {
                 isFetching = false;
-                fetchStudentsBtn.classList.remove('hidden');
-                fetchCompaniesBtn.classList.remove('hidden');
+                fetchBtn.classList.remove('hidden');
                 pauseBtn.classList.add('hidden');
-                exportStudentJsonBtn.classList.remove('hidden');
-                exportStudentCsvBtn.classList.remove('hidden');
-                exportCompanyJsonBtn.classList.remove('hidden');
-                log('Company fetching complete');
-                updateProgress(companyYears.length, companyYears.length);
+                exportJsonBtn.classList.remove('hidden');
+                log(`Fetching complete. Total companies fetched: ${totalCompanies}`);
+                updateProgress(years.length, years.length);
             }
         }
 
-        function exportStudentJson() {
-            const flattenedStudents = students.map(student => {
-                const flat = flattenObject(student);
-                const allFields = {
-                    Name: '', aadhar: '', alt_contact_number: '', backlogs: '', bans: '', batch: '',
-                    blood_group: '', branch: '', campus: '', category: '', cgpa: '', cgpaUpdateEnabled: '',
-                    cgpa_10th: '', cgpa_12th: '', cgpa_before_drop: '', contact_number: '', createdAt: '',
-                    currentBan: '', degree: '', dob: '', email: '', gender: '', graduation_gpa: '',
-                    intern_applied: '', isCgpaUpdated: '', isPPO: '', pan: '', perm_address: '',
-                    personal_email: '', placement_applied: '', present_address: '', published_at: '',
-                    pwd: '', resume: '', 'resume._id': '', 'resume.name': '', 'resume.hash': '',
-                    'resume.ext': '', 'resume.mime': '', 'resume.provider': '', 'resume.related': '',
-                    'resume.size': '', 'resume.url': '', 'resume.createdAt': '', 'resume.updatedAt': '',
-                    'resume.__v': '', rollNumber: '', sem1_gpa: '', sem2_gpa: '', sem3_gpa: '',
-                    sem4_gpa: '', sem5_gpa: '', sem6_gpa: '', sem7_gpa: '', sem8_gpa: '', status: '',
-                    updatedAt: '', user: '', 'user.blocked': '', 'user.confirmed': '', 'user.createdAt': '',
-                    'user.email': '', 'user.id': '', 'user.provider': '', 'user.role': '',
-                    'user.student': '', 'user.updatedAt': '', 'user.username': '', 'user.__v': '',
-                    __v: '', _id: ''
-                };
-                return { ...allFields, ...flat };
-            });
-            const json = JSON.stringify(flattenedStudents, null, 2);
-            const blob = new Blob([json], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'students.json';
-            a.click();
-            URL.revokeObjectURL(url);
-            log('Exported students to JSON');
-        }
-
-        function exportStudentCsv() {
-            const flattenedStudents = students.map(student => {
-                const flat = flattenObject(student);
-                const allFields = {
-                    Name: '', aadhar: '', alt_contact_number: '', backlogs: '', bans: '', batch: '',
-                    blood_group: '', branch: '', campus: '', category: '', cgpa: '', cgpaUpdateEnabled: '',
-                    cgpa_10th: '', cgpa_12th: '', cgpa_before_drop: '', contact_number: '', createdAt: '',
-                    currentBan: '', degree: '', dob: '', email: '', gender: '', graduation_gpa: '',
-                    intern_applied: '', isCgpaUpdated: '', isPPO: '', pan: '', perm_address: '',
-                    personal_email: '', placement_applied: '', present_address: '', published_at: '',
-                    pwd: '', resume: '', 'resume._id': '', 'resume.name': '', 'resume.hash': '',
-                    'resume.ext': '', 'resume.mime': '', 'resume.provider': '', 'resume.related': '',
-                    'resume.size': '', 'resume.url': '', 'resume.createdAt': '', 'resume.updatedAt': '',
-                    'resume.__v': '', rollNumber: '', sem1_gpa: '', sem2_gpa: '', sem3_gpa: '',
-                    sem4_gpa: '', sem5_gpa: '', sem6_gpa: '', sem7_gpa: '', sem8_gpa: '', status: '',
-                    updatedAt: '', user: '', 'user.blocked': '', 'user.confirmed': '', 'user.createdAt': '',
-                    'user.email: '', 'user.id': '', 'user.provider': '', 'user.role': '',
-                    'user.student': '', 'user.updatedAt': '', 'user.username': '', 'user.__v': '',
-                    __v: '', _id: ''
-                };
-                return { ...allFields, ...flat };
-            });
-            const csv = Papa.unparse(flattenedStudents);
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'students.csv';
-            a.click();
-            URL.revokeObjectURL(url);
-            log('Exported students to CSV');
-        }
-
-        function exportCompanyJson() {
+        function exportToJson() {
             const flattenedCompanies = companies.map(company => {
                 const flat = flattenObject(company);
                 const allFields = {
-                    _id: '', Name: '', info: '', company_category: '', year: '', company_turnover: '',
-                    published_at: '', createdAt: '', updatedAt: '', __v: '',
-                    'events.category': '', 'events.degree': '', 'events.status': '',
-                    'events.optional_criteria': '', 'events.cgpa_10th': '', 'events.cgpa_12th': '',
-                    'events.graduation_cgpa': '', 'events.is_additional_ques': '', 'events.allowed_gender': '',
-                    'events.attachments._id': '', 'events.attachments.name': '', 'events.attachments.hash': '',
-                    'events.attachments.ext': '', 'events.attachments.mime': '', 'events.attachments.size': '',
-                    'events.attachments.url': '', 'events.attachments.provider': '', 'events.attachments.createdAt': '',
-                    'events.attachments.updatedAt': '', 'events.attachments.__v': '', 'events.published_at': '',
-                    'events.additional_ques.ques': '', 'events.additional_ques.type': '', 'events.additional_ques.expectedAns': '',
+                    'company_turnover': '', 'placement_ppo': '', 'placement_interviews': '', 'internship_shortlists': '',
+                    '_id': '', 'Name': '', 'info': '', 'company_category': '', 'year': '', 'published_at': '',
+                    'createdAt': '', 'updatedAt': '', '__v': '',
+                    'events': '', 'events.category': '', 'events.degree': '', 'events.status': '', 'events.optional_criteria': '',
+                    'events.cgpa_10th': '', 'events.cgpa_12th': '', 'events.graduation_cgpa': '', 'events.is_additional_ques': '',
+                    'events.allowed_gender': '', 'events.attachments': '', 'events.attachments._id': '', 'events.attachments.name': '',
+                    'events.attachments.hash': '', 'events.attachments.ext': '', 'events.attachments.mime': '',
+                    'events.attachments.size': '', 'events.attachments.url': '', 'events.attachments.provider': '',
+                    'events.attachments.width': '', 'events.attachments.height': '', 'events.attachments.related': '',
+                    'events.attachments.createdAt': '', 'events.attachments.updatedAt': '', 'events.attachments.__v': '',
+                    'events.applied': '', 'events.ppo': '', 'events.shortlist': '', 'events._id': '',
+                    'events.published_at': '', 'events.additional_ques': '', 'events.additional_ques.type': '',
+                    'events.additional_ques.ques': '', 'events.additional_ques.expectedAns': '', 'events.additional_ques.options': '',
                     'events.optional_redirect': '', 'events.additional_info': '', 'events.degrees_allowed': '',
                     'events.stipend_info': '', 'events.duration': '', 'events.apc': '', 'events.campus': '',
                     'events.cap': '', 'events.companyBond': '', 'events.description': '', 'events.lastDate': '',
                     'events.placeOfPosting': '', 'events.backlogs': '', 'events.cgpa': '', 'events.stipend': '',
-                    'events.batch': '', 'events.jobtitle': '', 'events.type': '', 'events.branchesAllowed.branch': '',
-                    'events.branchesAllowed.degree': '', 'events.branchesAllowed._id': '', 'events.branchesAllowed.__v': '',
-                    'events.createdAt': '', 'events.updatedAt': '', 'events.__v': '', 'events.company': '', 'events.id': ''
+                    'events.batch': '', 'events.jobtitle': '', 'events.type': '', 'events.branchesAllowed': '',
+                    'events.branchesAllowed.branch': '', 'events.branchesAllowed.degree': '', 'events.branchesAllowed._id': '',
+                    'events.branchesAllowed.__v': '', 'events.createdAt': '', 'events.updatedAt': '', 'events.__v': '',
+                    'events.company': '', 'events.createdPC': ''
                 };
                 return { ...allFields, ...flat };
             });
@@ -312,16 +170,10 @@
             a.download = 'companies.json';
             a.click();
             URL.revokeObjectURL(url);
-            log('Exported companies to JSON');
+            log('Exported to JSON');
         }
 
-        fetchStudentsBtn.addEventListener('click', () => {
-            if (!isFetching) {
-                fetchAllStudents();
-            }
-        });
-
-        fetchCompaniesBtn.addEventListener('click', () => {
+        fetchBtn.addEventListener('click', () => {
             if (!isFetching) {
                 fetchAllCompanies();
             }
@@ -331,22 +183,14 @@
             if (isFetching) {
                 isPaused = !isPaused;
                 pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
-                exportStudentJsonBtn.classList.toggle('hidden', !isPaused);
-                exportStudentCsvBtn.classList.toggle('hidden', !isPaused);
-                exportCompanyJsonBtn.classList.toggle('hidden', !isPaused);
+                exportJsonBtn.classList.toggle('hidden', !isPaused);
                 if (!isPaused) {
-                    if (fetchType === 'students') {
-                        fetchAllStudents();
-                    } else if (fetchType === 'companies') {
-                        fetchAllCompanies();
-                    }
+                    fetchAllCompanies();
                 }
             }
         });
 
-        exportStudentJsonBtn.addEventListener('click', exportStudentJson);
-        exportStudentCsvBtn.addEventListener('click', exportStudentCsv);
-        exportCompanyJsonBtn.addEventListener('click', exportCompanyJson);
+        exportJsonBtn.addEventListener('click', exportToJson);
     </script>
 </body>
 </html>
