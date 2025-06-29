@@ -581,55 +581,68 @@
             const url = 'https://api.tnpnsut.in/branches?degree=BTech';
             const startTime = performance.now();
             try {
+                console.log('Fetching students from:', url);
                 fetchController = new AbortController();
-                const response = await fetch(url, { headers, signal: fetchController.signal });
+                const response = await fetch(url, {
+                    headers,
+                    signal: fetchController.signal
+                });
                 const endTime = performance.now();
                 const size = response.headers.get('content-length') || 'Unknown';
                 logNetworkActivity(url, response.status, size, endTime - startTime, 'fetch');
-                
-                if (response.ok) {
-                    let students = await response.json();
-                    const limit = fetchLimit.value;
-                    if (limit !== 'all') {
-                        students = students.slice(0, parseInt(limit));
-                    }
-                    return students;
-                } else {
-                    throw new Error(`Failed to fetch students list - Status: ${response.status}`);
-                }
-            } catch (error) {
-                if (error.name === 'AbortError') {
-                    logNetworkActivity(url, 'Paused', '0', performance.now() - startTime, 'fetch');
-                } else {
-                    logNetworkActivity(url, 'Failed', '0', performance.now() - startTime, 'fetch');
-                    throw error;
-                }
-            }
-        }
 
-        // Fetch student details (if needed for additional data)
-        async function fetchStudentDetails(studentId) {
-            const url = `https://api.tnpnsut.in/students/${studentId}`;
-            const startTime = performance.now();
-            try {
-                const response = await fetch(url, { headers, signal: fetchController.signal });
-                const endTime = performance.now();
-                const size = response.headers.get('content-length') || 'Unknown';
-                logNetworkActivity(url, response.status, size, endTime - startTime, 'fetch');
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    return data;
-                } else {
-                    throw new Error(`Failed to fetch data for student ID ${studentId} - Status: ${response.status}`);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch students list - Status: ${response.status} ${response.statusText}`);
                 }
+
+                const data = await response.json();
+                console.log('API Response:', data);
+
+                // Validate response structure
+                if (!Array.isArray(data)) {
+                    throw new Error('API response is not an array');
+                }
+
+                // Map response to ensure consistent field names
+                const students = data.map(student => ({
+                    studentId: student.studentId || student._id || '-',
+                    name: student.name || '-',
+                    rollNumber: student.rollNumber || '-',
+                    email: student.email || '-',
+                    phone: student.phone || '-',
+                    address: student.address || '-',
+                    gender: student.gender || '-',
+                    degree: student.degree || 'BTech',
+                    branch: student.branch || '-',
+                    batch: student.batch || '-',
+                    cgpa: student.cgpa !== undefined ? parseFloat(student.cgpa) : undefined,
+                    cgpa10th: student.cgpa10th || student.tenthPercentage || '-',
+                    cgpa12th: student.cgpa12th || student.twelfthPercentage || '-',
+                    backlogs: student.backlogs !== undefined ? parseInt(student.backlogs) : undefined,
+                    placementStatus: student.placementStatus || '-',
+                    companyId: student.companyId || '-',
+                    companyName: student.companyName || '-',
+                    jobTitle: student.jobTitle || '-',
+                    package: student.package || student.stipend || '-',
+                    internshipShortlists: student.internshipShortlists || [],
+                    placementInterviews: student.placementInterviews || [],
+                    campus: student.campus || '-',
+                    resumeUrl: student.resumeUrl || '-',
+                    linkedinProfile: student.linkedinProfile || '-',
+                    createdAt: student.createdAt || '-',
+                    updatedAt: student.updatedAt || '-',
+                    isNew: false
+                }));
+
+                const limit = fetchLimit.value;
+                if (limit !== 'all') {
+                    return students.slice(0, parseInt(limit));
+                }
+                return students;
             } catch (error) {
-                if (error.name === 'AbortError') {
-                    logNetworkActivity(url, 'Paused', '0', performance.now() - startTime, 'fetch');
-                } else {
-                    logNetworkActivity(url, 'Failed', '0', performance.now() - startTime, 'fetch');
-                    throw error;
-                }
+                console.error('Fetch Error:', error.message);
+                logNetworkActivity(url, error.name === 'AbortError' ? 'Paused' : 'Failed', '0', performance.now() - startTime, 'fetch');
+                throw error;
             }
         }
 
@@ -648,8 +661,8 @@
             listItem.className = 'text-gray-600';
             realtimeListBody.insertBefore(listItem, realtimeListBody.firstChild);
 
-            // Update circular progress (assuming 1000 students as 100%)
-            const progress = Math.min((currentCount / 1000) * 100, 100);
+            // Update circular progress (based on totalCount from response)
+            const progress = Math.min((currentCount / totalCount) * 100, 100);
             circularProgress.style.background = `conic-gradient(#10b981 0% ${progress}%, #e5e7eb ${progress}% 100%)`;
             progressText.textContent = `${Math.round(progress)}%`;
         }
@@ -662,6 +675,9 @@
                 storedStudentIds = new Set(studentData.map(s => s.studentId));
                 filteredData = [...studentData];
                 applyFilters();
+                console.log('Loaded from localStorage:', studentData.length, 'students');
+            } else {
+                console.log('No data in localStorage');
             }
         }
 
@@ -669,10 +685,12 @@
         function saveStudentsToStorage() {
             localStorage.setItem('studentData', JSON.stringify(studentData));
             storedStudentIds = new Set(studentData.map(s => s.studentId));
+            console.log('Saved to localStorage:', studentData.length, 'students');
         }
 
         // Fetch all student data
         async function fetchAllStudents() {
+            console.log('Fetch Students button clicked');
             loading.classList.remove('hidden');
             errorMessage.classList.add('hidden');
             networkLogBody.innerHTML = '';
@@ -686,7 +704,8 @@
 
             try {
                 const students = await fetchStudentsList();
-                if (!Array.isArray(students) || students.length === 0) {
+                console.log('Fetched students:', students.length);
+                if (!students || students.length === 0) {
                     throw new Error('No students found in the API response.');
                 }
 
@@ -695,6 +714,7 @@
 
                 for (const student of students) {
                     if (isPaused) {
+                        console.log('Fetch paused, waiting to resume...');
                         await new Promise(resolve => {
                             const checkPause = setInterval(() => {
                                 if (!isPaused) {
@@ -714,7 +734,7 @@
                         await new Promise(resolve => setTimeout(resolve, 100));
                     } catch (error) {
                         if (error.name !== 'AbortError') {
-                            console.error(error.message);
+                            console.error('Error processing student:', error.message);
                         }
                     }
                 }
@@ -733,9 +753,11 @@
                 }
 
                 exportCsvButton.classList.remove('hidden');
+                console.log('Fetch completed, total students:', studentData.length);
             } catch (error) {
                 if (error.name !== 'AbortError') {
-                    showError(error.message);
+                    showError(`Error: ${error.message}`);
+                    console.error('FetchAllStudents Error:', error);
                 }
             } finally {
                 loading.classList.add('hidden');
@@ -759,6 +781,7 @@
                 return matchesBatch && matchesBranch && matchesCgpa && matchesName;
             });
 
+            console.log('Filtered data:', filteredData.length, 'students');
             sortData();
             renderTable();
         }
@@ -826,6 +849,7 @@
                 `;
                 tableBody.appendChild(row);
             });
+            console.log('Table rendered with', filteredData.length, 'rows');
         }
 
         // Export to CSV
@@ -881,6 +905,7 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            console.log('Exported CSV with', studentData.length, 'rows');
         }
 
         // Show error message
@@ -895,6 +920,7 @@
             isExpanded = !isExpanded;
             studentTable.classList.toggle('expanded');
             expandButton.textContent = isExpanded ? 'Collapse' : 'Expand';
+            console.log('Table expansion toggled:', isExpanded);
         });
 
         // Pause/Resume fetching
@@ -903,6 +929,9 @@
             pauseButton.textContent = isPaused ? 'Resume' : 'Pause';
             if (isPaused && fetchController) {
                 fetchController.abort();
+                console.log('Fetch paused');
+            } else {
+                console.log('Fetch resumed');
             }
         });
 
@@ -925,7 +954,7 @@
                 };
 
                 const onMouseUp = () => {
-                    document.removeEvent rankingsListener('mousemove', onMouseMove);
+                    document.removeEventListener('mousemove', onMouseMove);
                     document.removeEventListener('mouseup', onMouseUp);
                 };
 
@@ -939,6 +968,7 @@
         const navbar = document.getElementById('navbar');
         menuToggle.addEventListener('click', () => {
             navbar.classList.toggle('visible');
+            console.log('Navbar toggled:', navbar.classList.contains('visible'));
         });
 
         // Close navbar when clicking outside on mobile
@@ -966,7 +996,10 @@
         });
 
         // Event Listeners
-        fetchButton.addEventListener('click', fetchAllStudents);
+        fetchButton.addEventListener('click', () => {
+            console.log('Fetch Students button event triggered');
+            fetchAllStudents();
+        });
         exportCsvButton.addEventListener('click', exportToCsv);
 
         // Filter event listeners
@@ -992,11 +1025,13 @@
                 icon.textContent = sortDirection === 1 ? '↑' : '↓';
                 sortData();
                 renderTable();
+                console.log('Sorted by:', column, 'Direction:', sortDirection);
             });
         });
 
         // Load stored students on page load
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM Content Loaded, loading stored students');
             loadStoredStudents();
         });
     </script>
