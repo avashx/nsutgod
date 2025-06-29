@@ -623,51 +623,51 @@
 
                 const headers = rows[0];
                 if (headers.length !== 32) {
-                    throw new Error('Invalid CSV format: Expected 32 columns');
+                    console.warn(`Header row has ${headers.length} columns, expected 32`);
                 }
 
                 const data = [];
                 for (let i = 1; i < rows.length; i++) {
                     const row = rows[i];
-                    // Skip rows with incorrect number of columns
+                    // Pad or truncate row to match 32 columns
+                    const paddedRow = row.length < 32 ? [...row, ...Array(32 - row.length).fill('-')] : row.slice(0, 32);
                     if (row.length !== 32) {
-                        console.warn(`Skipping row ${i} due to incorrect column count: ${row.length}`);
-                        continue;
+                        console.warn(`Row ${i} has ${row.length} columns, expected 32. Padded/truncated to 32 columns.`);
                     }
                     try {
-                        const company = { id: row[1], name: row[2], details: {}, isNew: false };
-                        company.details._id = row[1];
-                        company.details.Name = row[2];
-                        company.details.company_category = row[4] !== '-' ? row[4] : undefined;
-                        company.details.year = row[5] !== '-' ? row[5] : undefined;
+                        const company = { id: paddedRow[1], name: paddedRow[2], details: {}, isNew: false };
+                        company.details._id = paddedRow[1] !== '-' ? paddedRow[1] : undefined;
+                        company.details.Name = paddedRow[2] !== '-' ? paddedRow[2] : undefined;
+                        company.details.company_category = paddedRow[4] !== '-' ? paddedRow[4] : undefined;
+                        company.details.year = paddedRow[5] !== '-' ? paddedRow[5] : undefined;
                         company.details.events = [{
-                            jobtitle: row[6] !== '-' ? row[6] : undefined,
-                            category: row[7] !== '-' ? row[7] : undefined,
-                            stipend: row[8] !== '-' ? parseFloat(row[8]) : undefined,
-                            duration: row[9] !== '-' ? row[9] : undefined,
-                            type: row[10] !== '-' ? row[10] : undefined,
-                            graduation_cgpa: row[11] !== '-' ? parseFloat(row[11]) : undefined,
-                            degree: row[12] !== '-' ? row[12] : undefined,
-                            status: row[13] !== '-' ? row[13] : undefined,
-                            optional_criteria: row[14] !== '-' ? parseFloat(row[14]) : undefined,
-                            cgpa_10th: row[15] !== '-' ? parseFloat(row[15]) : undefined,
-                            cgpa_12th: row[16] !== '-' ? parseFloat(row[16]) : undefined,
-                            stipend_info: row[17] !== '-' ? row[17] : undefined,
-                            campus: row[18] !== '-' ? row[18].split(', ').filter(c => c) : [],
-                            backlogs: row[19] !== '-' ? parseInt(row[19]) : undefined,
-                            branchesAllowed: row[20] !== '-' ? row[20].split(', ').filter(b => b).map(branch => ({ branch })) : [],
-                            lastDate: row[21] !== '-' ? row[21] : undefined,
-                            placeOfPosting: row[22] !== '-' ? row[22] : undefined,
-                            degrees_allowed: row[23] !== '-' ? row[23].split(', ').filter(d => d) : [],
-                            apc: row[24] !== '-' ? row[24] : undefined,
-                            _id: row[30] !== '-' ? row[30] : undefined
+                            jobtitle: paddedRow[6] !== '-' ? paddedRow[6] : undefined,
+                            category: paddedRow[7] !== '-' ? paddedRow[7] : undefined,
+                            stipend: paddedRow[8] !== '-' ? parseFloat(paddedRow[8]) : undefined,
+                            duration: paddedRow[9] !== '-' ? paddedRow[9] : undefined,
+                            type: paddedRow[10] !== '-' ? paddedRow[10] : undefined,
+                            graduation_cgpa: paddedRow[11] !== '-' ? parseFloat(paddedRow[11]) : undefined,
+                            degree: paddedRow[12] !== '-' ? paddedRow[12] : undefined,
+                            status: paddedRow[13] !== '-' ? paddedRow[13] : undefined,
+                            optional_criteria: paddedRow[14] !== '-' ? parseFloat(paddedRow[14]) : undefined,
+                            cgpa_10th: paddedRow[15] !== '-' ? parseFloat(paddedRow[15]) : undefined,
+                            cgpa_12th: paddedRow[16] !== '-' ? parseFloat(paddedRow[16]) : undefined,
+                            stipend_info: paddedRow[17] !== '-' ? paddedRow[17] : undefined,
+                            campus: paddedRow[18] !== '-' ? paddedRow[18].split(', ').filter(c => c) : [],
+                            backlogs: paddedRow[19] !== '-' ? parseInt(paddedRow[19]) : undefined,
+                            branchesAllowed: paddedRow[20] !== '-' ? paddedRow[20].split(', ').filter(b => b).map(branch => ({ branch })) : [],
+                            lastDate: paddedRow[21] !== '-' ? paddedRow[21] : undefined,
+                            placeOfPosting: paddedRow[22] !== '-' ? paddedRow[22] : undefined,
+                            degrees_allowed: paddedRow[23] !== '-' ? paddedRow[23].split(', ').filter(d => d) : [],
+                            apc: paddedRow[24] !== '-' ? paddedRow[24] : undefined,
+                            _id: paddedRow[30] !== '-' ? paddedRow[30] : undefined
                         }];
-                        company.details.placement_interviews = row[25] !== 'None' ? new Array(parseInt(row[25]) || 0) : [];
-                        company.details.internship_shortlists = row[26] !== 'None' ? new Array(parseInt(row[26]) || 0) : [];
-                        company.details.published_at = row[27] !== '-' ? row[27] : undefined;
-                        company.details.createdAt = row[28] !== '-' ? row[28] : undefined;
-                        company.details.updatedAt = row[29] !== '-' ? row[29] : undefined;
-                        company.details.info = row[31] !== '-' ? row[31] : undefined;
+                        company.details.placement_interviews = paddedRow[25] !== 'None' ? new Array(parseInt(paddedRow[25]) || 0) : [];
+                        company.details.internship_shortlists = paddedRow[26] !== 'None' ? new Array(parseInt(paddedRow[26]) || 0) : [];
+                        company.details.published_at = paddedRow[27] !== '-' ? paddedRow[27] : undefined;
+                        company.details.createdAt = paddedRow[28] !== '-' ? paddedRow[28] : undefined;
+                        company.details.updatedAt = paddedRow[29] !== '-' ? paddedRow[29] : undefined;
+                        company.details.info = paddedRow[31] !== '-' ? paddedRow[31] : undefined;
                         data.push(company);
                     } catch (e) {
                         console.warn(`Error parsing row ${i}: ${e.message}`);
