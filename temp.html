@@ -1362,6 +1362,143 @@
             }
         });
 
-        // Filter and search logic
+               // Filter and search logic
         function filterStudents() {
-            const searchTerm = search
+            const searchTerm = searchInput.value.toLowerCase();
+            const batch = batchFilter.value;
+            const gender = genderFilter.value;
+
+            filteredStudents = students.filter(student => {
+                const matchesSearch = !searchTerm || 
+                    (student.rollNumber && student.rollNumber.toLowerCase().includes(searchTerm)) ||
+                    (student.Name && student.Name.toLowerCase().includes(searchTerm)) ||
+                    (student.branch && student.branch.toLowerCase().includes(searchTerm)) ||
+                    (student.email && student.email.toLowerCase().includes(searchTerm)) ||
+                    (student.gender && student.gender.toLowerCase().includes(searchTerm)) ||
+                    (student.dob && student.dob.toLowerCase().includes(searchTerm)) ||
+                    (student.contact_number && student.contact_number.toLowerCase().includes(searchTerm)) ||
+                    (student.present_address && student.present_address.toLowerCase().includes(searchTerm)) ||
+                    (student.category && student.category.toLowerCase().includes(searchTerm)) ||
+                    (student.cgpa && student.cgpa.toString().includes(searchTerm));
+
+                const matchesBatch = !batch || student.batch === batch;
+                const matchesGender = !gender || student.gender === gender;
+                const matchesBranch = !selectedBranch || student.branch === selectedBranch;
+
+                return matchesSearch && matchesBatch && matchesGender && matchesBranch;
+            });
+
+            applyColumnFilters();
+            currentPage = 1;
+            displayStudents();
+        }
+
+        // Apply column-specific filters
+        function applyColumnFilters() {
+            filteredStudents = filteredStudents.filter(student => {
+                return Object.keys(columnFilters).every(key => {
+                    const filterValue = columnFilters[key].toLowerCase();
+                    return !filterValue || (student[key] && student[key].toLowerCase().includes(filterValue));
+                });
+            });
+        }
+
+        // Event listeners for filters
+        searchInput.addEventListener('input', filterStudents);
+        batchFilter.addEventListener('change', filterStudents);
+        genderFilter.addEventListener('change', filterStudents);
+
+        // Event listeners for pagination
+        prevPageBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                displayStudents();
+            }
+        });
+
+        nextPageBtn.addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredStudents.length / rowsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                displayStudents();
+            }
+        });
+
+        rowsPerPageSelect.addEventListener('change', () => {
+            rowsPerPage = parseInt(rowsPerPageSelect.value);
+            currentPage = 1;
+            displayStudents();
+        });
+
+        // Toggle navbar on mobile
+        menuToggle.addEventListener('click', () => {
+            navbar.classList.toggle('hidden');
+        });
+
+        // Customize columns dropdown
+        customizeColumnsBtn.addEventListener('click', () => {
+            columnsDropdown.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!customizeColumnsBtn.contains(e.target) && !columnsDropdown.contains(e.target)) {
+                columnsDropdown.classList.remove('show');
+            }
+        });
+
+        // Column options functionality
+        tableHeader.addEventListener('click', (e) => {
+            const th = e.target.closest('th');
+            if (!th || !th.getAttribute('data-key')) return;
+
+            const key = th.getAttribute('data-key');
+            const optionsBtn = th.querySelector('.options-btn');
+            const dropdown = th.querySelector('.dropdown');
+            const filterModal = th.querySelector('.filter-modal');
+
+            if (e.target.classList.contains('options-btn')) {
+                dropdown.classList.toggle('show');
+                return;
+            }
+
+            if (e.target.classList.contains('sort-asc')) {
+                filteredStudents.sort((a, b) => {
+                    const aVal = a[key] || '';
+                    const bVal = b[key] || '';
+                    return aVal.toString().localeCompare(bVal.toString());
+                });
+                dropdown.classList.remove('show');
+                displayStudents();
+            } else if (e.target.classList.contains('sort-desc')) {
+                filteredStudents.sort((a, b) => {
+                    const aVal = a[key] || '';
+                    const bVal = b[key] || '';
+                    return bVal.toString().localeCompare(aVal.toString());
+                });
+                dropdown.classList.remove('show');
+                displayStudents();
+            } else if (e.target.classList.contains('filter-btn')) {
+                filterModal.classList.toggle('show');
+                dropdown.classList.remove('show');
+            } else if (e.target.classList.contains('apply-filter')) {
+                const filterInput = filterModal.querySelector('.filter-input');
+                columnFilters[key] = filterInput.value;
+                filterModal.classList.remove('show');
+                filterStudents();
+            }
+        });
+
+        // Close filter modal when clicking outside
+        document.addEventListener('click', (e) => {
+            const filterModals = document.querySelectorAll('.filter-modal');
+            filterModals.forEach(modal => {
+                if (!modal.contains(e.target) && !e.target.classList.contains('filter-btn')) {
+                    modal.classList.remove('show');
+                }
+            });
+        });
+
+        // Initial display
+        displayStudents();
+    </script>
