@@ -1,0 +1,271 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSUTGod - Student Profile</title>
+    <style>
+        .section {
+            margin-bottom: 20px;
+        }
+        .section h3 {
+            color: #333;
+        }
+        .section div {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>NSUTGod</h1>
+        <nav>
+            <a href="#">Overview</a>
+            <a href="#">Student Profile</a>
+            <a href="#">Analytics</a>
+            <a href="#">Placement</a>
+            <a href="#">Notifications <span>2</span></a>
+        </nav>
+    </div>
+
+    <div>
+        <h2>Student Profile - <span id="studentName">-</span></h2>
+
+        <div class="section">
+            <h3>Personal Information</h3>
+            <div>Roll Number: <span id="rollNumber">-</span></div>
+            <div>Email: <span id="email">-</span></div>
+            <div>Personal Email: <span id="personal_email">-</span></div>
+            <div>Gender: <span id="gender">-</span></div>
+            <div>Date of Birth: <span id="dob">-</span></div>
+            <div>Contact Number: <span id="contact_number">-</span></div>
+            <div>Alternate Contact: <span id="alt_contact_number">-</span></div>
+            <div>Present Address: <span id="present_address">-</span></div>
+            <div>Permanent Address: <span id="perm_address">-</span></div>
+            <div>Category: <span id="category">-</span></div>
+            <div>Campus: <span id="campus">-</span></div>
+            <div>PWD: <span id="pwd">-</span></div>
+            <div>Blood Group: <span id="blood_group">-</span></div>
+        </div>
+
+        <div class="section">
+            <h3>Academic Information</h3>
+            <div>Branch: <span id="branch">-</span></div>
+            <div>Batch: <span id="batch">-</span></div>
+            <div>Degree: <span id="degree">-</span></div>
+            <div>10th Percentage: <span id="cgpa_10th">-</span></div>
+            <div>12th Percentage: <span id="cgpa_12th">-</span></div>
+            <div>CGPA: <span id="cgpa">-</span></div>
+            <div>CGPA Before Drop: <span id="cgpa_before_drop">-</span></div>
+            <div>Graduation GPA: <span id="graduation_gpa">-</span></div>
+            <div>Backlogs: <span id="backlogs">-</span></div>
+            <div>Semester 1 GPA: <span id="sem1_gpa">-</span></div>
+            <div>Semester 2 GPA: <span id="sem2_gpa">-</span></div>
+            <div>Semester 3 GPA: <span id="sem3_gpa">-</span></div>
+            <div>Semester 4 GPA: <span id="sem4_gpa">-</span></div>
+            <div>Semester 5 GPA: <span id="sem5_gpa">-</span></div>
+            <div>Semester 6 GPA: <span id="sem6_gpa">-</span></div>
+            <div>Semester 7 GPA: <span id="sem7_gpa">-</span></div>
+            <div>Semester 8 GPA: <span id="sem8_gpa">-</span></div>
+        </div>
+
+        <div class="section">
+            <h3>Additional Information</h3>
+            <div>Aadhar: <span id="aadhar">-</span></div>
+            <div>PAN: <span id="pan">-</span></div>
+            <div>Bans: <span id="bans">-</span></div>
+            <div>Current Ban: <span id="currentBan">-</span></div>
+            <div>CGPA Update Enabled: <span id="cgpaUpdateEnabled">-</span></div>
+            <div>Is CGPA Updated: <span id="isCgpaUpdated">-</span></div>
+            <div>Is PPO: <span id="isPPO">-</span></div>
+            <div>Intern Applied: <span id="intern_applied">-</span></div>
+            <div>Placement Applied: <span id="placement_applied">-</span></div>
+            <div>Status: <span id="status">-</span></div>
+            <div>Resume ID: <span id="resume__id">-</span></div>
+            <div>Resume Name: <span id="resume_name">-</span></div>
+            <div>Resume Hash: <span id="resume_hash">-</span></div>
+            <div>Resume Extension: <span id="resume_ext">-</span></div>
+            <div>Resume MIME: <span id="resume_mime">-</span></div>
+            <div>Resume Provider: <span id="resume_provider">-</span></div>
+            <div>Resume Size: <span id="resume_size">-</span></div>
+            <div>Resume URL: <span id="resume_url">-</span></div>
+            <div>Resume Created At: <span id="resume_createdAt">-</span></div>
+            <div>Resume Updated At: <span id="resume_updatedAt">-</span></div>
+            <div>User ID: <span id="user_id">-</span></div>
+            <div>User Username: <span id="user_username">-</span></div>
+            <div>User Email: <span id="user_email">-</span></div>
+            <div>User Blocked: <span id="user_blocked">-</span></div>
+            <div>User Confirmed: <span id="user_confirmed">-</span></div>
+            <div>User Provider: <span id="user_provider">-</span></div>
+            <div>User Role: <span id="user_role">-</span></div>
+            <div>User Created At: <span id="user_createdAt">-</span></div>
+            <div>User Updated At: <span id="user_updatedAt">-</span></div>
+            <div>Created At: <span id="createdAt">-</span></div>
+            <div>Updated At: <span id="updatedAt">-</span></div>
+            <div>Published At: <span id="published_at">-</span></div>
+            <div>ID: <span id="id">-</span></div>
+            <div>__v: <span id="__v">-</span></div>
+            <div>_id: <span id="_id">-</span></div>
+        </div>
+
+        <div class="section">
+            <h3>CGPA Comparison</h3>
+            <p>Graph placeholder</p>
+        </div>
+
+        <div class="section">
+            <h3>Semester-wise GPA & Performance</h3>
+            <p>Graph placeholder</p>
+        </div>
+
+        <div class="section">
+            <h3>Eligible Companies</h3>
+            <table>
+                <tr><th>Company</th><th>CTC (LPA)</th><th>Cutoff CGPA</th></tr>
+                <!-- Populated dynamically if data available -->
+            </table>
+        </div>
+
+        <div class="section">
+            <h3>CGPA Improvement Suggestions</h3>
+            <div>Current CGPA: <span id="currentCgpa">-</span></div>
+            <div>Target SGPA for Next Semester: <span>-</span></div>
+            <div>Projected CGPA After Improvement: <span>-</span></div>
+            <h4>Companies You Can Target After Improvement:</h4>
+            <table>
+                <tr><th>Company</th><th>CTC (LPA)</th><th>Cutoff CGPA</th></tr>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const studentId = urlParams.get('id');
+        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc1MDg3NTg3NywiZXhwIjoxNzUzNDY3ODc3fQ.RRvoUFo76Q65vECK3P8cIHy7MSgGTd8zkmYYaqE89Dw';
+
+        if (studentId) {
+            fetch(`https://api.tnpnsut.in/students/${studentId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(student => {
+                document.getElementById('studentName').textContent = student.name || '-';
+                document.getElementById('rollNumber').textContent = student.rollNumber || '-';
+                document.getElementById('email').textContent = student.email || '-';
+                document.getElementById('personal_email').textContent = student.personal_email || '-';
+                document.getElementById('gender').textContent = student.gender || '-';
+                document.getElementById('dob').textContent = student.dob || '-';
+                document.getElementById('contact_number').textContent = student.contact_number || '-';
+                document.getElementById('alt_contact_number').textContent = student.alt_contact_number || '-';
+                document.getElementById('present_address').textContent = student.present_address || '-';
+                document.getElementById('perm_address').textContent = student.perm_address || '-';
+                document.getElementById('category').textContent = student.category || '-';
+                document.getElementById('campus').textContent = student.campus || '-';
+                document.getElementById('pwd').textContent = student.pwd || '-';
+                document.getElementById('blood_group').textContent = student.blood_group || '-';
+                document.getElementById('branch').textContent = student.branch || '-';
+                document.getElementById('batch').textContent = student.batch || '-';
+                document.getElementById('degree').textContent = student.degree || '-';
+                document.getElementById('cgpa_10th').textContent = student.cgpa_10th || '-';
+                document.getElementById('cgpa_12th').textContent = student.cgpa_12th || '-';
+                document.getElementById('cgpa').textContent = student.cgpa || '-';
+                document.getElementById('cgpa_before_drop').textContent = student.cgpa_before_drop || '-';
+                document.getElementById('graduation_gpa').textContent = student.graduation_gpa || '-';
+                document.getElementById('backlogs').textContent = student.backlogs || '-';
+                document.getElementById('sem1_gpa').textContent = student.sem1_gpa || '-';
+                document.getElementById('sem2_gpa').textContent = student.sem2_gpa || '-';
+                document.getElementById('sem3_gpa').textContent = student.sem3_gpa || '-';
+                document.getElementById('sem4_gpa').textContent = student.sem4_gpa || '-';
+                document.getElementById('sem5_gpa').textContent = student.sem5_gpa || '-';
+                document.getElementById('sem6_gpa').textContent = student.sem6_gpa || '-';
+                document.getElementById('sem7_gpa').textContent = student.sem7_gpa || '-';
+                document.getElementById('sem8_gpa').textContent = student.sem8_gpa || '-';
+                document.getElementById('aadhar').textContent = student.aadhar || '-';
+                document.getElementById('pan').textContent = student.pan || '-';
+                document.getElementById('bans').textContent = student.bans || '-';
+                document.getElementById('currentBan').textContent = student.currentBan || '-';
+                document.getElementById('cgpaUpdateEnabled').textContent = student.cgpaUpdateEnabled || '-';
+                document.getElementById('isCgpaUpdated').textContent = student.isCgpaUpdated || '-';
+                document.getElementById('isPPO').textContent = student.isPPO || '-';
+                document.getElementById('intern_applied').textContent = student.intern_applied || '-';
+                document.getElementById('placement_applied').textContent = student.placement_applied || '-';
+                document.getElementById('status').textContent = student.status || '-';
+                if (student.resume) {
+                    document.getElementById('resume__id').textContent = student.resume._id || '-';
+                    document.getElementById('resume_name').textContent = student.resume.name || '-';
+                    document.getElementById('resume_hash').textContent = student.resume.hash || '-';
+                    document.getElementById('resume_ext').textContent = student.resume.ext || '-';
+                    document.getElementById('resume_mime').textContent = student.resume.mime || '-';
+                    document.getElementById('resume_provider').textContent = student.resume.provider || '-';
+                    document.getElementById('resume_size').textContent = student.resume.size || '-';
+                    document.getElementById('resume_url').textContent = student.resume.url || '-';
+                    document.getElementById('resume_createdAt').textContent = student.resume.createdAt || '-';
+                    document.getElementById('resume_updatedAt').textContent = student.resume.updatedAt || '-';
+                }
+                if (student.user) {
+                    document.getElementById('user_id').textContent = student.user.id || '-';
+                    document.getElementById('user_username').textContent = student.user.username || '-';
+                    document.getElementById('user_email').textContent = student.user.email || '-';
+                    document.getElementById('user_blocked').textContent = student.user.blocked || '-';
+                    document.getElementById('user_confirmed').textContent = student.user.confirmed || '-';
+                    document.getElementById('user_provider').textContent = student.user.provider || '-';
+                    document.getElementById('user_role').textContent = student.user.role || '-';
+                    document.getElementById('user_createdAt').textContent = student.user.createdAt || '-';
+                    document.getElementById('user_updatedAt').textContent = student.user.updatedAt || '-';
+                }
+                document.getElementById('createdAt').textContent = student.createdAt || '-';
+                document.getElementById('updatedAt').textContent = student.updatedAt || '-';
+                document.getElementById('published_at').textContent = student.published_at || '-';
+                document.getElementById('id').textContent = student.id || '-';
+                document.getElementById('__v').textContent = student.__v || '-';
+                document.getElementById('_id').textContent = student._id || '-';
+                document.getElementById('currentCgpa').textContent = student.cgpa || '-';
+            })
+            .catch(error => console.error('Error fetching student:', error));
+        } else {
+            console.error('No student ID provided in URL');
+        }
+    </script>
+</body>
+</html>
