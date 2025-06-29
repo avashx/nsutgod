@@ -113,11 +113,15 @@
                         log('Fetching paused');
                         break;
                     }
+                    if (!company._id || typeof company._id !== 'string' || company._id.trim() === '') {
+                        log(`Skipping company with invalid ID in year ${year}`);
+                        continue;
+                    }
                     const details = await fetchCompanyDetails(company._id);
                     if (details) {
                         companies.push(details);
                         totalCompanies++;
-                        log(`Fetched details for company ${details.Name}. Total companies: ${totalCompanies}`);
+                        log(`Fetched details for company ${details.Name || 'Unknown'}. Total companies: ${totalCompanies}`);
                     }
                 }
 
