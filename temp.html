@@ -1044,17 +1044,14 @@
             // GPA & Courses
             const gpaTable = document.getElementById('gpa-table');
             if (student.allSemGPA && student.allSemGPA.semesterWiseData && student.allSemGPA.courseWiseData) {
-                const gpaData = student.allSemGPA.semesterWiseData.map(sem => {
-                    const courses = student.allSemGPA.courseWiseData.filter(course => course.sem === sem.semester);
-                    return courses.map(course => ({
-                        semester: sem.semester,
-                        courseCode: course.courseCode,
-                        courseTitle: course.courseTitle,
-                        credits: course.credits,
-                        marks: course.gradePoints, // Assuming gradePoints as marks
-                        grade: course.gradeLetter
-                    }));
-                }).flat();
+                const gpaData = student.allSemGPA.courseWiseData.map(course => ({
+                    semester: course.sem,
+                    courseCode: course.courseCode,
+                    courseTitle: course.courseTitle,
+                    credits: course.credits,
+                    marks: course.gradePoints || '-',
+                    grade: course.gradeLetter || '-'
+                }));
 
                 gpaTable.innerHTML = `
                     <thead>
@@ -1074,8 +1071,8 @@
                                 <td>${item.courseCode || '-'}</td>
                                 <td>${item.courseTitle || '-'}</td>
                                 <td>${item.credits || '-'}</td>
-                                <td>${item.marks || '-'}</td>
-                                <td>${item.grade || '-'}</td>
+                                <td>${item.marks}</td>
+                                <td>${item.grade}</td>
                             </tr>
                         `).join('')}
                     </tbody>
@@ -1362,7 +1359,7 @@
             }
         });
 
-               // Filter and search logic
+        // Filter and search logic
         function filterStudents() {
             const searchTerm = searchInput.value.toLowerCase();
             const batch = batchFilter.value;
@@ -1408,6 +1405,8 @@
         batchFilter.addEventListener('change', filterStudents);
         genderFilter.addEventListener('change', filterStudents);
 
+              
+
         // Event listeners for pagination
         prevPageBtn.addEventListener('click', () => {
             if (currentPage > 1) {
@@ -1417,7 +1416,7 @@
         });
 
         nextPageBtn.addEventListener('click', () => {
-            const totalPages = Math.ceil(filteredStudents.length / rowsPerPage);
+            const totalPages = rowsPerPage === 'all' ? 1 : Math.ceil(filteredStudents.length / rowsPerPage);
             if (currentPage < totalPages) {
                 currentPage++;
                 displayStudents();
@@ -1447,58 +1446,71 @@
             }
         });
 
-        // Column options functionality
-        tableHeader.addEventListener('click', (e) => {
-            const th = e.target.closest('th');
-            if (!th || !th.getAttribute('data-key')) return;
-
-            const key = th.getAttribute('data-key');
-            const optionsBtn = th.querySelector('.options-btn');
-            const dropdown = th.querySelector('.dropdown');
-            const filterModal = th.querySelector('.filter-modal');
-
-            if (e.target.classList.contains('options-btn')) {
+        // Column options dropdown and sorting/filtering
+        document.querySelectorAll('.options-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const dropdown = btn.nextElementSibling;
+                const filterModal = dropdown.nextElementSibling;
                 dropdown.classList.toggle('show');
-                return;
-            }
-
-            if (e.target.classList.contains('sort-asc')) {
-                filteredStudents.sort((a, b) => {
-                    const aVal = a[key] || '';
-                    const bVal = b[key] || '';
-                    return aVal.toString().localeCompare(bVal.toString());
-                });
-                dropdown.classList.remove('show');
-                displayStudents();
-            } else if (e.target.classList.contains('sort-desc')) {
-                filteredStudents.sort((a, b) => {
-                    const aVal = a[key] || '';
-                    const bVal = b[key] || '';
-                    return bVal.toString().localeCompare(aVal.toString());
-                });
-                dropdown.classList.remove('show');
-                displayStudents();
-            } else if (e.target.classList.contains('filter-btn')) {
-                filterModal.classList.toggle('show');
-                dropdown.classList.remove('show');
-            } else if (e.target.classList.contains('apply-filter')) {
-                const filterInput = filterModal.querySelector('.filter-input');
-                columnFilters[key] = filterInput.value;
                 filterModal.classList.remove('show');
-                filterStudents();
-            }
+
+                const th = btn.closest('th');
+                const key = th.getAttribute('data-key');
+
+                // Handle sort and filter options
+                dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        if (item.classList.contains('sort-asc')) {
+                            filteredStudents.sort((a, b) => {
+                                const aValue = a[key] || '';
+                                const bValue = b[key] || '';
+                                return aValue.toString().localeCompare(bValue.toString());
+                            });
+                        } else if (item.classList.contains('sort-desc')) {
+                            filteredStudents.sort((a, b) => {
+                                const aValue = a[key] || '';
+                                const bValue = b[key] || '';
+                                return bValue.toString().localeCompare(aValue.toString());
+                            });
+                        } else if (item.classList.contains('filter-btn')) {
+                            filterModal.classList.toggle('show');
+                            const filterInput = filterModal.querySelector('.filter-input');
+                            const applyFilterBtn = filterModal.querySelector('.apply-filter');
+
+                            applyFilterBtn.addEventListener('click', () => {
+                                columnFilters[key] = filterInput.value;
+                                filterStudents();
+                                filterModal.classList.remove('show');
+                            });
+
+                            filterInput.addEventListener('keypress', (e) => {
+                                if (e.key === 'Enter') {
+                                    columnFilters[key] = filterInput.value;
+                                    filterStudents();
+                                    filterModal.classList.remove('show');
+                                }
+                            });
+                        }
+                        dropdown.classList.remove('show');
+                        displayStudents();
+                    });
+                });
+            });
         });
 
-        // Close filter modal when clicking outside
-        document.addEventListener('click', (e) => {
-            const filterModals = document.querySelectorAll('.filter-modal');
-            filterModals.forEach(modal => {
-                if (!modal.contains(e.target) && !e.target.classList.contains('filter-btn')) {
-                    modal.classList.remove('show');
-                }
+        // Page navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                document.querySelectorAll('.page-content').forEach(page => page.classList.add('hidden'));
+                const pageId = item.getAttribute('data-page') + 'Page';
+                document.getElementById(pageId).classList.remove('hidden');
             });
         });
 
         // Initial display
         displayStudents();
     </script>
+</body>
+</html>
