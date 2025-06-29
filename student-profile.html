@@ -332,24 +332,6 @@
                 </div>
             </div>
 
-            <!-- Box 6: Restrictions / Bans -->
-            <div class="box">
-                <h3>Restrictions / Bans</h3>
-                <div class="info-grid" id="restrictionsInfo">
-                    <p>Bans: <span id="bans">-</span></p>
-                    <p>Current Ban: <span id="currentBan">-</span></p>
-                </div>
-            </div>
-
-            <!-- Box 7: Internship & Placement -->
-            <div class="box">
-                <h3>Internship & Placement</h3>
-                <div class="info-grid" id="internshipPlacementInfo">
-                    <p>Internship Applied: <span id="internApplied">-</span></p>
-                    <p>Placement Applied: <span id="placementApplied">-</span></p>
-                </div>
-            </div>
-
             <!-- Box 8: Semester-wise GPA Data -->
             <div class="box semester-wise-box">
                 <h3>Semester-Wise GPA Data</h3>
@@ -442,6 +424,24 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Box 6: Restrictions / Bans -->
+            <div class="box">
+                <h3>Restrictions / Bans</h3>
+                <div class="info-grid" id="restrictionsInfo">
+                    <p>Bans: <span id="bans">-</span></p>
+                    <p>Current Ban: <span id="currentBan">-</span></p>
+                </div>
+            </div>
+
+            <!-- Box 7: Internship & Placement -->
+            <div class="box">
+                <h3>Internship & Placement</h3>
+                <div class="info-grid" id="internshipPlacementInfo">
+                    <p>Internship Applied: <span id="internApplied">-</span></p>
+                    <p>Placement Applied: <span id="placementApplied">-</span></p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -469,7 +469,7 @@
 
             if (!rollNumber) {
                 console.error('No roll number provided in URL.');
-                displayErrorState('No roll number provided.');
+                displayErrorState('No roll number provided in URL.');
                 return;
             }
 
@@ -575,7 +575,7 @@
                 safeSetText('name', 'Error');
                 safeSetText('rollNumber', message);
                 safeSetHTML('semesterTableBody', '<tr><td colspan="4">No data available.</td></tr>');
-                safeSetHTML('courseTableBody', '<tr><td colspan="8">No data available.</td></tr>');
+                safeSetHTML('courseTableBody', '<tr><td colspan="8">No course data available.</td></tr>');
                 safeSetHTML('eligibleCompaniesBody', '<tr><td colspan="3">No data available.</td></tr>');
                 safeSetHTML('targetCompaniesBody', '<tr><td colspan="3">No data available.</td></tr>');
                 console.error('Error state displayed:', message);
@@ -644,7 +644,7 @@
                             placement_applied: [],
                             allSemGPA: { semesterWiseData: [], courseWiseData: [] }
                         };
-                        displayErrorState(`Student with roll number ${rollNumber} not found.`);
+                        displayErrorState(`Student with roll number ${rollNumber} not found in JSON data.`);
                     }
                     displayStudentData();
                     renderCharts();
@@ -697,7 +697,7 @@
                         placement_applied: [],
                         allSemGPA: { semesterWiseData: [], courseWiseData: [] }
                     };
-                    displayErrorState('Failed to load student data.');
+                    displayErrorState('Failed to load student data from JSON.');
                     displayStudentData();
                     renderCharts();
                     provideSuggestions();
@@ -1227,7 +1227,7 @@
             // Navigation between pages
             const pages = {
                 'overview': () => window.location.href = 'index.html',
-                'student-profile': () => window.location.reload(), // Reload to ensure fresh state
+                'student-profile': () => window.location.reload(),
                 'analytics': () => window.location.href = 'analytics.html',
                 'placement': () => window.location.href = 'placement.html',
                 'notifications': () => window.location.href = 'index.html#notificationsPage'
@@ -1245,7 +1245,7 @@
                 const newRollNumber = new URLSearchParams(window.location.search).get('roll');
                 console.log('Popstate event, new roll number:', newRollNumber);
                 if (newRollNumber && newRollNumber !== rollNumber) {
-                    window.location.reload(); // Reload page to fetch new student data
+                    window.location.reload();
                 }
             });
         });
