@@ -4,248 +4,454 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NSUTGod</title>
+    <link rel="icon" type="image/png" href="https://github.com/avashx/nsutgod/blob/main/src/logo.png?raw=true">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        .dropdown:hover .dropdown-menu {
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f5;
+        }
+        th {
+            padding: 4px 8px;
+            text-align: left;
+            border-bottom: 2px solid #e5e7eb;
+            font-size: 13px;
+            font-weight: 500;
+            color: #4b5563;
+            background-color: #fafafa;
+            resize: horizontal;
+            overflow: auto;
+            min-width: 80px;
+            position: relative;
+            cursor: pointer;
+        }
+        td {
+            padding: 4px 8px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+        }
+        th:hover {
+            background-color: #f5f5f5;
+        }
+        .navbar {
+            width: 220px;
+            background-color: #fff;
+            border-right: 1px solid #e5e7eb;
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 40;
+            transition: transform 0.3s ease-in-out;
+        }
+        .navbar.hidden {
+            transform: translateX(-100%);
+        }
+        .nav-item {
+            cursor: pointer;
+        }
+        .branch-button {
+            padding: 4px 8px;
+            margin: 2px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .branch-button.active {
+            border-color: #4b5563;
+            color: #fff;
+        }
+        .tag {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .modern-select {
+            appearance: none;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmci' +
+                      'IGNsYXNzPSJoLTUgdy01IHRleHQtZ3JheS02MDAiIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggc3Ryb2tlLW' +
+                      'xpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik02IDlsNiA2IDYtNiIvPjwvc3ZnPg==') no-repeat right 8px center;
+            background-size: 16px;
+            padding-right: 32px;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #374151;
+            background-color: #fff;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .modern-select:focus {
+            outline: none;
+            border-color: #4b5563;
+            box-shadow: 0 0 0 2px rgba(75, 85, 99, 0.2);
+        }
+        .modern-select:hover {
+            border-color: #9ca3af;
+        }
+        .column- options {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 2px;
+        }
+        .dropdown {
+            position: fixed;
+            bottom: 150px;
+            right: 0;
+            background-color: #fff;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+        }
+        .dropdown.show {
+            display: block;
+            z-index: 1000;
+        }
+        .dropdown-item {
+            padding: 8px 12px;
+            font-size: 14px;
+            color: #374151;
+            cursor: pointer;
+        }
+        .dropdown-item:hover {
+            background-color: #f3f4f6;
+        }
+        .filter-modal {
+            position: fixed;
+            bottom: 0px;
+            right: 0;
+            background-color: #fff;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+            padding: 12px;
+            width: 200px;
+        }
+        .filter-modal.show {
             display: block;
         }
-        .table-row {
-            height: 48px; /* Matches typical row height in index.html */
+        .nav-item.active {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            font-weight: 500;
+        }
+        .customize-columns-btn {
+            padding: 8px 16px;
+            background-color: #4b5563;
+            color: #fff;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        .customize-columns-btn:hover {
+            background-color: #6b7280;
+        }
+        @media (max-width: 768px) {
+            .navbar {
+                width: 200px;
+            }
+            .main-content {
+                margin-left: 0 !important;
+                padding: 16px;
+            }
+            .table-container {
+                overflow-x: auto;
+            }
+            th, td {
+                font-size: 12px;
+                max-width: 100px;
+            }
+            .modern-select, .branch-button {
+                font-size: 12px;
+                padding: 6px 8px;
+            }
+            .flex-col.md\\:flex-row {
+                flex-direction: column !important;
+            }
+            #searchInput {
+                width: 100%;
+            }
+        }
+        @media (max-width: 480px) {
+            .navbar {
+                width: 180px;
+            }
+            .main-content {
+                padding: 12px;
+            }
+            th, td {
+                font-size: 11px;
+                max-width: 80px;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-100">
-    <div class="container mx-auto p-4">
-        <header class="flex justify-between items-center mb-4">
-            <h1 class="text-2xl font-bold">NSUTGod</h1>
-            <nav>
-                <a href="#overview" class="px-2 py-1 text-gray-700 hover:text-blue-500">Overview</a>
-                <a href="#student-profile" class="px-2 py-1 text-gray-700 hover:text-blue-500">Student Profile</a>
-                <a href="#analytics" class="px-2 py-1 text-gray-700 hover:text-blue-500">Analytics</a>
-                <a href="#placement" class="px-2 py-1 text-gray-700 hover:text-blue-500">Placement</a>
-                <a href="#notifications" class="px-2 py-1 text-gray-700 hover:text-blue-500">Notifications <span class="bg-red-500 text-white rounded-full px-2">2</span></a>
-            </nav>
-        </header>
+<body class="bg-[#f5f5f5]">
+    <!-- Hamburger Menu for Mobile -->
+    <div class="md:hidden fixed top-4 left-4 z-50">
+        <button id="menuToggle" class="p-2 bg-gray-200 rounded-lg">
+            <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+    </div>
 
-        <div id="overview" class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <h2 class="text-xl font-semibold mb-4">Student Data - NSUTGod</h2>
-            <div class="flex flex-col md:flex-row gap-4 mb-4">
-                <div>
-                    <button id="fetchAllBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Fetch All</button>
-                    <button id="fetch100Btn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Fetch 100</button>
-                    <button id="fetch300Btn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Fetch 300</button>
-                    <button id="fetch500Btn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Fetch 500</button>
-                    <button id="fetch1000Btn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Fetch 1000</button>
-                    <button id="exportJsonBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Export to JSON</button>
-                    <button id="pauseBtn" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Pause</button>
-                </div>
-                <div class="flex flex-wrap gap-2">
-                    <div>
-                        <label for="batchFilter">Batch Year:</label>
-                        <select id="batchFilter" class="border rounded px-2 py-1">
-                            <option value="All">All</option>
-                            <option value="2023">2023</option>
-                            <option value="2024">2024</option>
-                            <option value="2025">2025</option>
-                            <option value="2026">2026</option>
-                            <option value="2027">2027</option>
-                            <option value="2028">2028</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="genderFilter">Filter by Gender:</label>
-                        <select id="genderFilter" class="border rounded px-2 py-1">
-                            <option value="All">All</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="cgpaFilter">CGPA:</label>
-                        <input id="cgpaFilter" type="text" class="border rounded px-2 py-1" placeholder="CGPA">
-                    </div>
-                    <div>
-                        <label for="nameFilter">Name:</label>
-                        <input id="nameFilter" type="text" class="border rounded px-2 py-1" placeholder="Name">
-                    </div>
-                </div>
-                <div>
-                    <label for="rowsPerPage">Rows per page:</label>
-                    <select id="rowsPerPage" class="border rounded px-2 py-1">
-                        <option value="150">150</option>
-                        <option value="300">300</option>
-                        <option value="500">500</option>
-                        <option value="All">All</option>
-                    </select>
+    <!-- Left Navbar -->
+    <div id="navbar" class="navbar">
+        <div class="flex items-center mb-6">
+            <img src="https://github.com/avashx/nsutgod/blob/main/src/logo.png?raw=true" alt="NSUTGod Logo" class="h-10 w-10 mr-2">
+            <h2 class="text-xl font-bold text-gray-800">NSUTGod</h2>
+        </div>
+        <ul class="space-y-2">
+            <li class="nav-item flex items-center text-gray- مدارك p-2 rounded-lg active" data-page="overview">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                Overview
+            </li>
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="student-profile">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Student Profile
+            </li>
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="analytics">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 01-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10"/></svg>
+                Analytics
+            </li>
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="placement">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                Placement
+            </li>
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg" data-page="notifications">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                Notifications
+                <span class="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded">2</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Overview Page -->
+    <div id="overviewPage" class="md:ml-56 p-8 main-content page-content">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <h1 class="text-2xl font-bold text-gray-800">Student Data - <span class="text-green-600" id="totalRecords"></span></h1>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <input type="text" id="searchInput" placeholder="Search" class="p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 w-full md:w-auto" />
+                    <button class="p-2 bg-gray-100 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                    </button>
                 </div>
             </div>
 
-            <div class="mb-4">
-                <h3 class="text-lg font-semibold">Network Activity Log</h3>
-                <div id="networkLog" class="text-sm text-gray-600"></div>
-            </div>
+            <!-- Branch Filter Buttons -->
+            <div class="flex flex-wrap gap-1 mb-4 overflow-x-auto" id="branchFilterButtons"></div>
 
-            <div class="mb-4">
-                <p>Fetching Students...</p>
-                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                    <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
-                </div>
-                <p id="fetchCount" class="text-sm text-gray-600">0 students fetched</p>
-            </div>
-
-            <div class="mb-4">
-                <h3 class="text-lg font-semibold">Customize Columns</h3>
-                <div id="customizeColumns" class="flex flex-wrap gap-2">
-                    <!-- Column customization can be implemented later -->
+            <!-- Column Customization -->
+            <div class="mb-4 flex justify-end relative">
+                <button id="customizeColumnsBtn" class="customize-columns-btn">Customize Columns</button>
+                <div id="columnsDropdown" class="dropdown hidden">
+                    <!-- Column options will be populated dynamically -->
                 </div>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white border">
-                    <thead>
+            <!-- Other Filters -->
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                <select id="batchFilter" class="modern-select w-full md:w-auto">
+                    <option value="">Batch Year</option>
+                </select>
+                <select id="genderFilter" class="modern-select w-full md:w-auto">
+                    <option value="">Filter by Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <!-- Table -->
+            <div class="bg-white rounded-lg shadow-sm table-container">
+                <table class="min-w-full" id="studentTable">
+                    <thead id="tableHeader">
                         <tr>
-                            <th class="px-4 py-2 border">
-                                Serial No
-                                <div class="dropdown relative inline-block">
-                                    <button class="text-gray-500">...</button>
-                                    <div class="dropdown-menu hidden absolute bg-white shadow-md rounded mt-2">
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('serialNo', 'asc')">Sort Ascending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('serialNo', 'desc')">Sort Descending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="filterColumn('serialNo')">Filter</a>
-                                        <button class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="applyFilter('serialNo')">Apply</button>
+                            <th data-key="serialNo">Serial No
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
                                     </div>
                                 </div>
                             </th>
-                            <th class="px-4 py-2 border">
-                                Roll Number
-                                <div class="dropdown relative inline-block">
-                                    <button class="text-gray-500">...</button>
-                                    <div class="dropdown-menu hidden absolute bg-white shadow-md rounded mt-2">
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('rollNumber', 'asc')">Sort Ascending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('rollNumber', 'desc')">Sort Descending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="filterColumn('rollNumber')">Filter</a>
-                                        <button class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="applyFilter('rollNumber')">Apply</button>
+                            <th data-key="rollNumber">Roll Number
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
                                     </div>
                                 </div>
                             </th>
-                            <th class="px-4 py-2 border">
-                                Name
-                                <div class="dropdown relative inline-block">
-                                    <button class="text-gray-500">...</button>
-                                    <div class="dropdown-menu hidden absolute bg-white shadow-md rounded mt-2">
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('name', 'asc')">Sort Ascending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('name', 'desc')">Sort Descending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="filterColumn('name')">Filter</a>
-                                        <button class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="applyFilter('name')">Apply</button>
+                            <th data-key="name">Name
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
                                     </div>
                                 </div>
                             </th>
-                            <th class="px-4 py-2 border">
-                                Branch
-                                <div class="dropdown relative inline-block">
-                                    <button class="text-gray-500">...</button>
-                                    <div class="dropdown-menu hidden absolute bg-white shadow-md rounded mt-2">
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('branch', 'asc')">Sort Ascending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('branch', 'desc')">Sort Descending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="filterColumn('branch')">Filter</a>
-                                        <button class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="applyFilter('branch')">Apply</button>
+                            <th data-key="branch">Branch
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
                                     </div>
                                 </div>
                             </th>
-                            <th class="px-4 py-2 border">
-                                Email
-                                <div class="dropdown relative inline-block">
-                                    <button class="text-gray-500">...</button>
-                                    <div class="dropdown-menu hidden absolute bg-white shadow-md rounded mt-2">
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('email', 'asc')">Sort Ascending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('email', 'desc')">Sort Descending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="filterColumn('email')">Filter</a>
-                                        <button class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="applyFilter('email')">Apply</button>
+                            <th data-key="email">Email
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
                                     </div>
                                 </div>
                             </th>
-                            <th class="px-4 py-2 border">
-                                Gender
-                                <div class="dropdown relative inline-block">
-                                    <button class="text-gray-500">...</button>
-                                    <div class="dropdown-menu hidden absolute bg-white shadow-md rounded mt-2">
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('gender', 'asc')">Sort Ascending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('gender', 'desc')">Sort Descending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="filterColumn('gender')">Filter</a>
-                                        <button class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="applyFilter('gender')">Apply</button>
+                            <th data-key="gender">Gender
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
                                     </div>
                                 </div>
                             </th>
-                            <th class="px-4 py-2 border">
-                                DOB
-                                <div class="dropdown relative inline-block">
-                                    <button class="text-gray-500">...</button>
-                                    <div class="dropdown-menu hidden absolute bg-white shadow-md rounded mt-2">
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('dob', 'asc')">Sort Ascending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('dob', 'desc')">Sort Descending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="filterColumn('dob')">Filter</a>
-                                        <button class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="applyFilter('dob')">Apply</button>
+                            <th data-key="dob">DOB
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
                                     </div>
                                 </div>
                             </th>
-                            <th class="px-4 py-2 border">
-                                Contact Number
-                                <div class="dropdown relative inline-block">
-                                    <button class="text-gray-500">...</button>
-                                    <div class="dropdown-menu hidden absolute bg-white shadow-md rounded mt-2">
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('contact_number', 'asc')">Sort Ascending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('contact_number', 'desc')">Sort Descending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="filterColumn('contact_number')">Filter</a>
-                                        <button class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="applyFilter('contact_number')">Apply</button>
+                            <th data-key="contactNumber">Contact Number
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
                                     </div>
                                 </div>
                             </th>
-                            <th class="px-4 py-2 border">
-                                Present Address
-                                <div class="dropdown relative inline-block">
-                                    <button class="text-gray-500">...</button>
-                                    <div class="dropdown-menu hidden absolute bg-white shadow-md rounded mt-2">
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('present_address', 'asc')">Sort Ascending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('present_address', 'desc')">Sort Descending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="filterColumn('present_address')">Filter</a>
-                                        <button class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="applyFilter('present_address')">Apply</button>
+                            <th data-key="presentAddress">Present Address
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
                                     </div>
                                 </div>
                             </th>
-                            <th class="px-4 py-2 border">
-                                Category
-                                <div class="dropdown relative inline-block">
-                                    <button class="text-gray-500">...</button>
-                                    <div class="dropdown-menu hidden absolute bg-white shadow-md rounded mt-2">
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('category', 'asc')">Sort Ascending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('category', 'desc')">Sort Descending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="filterColumn('category')">Filter</a>
-                                        <button class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="applyFilter('category')">Apply</button>
+                            <th data-key="category">Category
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
                                     </div>
                                 </div>
                             </th>
-                            <th class="px-4 py-2 border">
-                                CGPA
-                                <div class="dropdown relative inline-block">
-                                    <button class="text-gray-500">...</button>
-                                    <div class="dropdown-menu hidden absolute bg-white shadow-md rounded mt-2">
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('cgpa', 'asc')">Sort Ascending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('cgpa', 'desc')">Sort Descending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="filterColumn('cgpa')">Filter</a>
-                                        <button class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="applyFilter('cgpa')">Apply</button>
+                            <th data-key="cgpa">CGPA
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
                                     </div>
                                 </div>
                             </th>
-                            <th class="px-4 py-2 border">
-                                View Profile
-                                <div class="dropdown relative inline-block">
-                                    <button class="text-gray-500">...</button>
-                                    <div class="dropdown-menu hidden absolute bg-white shadow-md rounded mt-2">
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('viewProfile', 'asc')">Sort Ascending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="sortTable('viewProfile', 'desc')">Sort Descending</a>
-                                        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="filterColumn('viewProfile')">Filter</a>
-                                        <button class="block px-4 py-2 text-sm hover:bg-gray-100" onclick="applyFilter('viewProfile')">Apply</button>
+                            <th data-key="viewProfile">View Profile
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
                                     </div>
                                 </div>
                             </th>
@@ -253,229 +459,473 @@
                     </thead>
                     <tbody id="studentTableBody"></tbody>
                 </table>
-                <div class="flex justify-between mt-4">
-                    <button id="prevPageBtn" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400" disabled>Previous</button>
-                    <span id="pageInfo">Page 1</span>
-                    <button id="nextPageBtn" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400" disabled>Next</button>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex flex-col md:flex-row justify-between items-center mt-4 text-gray-600 gap-4">
+                <div>
+                    Rows per page: 
+                    <select id="rowsPerPageSelect" class="modern-select">
+                        <option value="150" selected>150</option>
+                        <option value="300">300</option>
+                        <option value="500">500</option>
+                        <option value="all">All</option>
+                    </select>
+                </div>
+                <div id="pageInfo"></div>
+                <div class="flex gap-2">
+                    <button id="prevPage" class="p-1 bg-gray-200 rounded-lg disabled:opacity-50"><</button>
+                    <button id="nextPage" class="p-1 bg-gray-200 rounded-lg disabled:opacity-50">></button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div id="student-profile" class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <h2 class="text-xl font-semibold mb-4">Student Profile</h2>
-            <p>This section will allow viewing individual student profiles. (Placeholder)</p>
-        </div>
-
-        <div id="analytics" class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <h2 class="text-xl font-semibold mb-4">Analytics</h2>
-            <p>This section will display analytics graphs. See analytics.html for details.</p>
-        </div>
-
-        <div id="placement" class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <h2 class="text-xl font-semibold mb-4">Placement</h2>
-            <p>This section will display placement statistics. See placement.html for details.</p>
-        </div>
-
-        <div id="notifications" class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <h2 class="text-xl font-semibold mb-4">Notifications</h2>
-            <p>This section will display notifications. (Placeholder)</p>
+    <!-- Student Profile Page (Placeholder) -->
+    <div id="studentProfilePage" class="md:ml-56 p-8 main-content page-content hidden">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">Student Profile</h1>
+            <p class="text-gray-600">This section will allow viewing individual student profiles. (Placeholder)</p>
         </div>
     </div>
 
+    <!-- Analytics Page (Placeholder) -->
+    <div id="analyticsPage" class="md:ml-56 p-8 main-content page-content hidden">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">Analytics</h1>
+            <p class="text-gray-600">This section will display analytics graphs. See <a href="analytics.html" class="text-blue-600 underline">analytics.html</a> for details.</p>
+        </div>
+    </div>
+
+    <!-- Placement Page (Placeholder) -->
+    <div id="placementPage" class="md:ml-56 p-8 main-content page-content hidden">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">Placement</h1>
+            <p class="text-gray-600">This section will display placement statistics. See <a href="placement.html" class="text-blue-600 underline">placement.html</a> for details.</p>
+        </div>
+    </div>
+
+    <!-- Notifications Page (Placeholder) -->
+    <div id="notificationsPage" class="md:ml-56 p-8 main-content page-content hidden">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">Notifications</h1>
+            <p class="text-gray-600">This section will display notifications. (Placeholder)</p>
+        </div>
+    </div>
+
+    <script src="session.js"></script>
     <script>
+        // Check session on page load
+        checkSession();
+
+        const studentTableBody = document.getElementById('studentTableBody');
+        const searchInput = document.getElementById('searchInput');
+        const branchFilterButtons = document.getElementById('branchFilterButtons');
+        const batchFilter = document.getElementById('batchFilter');
+        const genderFilter = document.getElementById('genderFilter');
+        const prevPageBtn = document.getElementById('prevPage');
+        const nextPageBtn = document.getElementById('nextPage');
+        const pageInfo = document.getElementById('pageInfo');
+        const totalRecords = document.getElementById('totalRecords');
+        const rowsPerPageSelect = document.getElementById('rowsPerPageSelect');
+        const menuToggle = document.getElementById('menuToggle');
+        const navbar = document.getElementById('navbar');
+        const customizeColumnsBtn = document.getElementById('customizeColumnsBtn');
+        const columnsDropdown = document.getElementById('columnsDropdown');
+        const tableHeader = document.getElementById('tableHeader');
+
         let students = [];
+        let filteredStudents = [];
         let currentPage = 1;
-        let rowsPerPage = 150;
-        let isPaused = false;
-        let filters = {};
+        let rowsPerPage = parseInt(rowsPerPageSelect.value);
+        let selectedBranch = '';
+        let visibleColumns = ['serialNo', 'rollNumber', 'name', 'branch', 'email', 'gender', 'dob', 'contactNumber', 'presentAddress', 'category', 'cgpa', 'viewProfile'];
+        let columnFilters = {};
 
-        async function fetchStudents(limit, batch = 'All', gender = 'All') {
-            if (isPaused) return;
-            const token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc1MDg3NTg3NywiZXhwIjoxNzUzNDY3ODc3fQ.RRvoUFo76Q65vECK3P8cIHy7MSgGTd8zkmYYaqE89Dw';
-            let url = `https://api.tnpnsut.in/students?_limit=${limit}&_sort=rollNumber`;
-            if (batch !== 'All') {
-                url += `&batch=${batch}`;
-            }
-            if (gender !== 'All') {
-                url += `&gender=${gender}`;
-            }
+        // Branch and Gender color mapping
+        const branchColors = {
+            'Cumulative': '#f3f4f6',
+            'CSAI': '#bfdbfe',
+            'CSE': '#93c5fd',
+            'CSDS': '#60a5fa',
+            'CIOT': '#93c5fd',
+            'IT': '#bfdbfe',
+            'ITNS': '#dbeafe',
+            'MAC': '#fef9c3',
+            'ECIOT': '#fef9c3',
+            'ECE': '#fef3c7',
+            'ECAM': '#fde68a',
+            'EE': '#fce7a3',
+            'ICE': '#fef9c3',
+            'ME': '#fef3c7',
+            'MEEV': '#fef9c3',
+            'WEST': '#fef2f2',
+            'CE': '#fee2e2',
+            'BT': '#ffedd5',
+            'GI': '#fed7aa'
+        };
+        const genderColors = {
+            'male': '#bfdbfe',
+            'female': '#f9a8d4',
+            'other': '#d1fae5'
+        };
 
-            try {
-                const response = await fetch(url, {
-                    headers: { 'Authorization': token }
+        // Function to map CGPA to a color gradient (red at 4, green at 9)
+        function getCgpaColor(cgpa) {
+            if (!cgpa || isNaN(cgpa)) return '#e5e7eb';
+            const value = parseFloat(cgpa);
+            if (value < 4) return 'rgb(255, 0, 0)';
+            if (value > 9) return 'rgb(0, 255, 0)';
+            const ratio = (value - 4) / (9 - 4);
+            const red = Math.round(255 * (1 - ratio));
+            const green = Math.round(255 * ratio);
+            return `rgb(${red}, ${green}, 0)`;
+        }
+
+        // Fetch and parse JSON
+        fetch('https://raw.githubusercontent.com/avashx/nsutgod/main/src/students.json')
+            .then(response => response.json())
+            .then(data => {
+                students = data.map(student => ({
+                    ...student,
+                    gender: student.gender ? student.gender.toLowerCase() : ''
+                }));
+                filteredStudents = [...students];
+                totalRecords.textContent = `${students.length} Students`;
+
+                populateFilters();
+                populateBranchButtons();
+                populateColumnOptions();
+                displayStudents();
+            })
+            .catch(error => {
+                console.error('Error fetching JSON:', error);
+                studentTableBody.innerHTML = '<tr><td colspan="12">Error loading data. Please try again later.</td></tr>';
+            });
+
+        // Populate filter dropdowns
+        function populateFilters() {
+            const batches = [...new Set(students.map(student => student.batch))].filter(Boolean);
+            batches.forEach(batch => {
+                const option = document.createElement('option');
+                option.value = batch;
+                option.textContent = batch;
+                batchFilter.appendChild(option);
+            });
+        }
+
+        // Populate branch filter buttons
+        function populateBranchButtons() {
+            const branches = ['Cumulative', ...new Set(students.map(student => student.branch))].filter(Boolean);
+            branches.forEach(branch => {
+                const button = document.createElement('button');
+                button.className = 'branch-button';
+                button.textContent = branch;
+                button.style.backgroundColor = branchColors[branch] || '#f3f4f6';
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.branch-button').forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.style.backgroundColor = branchColors[btn.textContent] || '#f3f4f6';
+                        btn.style.color = '#000';
+                    });
+                    button.classList.add('active');
+                    button.style.color = '#fff';
+                    selectedBranch = branch === 'Cumulative' ? '' : branch;
+                    filterStudents();
                 });
-                const data = await response.json();
-                // Ensure data is an array
-                students = Array.isArray(data) ? data : data.data || [];
-                logNetworkActivity(`Fetched ${students.length} students`);
-                updateFetchCount(students.length);
-                updateProgressBar(students.length, limit);
-                applyFilters();
-            } catch (error) {
-                logNetworkActivity(`Error fetching students: ${error.message}`);
-            }
+                branchFilterButtons.appendChild(button);
+            });
+            branchFilterButtons.children[0].classList.add('active');
+            branchFilterButtons.children[0].style.color = '#fff';
         }
 
-        function logNetworkActivity(message) {
-            const logDiv = document.getElementById('networkLog');
-            logDiv.innerHTML += `<p>${new Date().toLocaleTimeString()}: ${message}</p>`;
+        // Populate column customization options
+        function populateColumnOptions() {
+            columnsDropdown.innerHTML = '';
+            const allColumns = [
+                { key: 'serialNo', label: 'Serial No' },
+                { key: 'rollNumber', label: 'Roll Number' },
+                { key: 'name', label: 'Name' },
+                { key: 'branch', label: 'Branch' },
+                { key: 'email', label: 'Email' },
+                { key: 'gender', label: 'Gender' },
+                { key: 'dob', label: 'DOB' },
+                { key: 'contactNumber', label: 'Contact Number' },
+                { key: 'presentAddress', label: 'Present Address' },
+                { key: 'category', label: 'Category' },
+                { key: 'cgpa', label: 'CGPA' },
+                { key: 'viewProfile', label: 'View Profile' }
+            ];
+
+            allColumns.forEach(column => {
+                const div = document.createElement('div');
+                div.className = 'dropdown-item';
+                div.innerHTML = `
+                    <input type="checkbox" id="col-${column.key}" ${visibleColumns.includes(column.key) ? 'checked' : ''}>
+                    <label for="col-${column.key}">${column.label}</label>
+                `;
+                div.querySelector('input').addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        visibleColumns.push(column.key);
+                    } else {
+                        visibleColumns = visibleColumns.filter(col => col !== column.key);
+                    }
+                    displayStudents();
+                });
+                columnsDropdown.appendChild(div);
+            });
         }
 
-        function updateFetchCount(count) {
-            document.getElementById('fetchCount').textContent = `${count} students fetched`;
-        }
-
-        function updateProgressBar(fetched, total) {
-            const percentage = Math.min((fetched / total) * 100, 100);
-            document.getElementById('progressBar').style.width = `${percentage}%`;
-        }
-
-        function applyFilters() {
-            let filteredStudents = [...students];
-            if (filters.name) {
-                filteredStudents = filteredStudents.filter(student => 
-                    (student.name || student.Name || '').toLowerCase().includes(filters.name.toLowerCase()));
-            }
-            if (filters.cgpa) {
-                filteredStudents = filteredStudents.filter(student => 
-                    student.cgpa && student.cgpa >= parseFloat(filters.cgpa));
-            }
-            displayStudents(filteredStudents);
-        }
-
-        function displayStudents(filteredStudents = students) {
-            const tbody = document.getElementById('studentTableBody');
-            tbody.innerHTML = '';
-            const start = (currentPage - 1) * (rowsPerPage === 'All' ? filteredStudents.length : rowsPerPage);
-            const end = rowsPerPage === 'All' ? filteredStudents.length : start + parseInt(rowsPerPage);
+        // Display students in the table
+        function displayStudents() {
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = rowsPerPage === 'all' ? filteredStudents.length : start + rowsPerPage;
             const paginatedStudents = filteredStudents.slice(start, end);
 
+            studentTableBody.innerHTML = '';
             paginatedStudents.forEach((student, index) => {
+                const serialNo = start + index + 1;
                 const row = document.createElement('tr');
-                row.className = 'table-row';
-                row.innerHTML = `
-                    <td class="px-4 py-2 border">${start + index + 1}</td>
-                    <td class="px-4 py-2 border">${student.rollNumber || '-'}</td>
-                    <td class="px-4 py-2 border">${student.name || student.Name || '-'}</td>
-                    <td class="px-4 py-2 border">${student.branch || '-'}</td>
-                    <td class="px-4 py-2 border">${student.email || '-'}</td>
-                    <td class="px-4 py-2 border">${student.gender || '-'}</td>
-                    <td class="px-4 py-2 border">${student.dob || '-'}</td>
-                    <td class="px-4 py-2 border">${student.contact_number || '-'}</td>
-                    <td class="px-4 py-2 border">${student.present_address || '-'}</td>
-                    <td class="px-4 py-2 border">${student.category || '-'}</td>
-                    <td class="px-4 py-2 border">${student.cgpa || '-'}</td>
-                    <td class="px-4 py-2 border"><a href="student-profile.html?id=${student.id}" class="text-blue-500 hover:underline">View Profile</a></td>
-                `;
-                tbody.appendChild(row);
-            });
+                let cells = '';
 
-            updatePagination(filteredStudents.length);
-        }
-
-        function updatePagination(totalStudents) {
-            const totalPages = rowsPerPage === 'All' ? 1 : Math.ceil(totalStudents / rowsPerPage);
-            document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
-            document.getElementById('prevPageBtn').disabled = currentPage === 1;
-            document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
-        }
-
-        function exportToJson() {
-            const dataStr = JSON.stringify(students, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'students.json';
-            a.click();
-            URL.revokeObjectURL(url);
-            logNetworkActivity('Exported student data to JSON');
-        }
-
-        function sortTable(column, direction) {
-            students.sort((a, b) => {
-                const valA = a[column] || (column === 'name' ? a.Name : '');
-                const valB = b[column] || (column === 'name' ? b.Name : '');
-                if (direction === 'asc') {
-                    return valA > valB ? 1 : -1;
-                } else {
-                    return valA < valB ? 1 : -1;
+                if (visibleColumns.includes('serialNo')) {
+                    cells += `<td>${serialNo}</td>`;
                 }
+                if (visibleColumns.includes('rollNumber')) {
+                    cells += `<td>${student.rollNumber || '-'}</td>`;
+                }
+                if (visibleColumns.includes('name')) {
+                    cells += `<td>${student.Name || '-'}</td>`;
+                }
+                if (visibleColumns.includes('branch')) {
+                    cells += `<td><span class="tag" style="background-color: ${branchColors[student.branch] || '#e5e7eb'}">${student.branch || '-'}</span></td>`;
+                }
+                if (visibleColumns.includes('email')) {
+                    cells += `<td>${student.email || '-'}</td>`;
+                }
+                if (visibleColumns.includes('gender')) {
+                    cells += `<td><span class="tag" style="background-color: ${genderColors[student.gender] || '#e5e7eb'}">${student.gender || '-'}</span></td>`;
+                }
+                if (visibleColumns.includes('dob')) {
+                    cells += `<td>${student.dob || '-'}</td>`;
+                }
+                if (visibleColumns.includes('contactNumber')) {
+                    cells += `<td>${student.contact_number || '-'}</td>`;
+                }
+                if (visibleColumns.includes('presentAddress')) {
+                    cells += `<td>${student.present_address || '-'}</td>`;
+                }
+                if (visibleColumns.includes('category')) {
+                    cells += `<td>${student.category || '-'}</td>`;
+                }
+                if (visibleColumns.includes('cgpa')) {
+                    cells += `<td><span class="tag" style="background-color: ${getCgpaColor(student.cgpa)}">${student.cgpa || '-'}</span></td>`;
+                }
+                if (visibleColumns.includes('viewProfile')) {
+                    cells += `<td><a href="student-profile.html?roll=${student.rollNumber}" target="_blank" class="p-1 bg-blue-100 text-blue-600 rounded text-xs">View Profile</a></td>`;
+                }
+
+                row.innerHTML = cells;
+                studentTableBody.appendChild(row);
             });
-            applyFilters();
-            logNetworkActivity(`Sorted by ${column} ${direction}`);
+
+            document.querySelectorAll('#tableHeader th').forEach(th => {
+                const key = th.getAttribute('data-key');
+                th.style.display = visibleColumns.includes(key) ? '' : 'none';
+            });
+
+            const totalPages = rowsPerPage === 'all' ? 1 : Math.ceil(filteredStudents.length / rowsPerPage);
+            const startRecord = start + 1;
+            const endRecord = Math.min(end, filteredStudents.length);
+            pageInfo.textContent = rowsPerPage === 'all' ? `1-${filteredStudents.length} of ${filteredStudents.length}` : `${startRecord}-${endRecord} of ${filteredStudents.length}`;
+            prevPageBtn.disabled = currentPage === 1 || rowsPerPage === 'all';
+            nextPageBtn.disabled = (currentPage === totalPages || totalPages === 0 || rowsPerPage === 'all');
         }
 
-        function filterColumn(column) {
-            const value = prompt(`Enter filter value for ${column}:`);
-            if (value !== null) {
-                filters[column] = value;
-                applyFilters();
-                logNetworkActivity(`Filtered ${column} by ${value}`);
-            }
-        }
+        // Filter and search logic
+        function filterStudents() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const batchValue = batchFilter.value;
+            const genderValue = genderFilter.value;
 
-        function applyFilter(column) {
-            applyFilters();
-        }
+            filteredStudents = students.filter(student => {
+                const matchesSearch = Object.values(student).some(val => 
+                    val && val.toString().toLowerCase().includes(searchTerm)
+                );
+                const matchesBranch = !selectedBranch || student.branch === selectedBranch;
+                const matchesBatch = !batchValue || student.batch === batchValue;
+                const matchesGender = !genderValue || student.gender === genderValue;
 
-        // Event Listeners
-        document.getElementById('fetchAllBtn').addEventListener('click', () => fetchStudents(16000));
-        document.getElementById('fetch100Btn').addEventListener('click', () => fetchStudents(100));
-        document.getElementById('fetch300Btn').addEventListener('click', () => fetchStudents(300));
-        document.getElementById('fetch500Btn').addEventListener('click', () => fetchStudents(500));
-        document.getElementById('fetch1000Btn').addEventListener('click', () => fetchStudents(1000));
-        document.getElementById('exportJsonBtn').addEventListener('click', exportToJson);
-        document.getElementById('pauseBtn').addEventListener('click', () => {
-            isPaused = !isPaused;
-            document.getElementById('pauseBtn').textContent = isPaused ? 'Resume' : 'Pause';
-            logNetworkActivity(isPaused ? 'Paused fetching' : 'Resumed fetching');
-        });
-        document.getElementById('batchFilter').addEventListener('change', (e) => {
-            fetchStudents(rowsPerPage === 'All' ? 16000 : rowsPerPage, e.target.value, document.getElementById('genderFilter').value);
-        });
-        document.getElementById('genderFilter').addEventListener('change', (e) => {
-            fetchStudents(rowsPerPage === 'All' ? 16000 : rowsPerPage, document.getElementById('batchFilter').value, e.target.value);
-        });
-        document.getElementById('rowsPerPage').addEventListener('change', (e) => {
-            rowsPerPage = e.target.value;
+                let matchesFilters = true;
+                for (const [key, filter] of Object.entries(columnFilters)) {
+                    if (filter && student[key]) {
+                        matchesFilters = matchesFilters && student[key].toString().toLowerCase().includes(filter.toLowerCase());
+                    }
+                }
+
+                return matchesSearch && matchesBranch && matchesBatch && matchesGender && matchesFilters;
+            });
+
             currentPage = 1;
-            applyFilters();
-        });
-        document.getElementById('prevPageBtn').addEventListener('click', () => {
+            displayStudents();
+        }
+
+        // Event listeners for search and filters
+        searchInput.addEventListener('input', filterStudents);
+        batchFilter.addEventListener('change', filterStudents);
+        genderFilter.addEventListener('change', filterStudents);
+
+        prevPageBtn.addEventListener('click', () => {
             if (currentPage > 1) {
                 currentPage--;
-                applyFilters();
+                displayStudents();
             }
         });
-        document.getElementById('nextPageBtn').addEventListener('click', () => {
-            const totalPages = rowsPerPage === 'All' ? 1 : Math.ceil(students.length / rowsPerPage);
+
+        nextPageBtn.addEventListener('click', () => {
+            const totalPages = rowsPerPage === 'all' ? 1 : Math.ceil(filteredStudents.length / rowsPerPage);
             if (currentPage < totalPages) {
                 currentPage++;
-                applyFilters();
+                displayStudents();
             }
         });
-        document.getElementById('nameFilter').addEventListener('input', (e) => {
-            filters.name = e.target.value;
-            applyFilters();
-        });
-        document.getElementById('cgpaFilter').addEventListener('input', (e) => {
-            filters.cgpa = e.target.value;
-            applyFilters();
+
+        rowsPerPageSelect.addEventListener('change', () => {
+            rowsPerPage = rowsPerPageSelect.value === 'all' ? 'all' : parseInt(rowsPerPageSelect.value);
+            currentPage = 1;
+            displayStudents();
         });
 
-        // Initialize dropdowns
-        document.querySelectorAll('.dropdown').forEach(dropdown => {
-            dropdown.addEventListener('mouseenter', () => {
-                dropdown.querySelector('.dropdown-menu').classList.remove('hidden');
-            });
-            dropdown.addEventListener('mouseleave', () => {
-                dropdown.querySelector('.dropdown-menu').classList.add('hidden');
+        // Toggle navbar on mobile
+        menuToggle.addEventListener('click', () => {
+            navbar.classList.toggle('hidden');
+        });
+
+        // Close navbar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth < 768 && !navbar.contains(e.target) && !menuToggle.contains(e.target)) {
+                navbar.classList.add('hidden');
+            }
+        });
+
+        // Column customization dropdown
+        customizeColumnsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            columnsDropdown.classList.toggle('show');
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!customizeColumnsBtn.contains(e.target) && !columnsDropdown.contains(e.target)) {
+                columnsDropdown.classList.remove('show');
+            }
+
+            const openDropdown = document.querySelector('.dropdown.show');
+            if (openDropdown && !e.target.closest('th')) {
+                openDropdown.classList.remove('show');
+            }
+
+            const openFilterModal = document.querySelector('.filter-modal.show');
+            if (openFilterModal && !e.target.closest('.filter-modal') && !e.target.closest('.filter-btn')) {
+                openFilterModal.classList.remove('show');
+            }
+        });
+
+        // Column sorting and filtering
+        document.querySelectorAll('#tableHeader th').forEach(th => {
+            th.addEventListener('click', (e) => {
+                if (e.target.closest('.column-options')) return;
+                const dropdown = th.querySelector('.dropdown');
+                document.querySelectorAll('.dropdown').forEach(d => {
+                    if (d !== dropdown) d.classList.remove('show');
+                });
+                dropdown.classList.toggle('show');
             });
         });
 
-        // Initial fetch
-        fetchStudents(150);
+        document.querySelectorAll('.sort-asc').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const th = e.target.closest('th');
+                const key = th.getAttribute('data-key');
+                filteredStudents.sort((a, b) => {
+                    const valA = a[key] || '';
+                    const valB = b[key] || '';
+                    return valA.toString().localeCompare(valB.toString());
+                });
+                displayStudents();
+                e.target.closest('.dropdown').classList.remove('show');
+            });
+        });
+
+        document.querySelectorAll('.sort-desc').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const th = e.target.closest('th');
+                const key = th.getAttribute('data-key');
+                filteredStudents.sort((a, b) => {
+                    const valA = a[key] || '';
+                    const valB = b[key] || '';
+                    return valB.toString().localeCompare(valA.toString());
+                });
+                displayStudents();
+                e.target.closest('.dropdown').classList.remove('show');
+            });
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const th = e.target.closest('th');
+                const key = th.getAttribute('data-key');
+                const filterModal = th.querySelector('.filter-modal');
+                document.querySelectorAll('.filter-modal').forEach(m => {
+                    if (m !== filterModal) m.classList.remove('show');
+                });
+                filterModal.classList.toggle('show');
+                const input = filterModal.querySelector('.filter-input');
+                input.value = columnFilters[key] || '';
+            });
+        });
+
+        document.querySelectorAll('.apply-filter').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const th = e.target.closest('th');
+                const key = th.getAttribute('data-key');
+                const input = th.querySelector('.filter-input');
+                columnFilters[key] = input.value;
+                filterStudents();
+                e.target.closest('.filter-modal').classList.remove('show');
+            });
+        });
+
+        // Navigation between pages
+        const pages = {
+            'overview': document.getElementById('overviewPage'),
+            'student-profile': document.getElementById('studentProfilePage'),
+            'analytics': document.getElementById('analyticsPage'),
+            'placement': document.getElementById('placementPage'),
+            'notifications': document.getElementById('notificationsPage')
+        };
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const page = item.getAttribute('data-page');
+                if (page === 'analytics') {
+                    window.location.href = 'analytics.html';
+                    return;
+                }
+                if (page === 'placement') {
+                    window.location.href = 'placement.html';
+                    return;
+                }
+                document.querySelectorAll('.page-content').forEach(content => content.classList.add('hidden'));
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                pages[page].classList.remove('hidden');
+                item.classList.add('active');
+            });
+        });
+
+        // Set default page
+        pages['overview'].classList.remove('hidden');
+        document.querySelector('.nav-item[data-page="overview"]').classList.add('active');
     </script>
 </body>
 </html>
