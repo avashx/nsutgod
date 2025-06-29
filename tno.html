@@ -16,6 +16,9 @@
             <button id="exportJsonBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 hidden">Export JSON</button>
             <button id="exportCsvBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 hidden">Export CSV</button>
         </div>
+        <div class="w-full bg-gray-200 rounded-full h-4 mb-4">
+            <div id="progressBar" class="bg-blue-500 h-4 rounded-full" style="width: 0%"></div>
+        </div>
         <div id="log" class="bg-gray-200 p-4 rounded h-64 overflow-y-auto text-sm"></div>
     </div>
 
@@ -26,16 +29,23 @@
         let students = [];
         let isFetching = false;
         let isPaused = false;
+        let currentBatchIndex = 0;
 
         const fetchBtn = document.getElementById('fetchBtn');
         const pauseBtn = document.getElementById('pauseBtn');
         const exportJsonBtn = document.getElementById('exportJsonBtn');
         const exportCsvBtn = document.getElementById('exportCsvBtn');
         const logDiv = document.getElementById('log');
+        const progressBar = document.getElementById('progressBar');
 
         function log(message) {
             logDiv.innerHTML += `<p>${new Date().toLocaleTimeString()}: ${message}</p>`;
             logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function updateProgress(completed, total) {
+            const percentage = (completed / total) * 100;
+            progressBar.style.width = `${percentage}%`;
         }
 
         function flattenObject(obj, prefix = '') {
@@ -44,7 +54,7 @@
                 if (typeof obj[k] === 'object' && obj[k] !== null && !Array.isArray(obj[k])) {
                     Object.assign(acc, flattenObject(obj[k], pre + k));
                 } else {
-                    acc[pre + k] = obj[k];
+                    acc[pre + k] = obj[k] !== null && obj[k] !== undefined ? obj[k] : '';
                 }
                 return acc;
             }, {});
@@ -72,16 +82,20 @@
             exportJsonBtn.classList.add('hidden');
             exportCsvBtn.classList.add('hidden');
             students = [];
+            currentBatchIndex = 0;
 
-            for (const batch of batches) {
+            for (let i = currentBatchIndex; i < batches.length; i++) {
                 if (isPaused) {
                     log('Fetching paused');
                     break;
                 }
+                currentBatchIndex = i;
+                const batch = batches[i];
                 log(`Fetching students for batch ${batch}...`);
                 const batchStudents = await fetchStudents(batch);
                 students.push(...batchStudents);
                 log(`Fetched ${batchStudents.length} students for batch ${batch}. Total: ${students.length}`);
+                updateProgress(i + 1, batches.length);
             }
 
             if (!isPaused) {
@@ -91,11 +105,33 @@
                 exportJsonBtn.classList.remove('hidden');
                 exportCsvBtn.classList.remove('hidden');
                 log('Fetching complete');
+                updateProgress(batches.length, batches.length);
             }
         }
 
         function exportToJson() {
-            const flattenedStudents = students.map(flattenObject);
+            const flattenedStudents = students.map(student => {
+                const flat = flattenObject(student);
+                // Ensure all expected fields are included, even if missing
+                const allFields = {
+                    Name: '', aadhar: '', alt_contact_number: '', backlogs: '', bans: '', batch: '',
+                    blood_group: '', branch: '', campus: '', category: '', cgpa: '', cgpaUpdateEnabled: '',
+                    cgpa_10th: '', cgpa_12th: '', cgpa_before_drop: '', contact_number: '', createdAt: '',
+                    currentBan: '', degree: '', dob: '', email: '', gender: '', graduation_gpa: '',
+                    intern_applied: '', isCgpaUpdated: '', isPPO: '', pan: '', perm_address: '',
+                    personal_email: '', placement_applied: '', present_address: '', published_at: '',
+                    pwd: '', resume: '', 'resume._id': '', 'resume.name': '', 'resume.hash': '',
+                    'resume.ext': '', 'resume.mime': '', 'resume.provider': '', 'resume.related': '',
+                    'resume.size': '', 'resume.url': '', 'resume.createdAt': '', 'resume.updatedAt': '',
+                    'resume.__v': '', rollNumber: '', sem1_gpa: '', sem2_gpa: '', sem3_gpa: '',
+                    sem4_gpa: '', sem5_gpa: '', sem6_gpa: '', sem7_gpa: '', sem8_gpa: '', status: '',
+                    updatedAt: '', user: '', 'user.blocked': '', 'user.confirmed': '', 'user.createdAt': '',
+                    'user.email': '', 'user.id': '', 'user.provider': '', 'user.role': '',
+                    'user.student': '', 'user.updatedAt': '', 'user.username': '', 'user.__v': '',
+                    __v: '', _id: ''
+                };
+                return { ...allFields, ...flat };
+            });
             const json = JSON.stringify(flattenedStudents, null, 2);
             const blob = new Blob([json], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -108,7 +144,27 @@
         }
 
         function exportToCsv() {
-            const flattenedStudents = students.map(flattenObject);
+            const flattenedStudents = students.map(student => {
+                const flat = flattenObject(student);
+                const allFields = {
+                    Name: '', aadhar: '', alt_contact_number: '', backlogs: '', bans: '', batch: '',
+                    blood_group: '', branch: '', campus: '', category: '', cgpa: '', cgpaUpdateEnabled: '',
+                    cgpa_10th: '', cgpa_12th: '', cgpa_before_drop: '', contact_number: '', createdAt: '',
+                    currentBan: '', degree: '', dob: '', email: '', gender: '', graduation_gpa: '',
+                    intern_applied: '', isCgpaUpdated: '', isPPO: '', pan: '', perm_address: '',
+                    personal_email: '', placement_applied: '', present_address: '', published_at: '',
+                    pwd: '', resume: '', 'resume._id': '', 'resume.name': '', 'resume.hash': '',
+                    'resume.ext': '', 'resume.mime': '', 'resume.provider': '', 'resume.related': '',
+                    'resume.size': '', 'resume.url': '', 'resume.createdAt': '', 'resume.updatedAt': '',
+                    'resume.__v': '', rollNumber: '', sem1_gpa: '', sem2_gpa: '', sem3_gpa: '',
+                    sem4_gpa: '', sem5_gpa: '', sem6_gpa: '', sem7_gpa: '', sem8_gpa: '', status: '',
+                    updatedAt: '', user: '', 'user.blocked': '', 'user.confirmed': '', 'user.createdAt': '',
+                    'user.email': '', 'user.id': '', 'user.provider': '', 'user.role': '',
+                    'user.student': '', 'user.updatedAt': '', 'user.username': '', 'user.__v': '',
+                    __v: '', _id: ''
+                };
+                return { ...allFields, ...flat };
+            });
             const csv = Papa.unparse(flattenedStudents);
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
