@@ -237,6 +237,25 @@
             color: #1f2937;
             font-weight: 500;
         }
+        .batch-table {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .batch-table th, .batch-table td {
+            padding: 4px 8px;
+            text-align: left;
+            font-size: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .batch-table th {
+            font-weight: 500;
+            color: #4b5563;
+        }
+        .batch-table td {
+            color: #1f2937;
+        }
         @media (max-width: 768px) {
             .main-content {
                 padding: 1rem;
@@ -273,6 +292,9 @@
             }
             .navbar.visible {
                 transform: translateX(0);
+            }
+            .batch-table th, .batch-table td {
+                font-size: 11px;
             }
         }
         @media (max-width: 480px) {
@@ -314,6 +336,9 @@
             }
             .navbar {
                 width: 180px;
+            }
+            .batch-table th, .batch-table td {
+                font-size: 10px;
             }
         }
     </style>
@@ -383,6 +408,23 @@
                     <img src="https://raw.githubusercontent.com/avashx/nsutgod/refs/heads/main/src/logo.png" alt="NSUTGod Logo" class="h-8 w-8 mr-2">
                     <h1 class="text-2xl font-bold text-gray-800">NSUTGod API Company Fetch</h1>
                 </div>
+                <div class="batch-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Batch</th>
+                                <th>Companies</th>
+                            </tr>
+                        </thead>
+                        <tbody id="batch-table-body">
+                            <tr><td>2023</td><td id="batch-2023">0</td></tr>
+                            <tr><td>2024</td><td id="batch-2024">0</td></tr>
+                            <tr><td>2025</td><td id="batch-2025">0</td></tr>
+                            <tr><td>2026</td><td id="batch-2026">0</td></tr>
+                            <tr><td>2027</td><td id="batch-2027">0</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Fetch Options and Filters -->
@@ -409,6 +451,7 @@
                             <option value="2024">2024</option>
                             <option value="2025">2025</option>
                             <option value="2026">2026</option>
+                            <option value="2027">2027</option>
                         </select>
                     </div>
                     <div>
@@ -515,6 +558,7 @@
         const realtimeListBody = document.getElementById('realtime-list-body');
         const circularProgress = document.getElementById('circular-progress');
         const progressText = document.getElementById('progress-text');
+        const batchTableBody = document.getElementById('batch-table-body');
 
         // State
         let companyData = [];
@@ -554,7 +598,8 @@
             '2023': '#ffedd5',
             '2024': '#d1fae5',
             '2025': '#bfdbfe',
-            '2026': '#fce7f3'
+            '2026': '#fce7f3',
+            '2027': '#e0e7ff'
         };
 
         const eventCategoryColors = {
@@ -599,6 +644,33 @@
             return '#d1fae5';
         }
 
+        // Update batch counts in the small table
+        function updateBatchCounts() {
+            const batchCounts = {
+                '2023': 0,
+                '2024': 0,
+                '2025': 0,
+                '2026': 0,
+                '2027': 0
+            };
+
+            companyData.forEach(company => {
+                const year = company.details?.year;
+                if (year && batchCounts.hasOwnProperty(year)) {
+                    batchCounts[year]++;
+                }
+            });
+
+            for (const year in batchCounts) {
+                document.getElementById(`batch-${year}`).textContent = batchCounts[year];
+            }
+        }
+
+        // Validate MongoDB ObjectID
+        function isValidObjectId(id) {
+            return /^[0-9a-fA-F]{24}$/.test(id);
+        }
+
         // Parse CSV content with robust handling
         function parseCsv(csvText) {
             try {
@@ -629,6 +701,12 @@
                 const data = [];
                 for (let i = 1; i < rows.length; i++) {
                     const row = rows[i];
+                    // Skip rows with invalid or missing ID
+                    const id = row[1] || '';
+                    if (!id || id === '-' || !isValidObjectId(id)) {
+                        console.warn(`Skipping row ${i} due to invalid or missing ID: ${id}`);
+                        continue;
+                    }
                     // Pad or truncate row to match 32 columns
                     const paddedRow = row.length < 32 ? [...row, ...Array(32 - row.length).fill('-')] : row.slice(0, 32);
                     if (row.length !== 32) {
@@ -698,6 +776,7 @@
                     filteredData = [...companyData];
                     saveCompaniesToStorage();
                     applyFilters();
+                    updateBatchCounts();
                 } else {
                     throw new Error(`Failed to fetch CSV - Status: ${response.status}`);
                 }
@@ -718,6 +797,7 @@
                 storedCompanyIds = new Set(companyData.map(c => c.id));
                 filteredData = [...companyData];
                 applyFilters();
+                updateBatchCounts();
             }
         }
 
@@ -825,7 +905,6 @@
                     throw new Error('No companies found in the API response.');
                 }
 
-                const newCompanies = [];
                 let currentCount = 0;
 
                 for (const company of companies) {
@@ -845,7 +924,12 @@
                         const isNew = !csvCompanyIds.has(company.id);
                         if (isNew) {
                             const details = await fetchCompanyDetails(company.id);
-                            newCompanies.push({ id: company.id, name: company.name, details, isNew: true });
+                            const newCompany = { id: company.id, name: company.name, details, isNew: true };
+                            companyData.push(newCompany);
+                            filteredData.push(newCompany);
+                            saveCompaniesToStorage();
+                            applyFilters();
+                            updateBatchCounts();
                         }
                         await new Promise(resolve => setTimeout(resolve, 100));
                     } catch (error) {
@@ -854,15 +938,6 @@
                         }
                     }
                 }
-
-                // Merge new companies with existing ones (no removals)
-                companyData = [
-                    ...companyData.map(c => ({ ...c, isNew: false })), // Reset isNew for existing companies
-                    ...newCompanies
-                ];
-                filteredData = [...companyData];
-                saveCompaniesToStorage();
-                applyFilters();
 
                 if (companyData.length === 0) {
                     throw new Error('No company details fetched. Please check the API or token.');
@@ -1141,7 +1216,10 @@
         exportCsvButton.addEventListener('click', exportToCsv);
 
         // Filter event listeners
-        yearFilter.addEventListener('change', applyFilters);
+        yearFilter.addEventListener('change', () => {
+            applyFilters();
+            updateBatchCounts();
+        });
         typeFilter.addEventListener('input', applyFilters);
         cgpaFilter.addEventListener('input', applyFilters);
         nameFilter.addEventListener('input', applyFilters);
