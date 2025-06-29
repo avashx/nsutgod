@@ -125,8 +125,11 @@
                 fetchListBtn.classList.remove('hidden');
                 fetchDetailsBtn.classList.remove('hidden');
                 pauseBtn.classList.add('hidden');
+                exportJsonBtn.classList.remove('hidden');
                 log(`Company list fetching complete. Total companies: ${totalCompanies}`);
                 updateProgress(years.length, years.length);
+            } else {
+                exportJsonBtn.classList.remove('hidden');
             }
         }
 
@@ -168,51 +171,65 @@
                 exportJsonBtn.classList.remove('hidden');
                 log(`Company details fetching complete. Total companies: ${companies.length}`);
                 updateProgress(companyList.length, companyList.length);
+            } else {
+                exportJsonBtn.classList.remove('hidden');
             }
         }
 
         function exportToJson() {
-            if (companies.length === 0) {
-                log('No company details to export. Please fetch details first.');
-                return;
+            let data, filename;
+            if (fetchMode === 'list' || (companyList.length > 0 && companies.length === 0)) {
+                if (companyList.length === 0) {
+                    log('No company list to export. Please fetch list first.');
+                    return;
+                }
+                data = companyList;
+                filename = 'company_list.json';
+                log('Exported company list to JSON');
+            } else {
+                if (companies.length === 0) {
+                    log('No company details to export. Please fetch details first.');
+                    return;
+                }
+                data = companies.map(company => {
+                    const flat = flattenObject(company);
+                    const allFields = {
+                        'company_turnover': '', 'placement_ppo': '', 'placement_interviews': '', 'internship_shortlists': '',
+                        '_id': '', 'Name': '', 'info': '', 'company_category': '', 'year': '', 'published_at': '',
+                        'createdAt': '', 'updatedAt': '', '__v': '',
+                        'events': '', 'events.category': '', 'events.degree': '', 'events.status': '', 'events.optional_criteria': '',
+                        'events.cgpa_10th': '', 'events.cgpa_12th': '', 'events.graduation_cgpa': '', 'events.is_additional_ques': '',
+                        'events.allowed_gender': '', 'events.attachments': '', 'events.attachments._id': '', 'events.attachments.name': '',
+                        'events.attachments.hash': '', 'events.attachments.ext': '', 'events.attachments.mime': '',
+                        'events.attachments.size': '', 'events.attachments.url': '', 'events.attachments.provider': '',
+                        'events.attachments.width': '', 'events.attachments.height': '', 'events.attachments.related': '',
+                        'events.attachments.createdAt': '', 'events.attachments.updatedAt': '', 'events.attachments.__v': '',
+                        'events.applied': '', 'events.ppo': '', 'events.shortlist': '', 'events._id': '',
+                        'events.published_at': '', 'events.additional_ques': '', 'events.additional_ques.type': '',
+                        'events.additional_ques.ques': '', 'events.additional_ques.expectedAns': '', 'events.additional_ques.options': '',
+                        'events.optional_redirect': '', 'events.additional_info': '', 'events.degrees_allowed': '',
+                        'events.stipend_info': '', 'events.duration': '', 'events.apc': '', 'events.campus': '',
+                        'events.cap': '', 'events.companyBond': '', 'events.description': '', 'events.lastDate': '',
+                        'events.placeOfPosting': '', 'events.backlogs': '', 'events.cgpa': '', 'events.stipend': '',
+                        'events.batch': '', 'events.jobtitle': '', 'events.type': '', 'events.branchesAllowed': '',
+                        'events.branchesAllowed.branch': '', 'events.branchesAllowed.degree': '', 'events.branchesAllowed._id': '',
+                        'events.branchesAllowed.__v': '', 'events.createdAt': '', 'events.updatedAt': '', 'events.__v': '',
+                        'events.company': '', 'events.createdPC': '', 'error': ''
+                    };
+                    return { ...allFields, ...flat };
+                });
+                filename = 'company_details.json';
+                log('Exported company details to JSON');
             }
 
-            const flattenedCompanies = companies.map(company => {
-                const flat = flattenObject(company);
-                const allFields = {
-                    'company_turnover': '', 'placement_ppo': '', 'placement_interviews': '', 'internship_shortlists': '',
-                    '_id': '', 'Name': '', 'info': '', 'company_category': '', 'year': '', 'published_at': '',
-                    'createdAt': '', 'updatedAt': '', '__v': '',
-                    'events': '', 'events.category': '', 'events.degree': '', 'events.status': '', 'events.optional_criteria': '',
-                    'events.cgpa_10th': '', 'events.cgpa_12th': '', 'events.graduation_cgpa': '', 'events.is_additional_ques': '',
-                    'events.allowed_gender': '', 'events.attachments': '', 'events.attachments._id': '', 'events.attachments.name': '',
-                    'events.attachments.hash': '', 'events.attachments.ext': '', 'events.attachments.mime': '',
-                    'events.attachments.size': '', 'events.attachments.url': '', 'events.attachments.provider': '',
-                    'events.attachments.width': '', 'events.attachments.height': '', 'events.attachments.related': '',
-                    'events.attachments.createdAt': '', 'events.attachments.updatedAt': '', 'events.attachments.__v': '',
-                    'events.applied': '', 'events.ppo': '', 'events.shortlist': '', 'events._id': '',
-                    'events.published_at': '', 'events.additional_ques': '', 'events.additional_ques.type': '',
-                    'events.additional_ques.ques': '', 'events.additional_ques.expectedAns': '', 'events.additional_ques.options': '',
-                    'events.optional_redirect': '', 'events.additional_info': '', 'events.degrees_allowed': '',
-                    'events.stipend_info': '', 'events.duration': '', 'events.apc': '', 'events.campus': '',
-                    'events.cap': '', 'events.companyBond': '', 'events.description': '', 'events.lastDate': '',
-                    'events.placeOfPosting': '', 'events.backlogs': '', 'events.cgpa': '', 'events.stipend': '',
-                    'events.batch': '', 'events.jobtitle': '', 'events.type': '', 'events.branchesAllowed': '',
-                    'events.branchesAllowed.branch': '', 'events.branchesAllowed.degree': '', 'events.branchesAllowed._id': '',
-                    'events.branchesAllowed.__v': '', 'events.createdAt': '', 'events.updatedAt': '', 'events.__v': '',
-                    'events.company': '', 'events.createdPC': '', 'error': ''
-                };
-                return { ...allFields, ...flat };
-            });
-            const json = JSON.stringify(flattenedCompanies, null, 2);
+            const json = JSON.stringify(data, null, 2);
             const blob = new Blob([json], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'companies.json';
+            a.download = filename;
             a.click();
             URL.revokeObjectURL(url);
-            log('Exported to JSON');
         }
 
         fetchListBtn.addEventListener('click', () => {
@@ -231,7 +248,7 @@
             if (isFetching) {
                 isPaused = !isPaused;
                 pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
-                exportJsonBtn.classList.toggle('hidden', !isPaused || fetchMode !== 'details');
+                exportJsonBtn.classList.remove('hidden');
                 if (!isPaused) {
                     if (fetchMode === 'list') {
                         fetchAllCompanyLists();
