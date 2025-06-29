@@ -26,6 +26,9 @@
             position: relative;
             cursor: pointer;
         }
+        th[data-key="serialNo"], th[data-key="cgpa"] {
+            min-width: 60px;
+        }
         td {
             padding: 4px 8px;
             text-align: left;
@@ -199,6 +202,10 @@
             right: 48px;
             cursor: pointer;
             color: #4b5563;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
         }
         .popup-content h2 {
             font-size: 24px;
@@ -208,6 +215,11 @@
         }
         .popup-content .section {
             margin-bottom: 24px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 16px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
         .popup-content .section h3 {
             font-size: 18px;
@@ -255,6 +267,9 @@
                 font-size: 12px;
                 max-width: 100px;
             }
+            th[data-key="serialNo"], th[data-key="cgpa"] {
+                min-width: 50px;
+            }
             .modern-select, .branch-button {
                 font-size: 12px;
                 padding: 6px 8px;
@@ -280,6 +295,9 @@
             th, td {
                 font-size: 11px;
                 max-width: 80px;
+            }
+            th[data-key="serialNo"], th[data-key="cgpa"] {
+                min-width: 40px;
             }
             .popup-content {
                 padding: 12px;
@@ -508,7 +526,9 @@
                                     </div>
                                     <div class="filter-modal">
                                         <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
-                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</ supports the new "Details" column and popup functionality -->
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
                             </th>
                             <th data-key="cgpa">CGPA
                                 <div class="column-options">
@@ -618,6 +638,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" data-supported-dps="16x16" fill="currentColor" class="mercado-match" width="16" height="16" focusable="false">
                     <path d="M15 1v6h-2V4.41L7.41 10 6 8.59 11.59 3H9V1zm-4 10a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1h2V3H5a3 3 0 00-3 3v5a3 3 0 003 3h5a3 3 0 003-3V9h-2z"></path>
                 </svg>
+                <span>View in Full Page</span>
             </div>
             <h2>Student Details</h2>
             <div id="studentDetailsContent"></div>
@@ -1044,6 +1065,11 @@
                         }
                         .section {
                             margin-bottom: 24px;
+                            border: 1px solid #e5e7eb;
+                            border-radius: 6px;
+                            padding: 16px;
+                            background-color: #fff;
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
                         }
                         .section h3 {
                             font-size: 18px;
