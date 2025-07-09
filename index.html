@@ -26,6 +26,9 @@
             position: relative;
             cursor: pointer;
         }
+        th[data-key="serialNo"], th[data-key="cgpa"] {
+            min-width: 60px;
+        }
         td {
             padding: 4px 8px;
             text-align: left;
@@ -99,7 +102,7 @@
         .modern-select:hover {
             border-color: #9ca3af;
         }
-        .column- options {
+        .column-options {
             position: absolute;
             top: 0;
             right: 0;
@@ -162,6 +165,93 @@
         .customize-columns-btn:hover {
             background-color: #6b7280;
         }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .popup-content {
+            background-color: #fff;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .popup-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            cursor: pointer;
+            font-size: 24px;
+            color: #4b5563;
+        }
+        .popup-open-new-tab {
+            position: absolute;
+            top: 16px;
+            right: 48px;
+            cursor: pointer;
+            color: #4b5563;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+        }
+        .popup-content h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 16px;
+        }
+        .popup-content .section {
+            margin-bottom: 24px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 16px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .popup-content .section h3 {
+            font-size: 18px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 12px;
+        }
+        .popup-content .section p {
+            font-size: 14px;
+            color: #4b5563;
+            margin-bottom: 8px;
+        }
+        .popup-content .section table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+        .popup-content .section table th,
+        .popup-content .section table td {
+            border: 1px solid #e5e7eb;
+            padding: 8px;
+            font-size: 13px;
+            text-align: left;
+        }
+        .popup-content .section table th {
+            background-color: #fafafa;
+            font-weight: 500;
+            color: #4b5563;
+        }
+        .popup-content .section table td {
+            background-color: #fff;
+        }
         @media (max-width: 768px) {
             .navbar {
                 width: 200px;
@@ -177,6 +267,9 @@
                 font-size: 12px;
                 max-width: 100px;
             }
+            th[data-key="serialNo"], th[data-key="cgpa"] {
+                min-width: 50px;
+            }
             .modern-select, .branch-button {
                 font-size: 12px;
                 padding: 6px 8px;
@@ -186,6 +279,10 @@
             }
             #searchInput {
                 width: 100%;
+            }
+            .popup-content {
+                width: 95%;
+                padding: 16px;
             }
         }
         @media (max-width: 480px) {
@@ -198,6 +295,12 @@
             th, td {
                 font-size: 11px;
                 max-width: 80px;
+            }
+            th[data-key="serialNo"], th[data-key="cgpa"] {
+                min-width: 40px;
+            }
+            .popup-content {
+                padding: 12px;
             }
         }
     </style>
@@ -219,7 +322,7 @@
             <h2 class="text-xl font-bold text-gray-800">NSUTGod</h2>
         </div>
         <ul class="space-y-2">
-            <li class="nav-item flex items-center text-gray- مدارك p-2 rounded-lg active" data-page="overview">
+            <li class="nav-item flex items-center text-gray-600 p-2 rounded-lg active" data-page="overview">
                 <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 Overview
             </li>
@@ -455,6 +558,20 @@
                                     </div>
                                 </div>
                             </th>
+                            <th data-key="details">Details
+                                <div class="column-options">
+                                    <button class="options-btn p-1">...</button>
+                                    <div class="dropdown">
+                                        <div class="dropdown-item sort-asc">Sort Ascending</div>
+                                        <div class="dropdown-item sort-desc">Sort Descending</div>
+                                        <div class="dropdown-item filter-btn">Filter</div>
+                                    </div>
+                                    <div class="filter-modal">
+                                        <input type="text" class="filter-input p-2 border rounded w-full mb-2" placeholder="Filter...">
+                                        <button class="apply-filter p-1 bg-blue-100 text-blue-600 rounded text-xs w-full">Apply</button>
+                                    </div>
+                                </div>
+                            </th>
                         </tr>
                     </thead>
                     <tbody id="studentTableBody"></tbody>
@@ -513,6 +630,21 @@
         </div>
     </div>
 
+    <!-- Popup for Student Details -->
+    <div id="studentDetailsPopup" class="popup">
+        <div class="popup-content">
+            <span class="popup-close">×</span>
+            <div class="popup-open-new-tab">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" data-supported-dps="16x16" fill="currentColor" class="mercado-match" width="16" height="16" focusable="false">
+                    <path d="M15 1v6h-2V4.41L7.41 10 6 8.59 11.59 3H9V1zm-4 10a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1h2V3H5a3 3 0 00-3 3v5a3 3 0 003 3h5a3 3 0 003-3V9h-2z"></path>
+                </svg>
+                <span>View in Full Page</span>
+            </div>
+            <h2>Student Details</h2>
+            <div id="studentDetailsContent"></div>
+        </div>
+    </div>
+
     <script src="session.js"></script>
     <script>
         // Check session on page load
@@ -533,13 +665,17 @@
         const customizeColumnsBtn = document.getElementById('customizeColumnsBtn');
         const columnsDropdown = document.getElementById('columnsDropdown');
         const tableHeader = document.getElementById('tableHeader');
+        const studentDetailsPopup = document.getElementById('studentDetailsPopup');
+        const studentDetailsContent = document.getElementById('studentDetailsContent');
+        const popupClose = document.querySelector('.popup-close');
+        const popupOpenNewTab = document.querySelector('.popup-open-new-tab');
 
         let students = [];
         let filteredStudents = [];
         let currentPage = 1;
         let rowsPerPage = parseInt(rowsPerPageSelect.value);
         let selectedBranch = '';
-        let visibleColumns = ['serialNo', 'rollNumber', 'name', 'branch', 'email', 'gender', 'dob', 'contactNumber', 'presentAddress', 'category', 'cgpa', 'viewProfile'];
+        let visibleColumns = ['serialNo', 'rollNumber', 'name', 'branch', 'email', 'gender', 'dob', 'contactNumber', 'presentAddress', 'category', 'cgpa', 'viewProfile', 'details'];
         let columnFilters = {};
 
         // Branch and Gender color mapping
@@ -600,7 +736,7 @@
             })
             .catch(error => {
                 console.error('Error fetching JSON:', error);
-                studentTableBody.innerHTML = '<tr><td colspan="12">Error loading data. Please try again later.</td></tr>';
+                studentTableBody.innerHTML = '<tr><td colspan="13">Error loading data. Please try again later.</td></tr>';
             });
 
         // Populate filter dropdowns
@@ -654,7 +790,8 @@
                 { key: 'presentAddress', label: 'Present Address' },
                 { key: 'category', label: 'Category' },
                 { key: 'cgpa', label: 'CGPA' },
-                { key: 'viewProfile', label: 'View Profile' }
+                { key: 'viewProfile', label: 'View Profile' },
+                { key: 'details', label: 'Details' }
             ];
 
             allColumns.forEach(column => {
@@ -724,6 +861,9 @@
                 if (visibleColumns.includes('viewProfile')) {
                     cells += `<td><a href="student-profile.html?roll=${student.rollNumber}" target="_blank" class="p-1 bg-blue-100 text-blue-600 rounded text-xs">View Profile</a></td>`;
                 }
+                if (visibleColumns.includes('details')) {
+                    cells += `<td><button class="details-btn p-1 bg-green-100 text-green-600 rounded text-xs" data-roll="${student.rollNumber}">Details</button></td>`;
+                }
 
                 row.innerHTML = cells;
                 studentTableBody.appendChild(row);
@@ -740,7 +880,259 @@
             pageInfo.textContent = rowsPerPage === 'all' ? `1-${filteredStudents.length} of ${filteredStudents.length}` : `${startRecord}-${endRecord} of ${filteredStudents.length}`;
             prevPageBtn.disabled = currentPage === 1 || rowsPerPage === 'all';
             nextPageBtn.disabled = (currentPage === totalPages || totalPages === 0 || rowsPerPage === 'all');
+
+            // Add event listeners for details buttons
+            document.querySelectorAll('.details-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const roll = btn.getAttribute('data-roll');
+                    const student = students.find(s => s.rollNumber === roll);
+                    showStudentDetails(student);
+                });
+            });
         }
+
+        // Function to display student details in popup
+        function showStudentDetails(student) {
+            studentDetailsContent.innerHTML = `
+                <div class="section">
+                    <h3>Personal Information</h3>
+                    <p><strong>Name:</strong> ${student.Name || '-'}</p>
+                    <p><strong>Roll Number:</strong> ${student.rollNumber || '-'}</p>
+                    <p><strong>Aadhar:</strong> ${student.aadhar || '-'}</p>
+                    <p><strong>Contact Number:</strong> ${student.contact_number || '-'}</p>
+                    <p><strong>Alternate Contact Number:</strong> ${student.alt_contact_number || '-'}</p>
+                    <p><strong>Email:</strong> ${student.email || '-'}</p>
+                    <p><strong>Personal Email:</strong> ${student.personal_email || '-'}</p>
+                    <p><strong>Gender:</strong> ${student.gender || '-'}</p>
+                    <p><strong>DOB:</strong> ${student.dob || '-'}</p>
+                    <p><strong>Blood Group:</strong> ${student.blood_group || '-'}</p>
+                    <p><strong>Present Address:</strong> ${student.present_address || '-'}</p>
+                    <p><strong>Permanent Address:</strong> ${student.perm_address || '-'}</p>
+                    <p><strong>Category:</strong> ${student.category || '-'}</p>
+                    <p><strong>PAN:</strong> ${student.pan || '-'}</p>
+                    <p><strong>PWD:</strong> ${student.pwd ? 'Yes' : 'No'}</p>
+                </div>
+                <div class="section">
+                    <h3>Academic Information</h3>
+                    <p><strong>Batch:</strong> ${student.batch || '-'}</p>
+                    <p><strong>Degree:</strong> ${student.degree || '-'}</p>
+                    <p><strong>Branch:</strong> ${student.branch || '-'}</p>
+                    <p><strong>Campus:</strong> ${student.campus || '-'}</p>
+                    <p><strong>CGPA:</strong> ${student.cgpa || '-'}</p>
+                    <p><strong>CGPA Before Drop:</strong> ${student.cgpa_before_drop || '-'}</p>
+                    <p><strong>10th CGPA:</strong> ${student.cgpa_10th || '-'}</p>
+                    <p><strong>12th CGPA:</strong> ${student.cgpa_12th || '-'}</p>
+                    <p><strong>Graduation GPA:</strong> ${student.graduation_gpa || '-'}</p>
+                    <p><strong>Backlogs:</strong> ${student.backlogs || '0'}</p>
+                    <p><strong>Bans:</strong> ${student.bans || '0'}</p>
+                    <p><strong>Current Ban:</strong> ${student.currentBan || '-'}</p>
+                    <p><strong>CGPA Update Enabled:</strong> ${student.cgpaUpdateEnabled ? 'Yes' : 'No'}</p>
+                    <p><strong>Is CGPA Updated:</strong> ${student.isCgpaUpdated ? 'Yes' : 'No'}</p>
+                    <p><strong>Is PPO:</strong> ${student.isPPO ? 'Yes' : 'No'}</p>
+                </div>
+                <div class="section">
+                    <h3>Resume Information</h3>
+                    ${student.resume && student.resume.length > 0 ? `
+                        <p><strong>Resume Name:</strong> ${student.resume[0].name || '-'}</p>
+                        <p><strong>Resume URL:</strong> <a href="${student.resume[0].url || '#'}" target="_blank" class="text-blue-600 underline">${student.resume[0].url || '-'}</a></p>
+                        <p><strong>Resume Size:</strong> ${student.resume[0].size ? student.resume[0].size + ' KB' : '-'}</p>
+                        <p><strong>Resume MIME Type:</strong> ${student.resume[0].mime || '-'}</p>
+                        <p><strong>Resume Provider:</strong> ${student.resume[0].provider || '-'}</p>
+                        <p><strong>Resume Created At:</strong> ${student.resume[0].createdAt || '-'}</p>
+                        <p><strong>Resume Updated At:</strong> ${student.resume[0].updatedAt || '-'}</p>
+                    ` : '<p>No resume available</p>'}
+                </div>
+                <div class="section">
+                    <h3>Semester GPA</h3>
+                    ${student.allSemGPA && student.allSemGPA.semesterWiseData && student.allSemGPA.semesterWiseData.length > 0 ? `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Semester</th>
+                                    <th>Total Credit</th>
+                                    <th>Total Credit Points</th>
+                                    <th>SGPA</th>
+                                    <th>Credit Secured</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${student.allSemGPA.semesterWiseData.map(sem => `
+                                    <tr>
+                                        <td>${sem.semester || '-'}</td>
+                                        <td>${sem.totalCredit || '-'}</td>
+                                        <td>${sem.totalCreditPoints || '-'}</td>
+                                        <td>${sem.sgpa || '-'}</td>
+                                        <td>${sem.creditSecured || '-'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    ` : '<p>No semester GPA data available</p>'}
+                </div>
+                <div class="section">
+                    <h3>Course-Wise Data</h3>
+                    ${student.allSemGPA && student.allSemGPA.courseWiseData && student.allSemGPA.courseWiseData.length > 0 ? `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Course Code</th>
+                                    <th>Course Title</th>
+                                    <th>Course Type</th>
+                                    <th>Semester</th>
+                                    <th>Credits</th>
+                                    <th>Grade Letter</th>
+                                    <th>Grade Points</th>
+                                    <th>Credit Points</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${student.allSemGPA.courseWiseData.map(course => `
+                                    <tr>
+                                        <td>${course.courseCode || '-'}</td>
+                                        <td>${course.courseTitle || '-'}</td>
+                                        <td>${course.courseType || '-'}</td>
+                                        <td>${course.sem || '-'}</td>
+                                        <td>${course.credits || '-'}</td>
+                                        <td>${course.gradeLetter || '-'}</td>
+                                        <td>${course.gradePoints || '-'}</td>
+                                        <td>${course.creditPoints || '-'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    ` : '<p>No course-wise data available</p>'}
+                </div>
+                <div class="section">
+                    <h3>User Information</h3>
+                    <p><strong>User ID:</strong> ${student.user && student.user.id || '-'}</p>
+                    <p><strong>Username:</strong> ${student.user && student.user.username || '-'}</p>
+                    <p><strong>User Email:</strong> ${student.user && student.user.email || '-'}</p>
+                    <p><strong>User Role:</strong> ${student.user && student.user.role || '-'}</p>
+                    <p><strong>User Provider:</strong> ${student.user && student.user.provider || '-'}</p>
+                    <p><strong>User Confirmed:</strong> ${student.user && student.user.confirmed ? 'Yes' : 'No'}</p>
+                    <p><strong>User Blocked:</strong> ${student.user && student.user.blocked ? 'Yes' : 'No'}</p>
+                    <p><strong>User Created At:</strong> ${student.user && student.user.createdAt || '-'}</p>
+                    <p><strong>User Updated At:</strong> ${student.user && student.user.updatedAt || '-'}</p>
+                </div>
+                <div class="section">
+                    <h3>Other Information</h3>
+                    <p><strong>Internships Applied:</strong> ${student.intern_applied && student.intern_applied.length > 0 ? student.intern_applied.join(', ') : '-'}</p>
+                    <p><strong>Placements Applied:</strong> ${student.placement_applied && student.placement_applied.length > 0 ? student.placement_applied.join(', ') : '-'}</p>
+                    <p><strong>Status:</strong> ${student.status || '-'}</p>
+                    <p><strong>Created At:</strong> ${student.createdAt || '-'}</p>
+                    <p><strong>Updated At:</strong> ${student.updatedAt || '-'}</p>
+                    <p><strong>Published At:</strong> ${student.published_at || '-'}</p>
+                    <p><strong>Student ID:</strong> ${student._id || '-'}</p>
+                </div>
+            `;
+
+            // Store student data for new tab
+            studentDetailsPopup.setAttribute('data-student', JSON.stringify(student));
+            studentDetailsPopup.style.display = 'flex';
+        }
+
+        // Open student details in new tab
+        popupOpenNewTab.addEventListener('click', () => {
+            const student = JSON.parse(studentDetailsPopup.getAttribute('data-student') || '{}');
+            const newWindow = window.open('', '_blank');
+            newWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Student Details - ${student.Name || 'Student'}</title>
+                    <style>
+                        body {
+                            font-family: 'Inter', sans-serif;
+                            background-color: #f5f5f5;
+                            margin: 0;
+                            padding: 20px;
+                        }
+                        .container {
+                            background-color: #fff;
+                            border-radius: 8px;
+                            max-width: 800px;
+                            margin: 0 auto;
+                            padding: 24px;
+                            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                        }
+                        h2 {
+                            font-size: 24px;
+                            font-weight: 600;
+                            color: #1f2937;
+                            margin-bottom: 16px;
+                        }
+                        .section {
+                            margin-bottom: 24px;
+                            border: 1px solid #e5e7eb;
+                            border-radius: 6px;
+                            padding: 16px;
+                            background-color: #fff;
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                        }
+                        .section h3 {
+                            font-size: 18px;
+                            font-weight: 500;
+                            color: #374151;
+                            margin-bottom: 12px;
+                        }
+                        .section p {
+                            font-size: 14px;
+                            color: #4b5563;
+                            margin-bottom: 8px;
+                        }
+                        .section table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 8px;
+                        }
+                        .section table th,
+                        .section table td {
+                            border: 1px solid #e5e7eb;
+                            padding: 8px;
+                            font-size: 13px;
+                            text-align: left;
+                        }
+                        .section table th {
+                            background-color: #fafafa;
+                            font-weight: 500;
+                            color: #4b5563;
+                        }
+                        .section table td {
+                            background-color: #fff;
+                        }
+                        a {
+                            color: #4b5563;
+                            text-decoration: underline;
+                        }
+                        a:hover {
+                            color: #1f2937;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <h2>Student Details - ${student.Name || '-'}</h2>
+                        ${studentDetailsContent.innerHTML}
+                    </div>
+                </body>
+                </html>
+            `);
+            newWindow.document.close();
+        });
+
+        // Close popup
+        popupClose.addEventListener('click', () => {
+            studentDetailsPopup.style.display = 'none';
+        });
+
+        // Close popup when clicking outside
+        studentDetailsPopup.addEventListener('click', (e) => {
+            if (e.target === studentDetailsPopup) {
+                studentDetailsPopup.style.display = 'none';
+            }
+        });
 
         // Filter and search logic
         function filterStudents() {
@@ -775,6 +1167,7 @@
         batchFilter.addEventListener('change', filterStudents);
         genderFilter.addEventListener('change', filterStudents);
 
+        // Pagination controls
         prevPageBtn.addEventListener('click', () => {
             if (currentPage > 1) {
                 currentPage--;
