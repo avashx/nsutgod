@@ -582,7 +582,7 @@
         let isPaused = false;
         let fetchController = null;
         let storedCompanyIds = new Set();
-        let csvCompanyIds = new Set(); // Track IDs from CSV to manage "New" sticker
+        let csvCompanyIds = new Set(); // Track IDs from JSON to manage "New" sticker
 
         // Bearer Token
         const bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc1MDg3NTg3NywiZXhwIjoxNzUzNDY3ODc3fQ.RRvoUFo76Q65vECK3P8cIHy7MSgGTd8zkmYYaqE89Dw";
@@ -684,103 +684,81 @@
             return /^[0-9a-fA-F]{24}$/.test(id);
         }
 
-        // Parse CSV content with robust handling
-        function parseCsv(csvText) {
+        // Parse JSON content with robust handling
+        function parseJson(jsonData) {
             try {
-                const rows = csvText.trim().split('\n').map(row => {
-                    const cells = [];
-                    let currentCell = '';
-                    let insideQuotes = false;
-                    for (let i = 0; i < row.length; i++) {
-                        if (row[i] === '"') {
-                            insideQuotes = !insideQuotes;
-                        } else if (row[i] === ',' && !insideQuotes) {
-                            cells.push(currentCell);
-                            currentCell = '';
-                        } else {
-                            currentCell += row[i];
-                        }
-                    }
-                    cells.push(currentCell);
-                    return cells.map(cell => cell.replace(/^"|"$/g, '').replace(/""/g, '"'));
-                });
-
-                const headers = rows[0];
-                if (headers.length !== 32) {
-                    console.warn(`Header row has ${headers.length} columns, expected 32`);
-                }
-
                 const data = [];
-                for (let i = 1; i < rows.length; i++) {
-                    const row = rows[i];
-                    const id = row[1] || '';
-                    if (!id || id === '-' || !isValidObjectId(id)) {
-                        console.warn(`Skipping row ${i} due to invalid or missing ID: ${id}`);
+                for (const company of jsonData) {
+                    const id = company._id || '';
+                    if (!id || !isValidObjectId(id)) {
+                        console.warn(`Skipping company due to invalid or missing ID: ${id}`);
                         continue;
                     }
-                    const paddedRow = row.length < 32 ? [...row, ...Array(32 - row.length).fill('-')] : row.slice(0, 32);
-                    if (row.length !== 32) {
-                        console.warn(`Row ${i} has ${row.length} columns, expected 32. Padded/truncated to 32 columns.`);
-                    }
                     try {
-                        const company = { id: paddedRow[1], name: paddedRow[2], details: {}, isNew: false };
-                        company.details._id = paddedRow[1] !== '-' ? paddedRow[1] : undefined;
-                        company.details.Name = paddedRow[2] !== '-' ? paddedRow[2] : undefined;
-                        company.details.company_category = paddedRow[4] !== '-' ? paddedRow[4] : undefined;
-                        company.details.year = paddedRow[5] !== '-' ? paddedRow[5] : undefined;
-                        company.details.events = [{
-                            jobtitle: paddedRow[6] !== '-' ? paddedRow[6] : undefined,
-                            category: paddedRow[7] !== '-' ? paddedRow[7] : undefined,
-                            stipend: paddedRow[8] !== '-' ? parseFloat(paddedRow[8]) : undefined,
-                            duration: paddedRow[9] !== '-' ? paddedRow[9] : undefined,
-                            type: paddedRow[10] !== '-' ? paddedRow[10] : undefined,
-                            graduation_cgpa: paddedRow[11] !== '-' ? parseFloat(paddedRow[11]) : undefined,
-                            degree: paddedRow[12] !== '-' ? paddedRow[12] : undefined,
-                            status: paddedRow[13] !== '-' ? paddedRow[13] : undefined,
-                            optional_criteria: paddedRow[14] !== '-' ? parseFloat(paddedRow[14]) : undefined,
-                            cgpa_10th: paddedRow[15] !== '-' ? parseFloat(paddedRow[15]) : undefined,
-                            cgpa_12th: paddedRow[16] !== '-' ? parseFloat(paddedRow[16]) : undefined,
-                            stipend_info: paddedRow[17] !== '-' ? paddedRow[17] : undefined,
-                            campus: paddedRow[18] !== '-' ? paddedRow[18].split(', ').filter(c => c) : [],
-                            backlogs: paddedRow[19] !== '-' ? parseInt(paddedRow[19]) : undefined,
-                            branchesAllowed: paddedRow[20] !== '-' ? paddedRow[20].split(', ').filter(b => b).map(branch => ({ branch })) : [],
-                            lastDate: paddedRow[21] !== '-' ? paddedRow[21] : undefined,
-                            placeOfPosting: paddedRow[22] !== '-' ? paddedRow[22] : undefined,
-                            degrees_allowed: paddedRow[23] !== '-' ? paddedRow[23].split(', ').filter(d => d) : [],
-                            apc: paddedRow[24] !== '-' ? paddedRow[24] : undefined,
-                            _id: paddedRow[30] !== '-' ? paddedRow[30] : undefined
-                        }];
-                        company.details.placement_interviews = paddedRow[25] !== 'None' ? new Array(parseInt(paddedRow[25]) || 0) : [];
-                        company.details.internship_shortlists = paddedRow[26] !== 'None' ? new Array(parseInt(paddedRow[26]) || 0) : [];
-                        company.details.published_at = paddedRow[27] !== '-' ? paddedRow[27] : undefined;
-                        company.details.createdAt = paddedRow[28] !== '-' ? paddedRow[28] : undefined;
-                        company.details.updatedAt = paddedRow[29] !== '-' ? paddedRow[29] : undefined;
-                        company.details.info = paddedRow[31] !== '-' ? paddedRow[31] : undefined;
-                        data.push(company);
+                        const companyEntry = {
+                            id: company._id,
+                            name: company.Name || '',
+                            details: {
+                                _id: company._id || undefined,
+                                Name: company.Name || undefined,
+                                company_category: company.company_category || undefined,
+                                year: company.year || undefined,
+                                placement_interviews: company.placement_interviews || [],
+                                internship_shortlists: company.internship_shortlists || [],
+                                published_at: company.published_at || undefined,
+                                createdAt: company.createdAt || undefined,
+                                updatedAt: company.updatedAt || undefined,
+                                info: company.info || undefined,
+                                events: company.events && company.events.length > 0 ? [{
+                                    jobtitle: company.events[0].jobtitle || undefined,
+                                    category: company.events[0].category || undefined,
+                                    stipend: company.events[0].stipend !== undefined ? parseFloat(company.events[0].stipend) : undefined,
+                                    duration: company.events[0].duration || undefined,
+                                    type: company.events[0].type || undefined,
+                                    graduation_cgpa: company.events[0].graduation_cgpa !== undefined ? parseFloat(company.events[0].graduation_cgpa) : undefined,
+                                    degree: company.events[0].degree || undefined,
+                                    status: company.events[0].status || undefined,
+                                    optional_criteria: company.events[0].optional_criteria !== undefined ? company.events[0].optional_criteria : undefined,
+                                    cgpa_10th: company.events[0].cgpa_10th !== undefined ? parseFloat(company.events[0].cgpa_10th) : undefined,
+                                    cgpa_12th: company.events[0].cgpa_12th !== undefined ? parseFloat(company.events[0].cgpa_12th) : undefined,
+                                    stipend_info: company.events[0].stipend_info || undefined,
+                                    campus: company.events[0].campus || [],
+                                    backlogs: company.events[0].backlogs !== undefined ? parseInt(company.events[0].backlogs) : undefined,
+                                    branchesAllowed: company.events[0].branchesAllowed || [],
+                                    lastDate: company.events[0].lastDate || undefined,
+                                    placeOfPosting: company.events[0].placeOfPosting || undefined,
+                                    degrees_allowed: company.events[0].degrees_allowed || [],
+                                    apc: company.events[0].apc || undefined,
+                                    _id: company.events[0]._id || undefined
+                                }] : []
+                            },
+                            isNew: false
+                        };
+                        data.push(companyEntry);
                     } catch (e) {
-                        console.warn(`Error parsing row ${i}: ${e.message}`);
+                        console.warn(`Error parsing company with ID ${id}: ${e.message}`);
                     }
                 }
                 return data;
             } catch (error) {
-                throw new Error(`CSV parsing failed: ${error.message}`);
+                throw new Error(`JSON parsing failed: ${error.message}`);
             }
         }
 
-        // Load companies from CSV
-        async function loadCompaniesFromCsv() {
-            const csvUrl = 'https://raw.githubusercontent.com/avashx/nsutgod/main/src/com_data.csv';
+        // Load companies from JSON
+        async function loadCompaniesFromJson() {
+            const jsonUrl = 'https://raw.githubusercontent.com/avashx/nsutgod/main/src/com_data.json';
             const startTime = performance.now();
             try {
                 loading.classList.remove('hidden');
-                const response = await fetch(csvUrl);
+                const response = await fetch(jsonUrl);
                 const endTime = performance.now();
                 const size = response.headers.get('content-length') || 'Unknown';
-                logNetworkActivity(csvUrl, response.status, size, endTime - startTime, 'fetch');
+                logNetworkActivity(jsonUrl, response.status, size, endTime - startTime, 'fetch');
                 
                 if (response.ok) {
-                    const csvText = await response.text();
-                    companyData = parseCsv(csvText);
+                    const jsonData = await response.json();
+                    companyData = parseJson(jsonData);
                     csvCompanyIds = new Set(companyData.map(c => c.id));
                     storedCompanyIds = new Set(companyData.map(c => c.id));
                     filteredData = [...companyData];
@@ -788,10 +766,10 @@
                     applyFilters();
                     updateBatchCounts();
                 } else {
-                    throw new Error(`Failed to fetch CSV - Status: ${response.status}`);
+                    throw new Error(`Failed to fetch JSON - Status: ${response.status}`);
                 }
             } catch (error) {
-                showError(`Error loading CSV: ${error.message}. Loading from localStorage instead.`);
+                showError(`Error loading JSON: ${error.message}. Loading from localStorage instead.`);
                 loadStoredCompanies();
             } finally {
                 loading.classList.add('hidden');
@@ -1264,9 +1242,9 @@
             });
         });
 
-        // Load companies from CSV on page load
+        // Load companies from JSON on page load
         document.addEventListener('DOMContentLoaded', () => {
-            loadCompaniesFromCsv();
+            loadCompaniesFromJson();
             sortData(); // Apply default sort by year (2027 on top)
             renderTable();
         });
