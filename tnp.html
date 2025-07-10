@@ -156,6 +156,8 @@
             border-radius: 4px;
             font-size: 12px;
             font-weight: 500;
+            margin-right: 4px;
+            display: inline-block;
         }
         .new-sticker {
             background-color: #ff6b6b;
@@ -264,6 +266,17 @@
         .batch-table th:last-child, .batch-table td:last-child {
             border-right: none;
         }
+        select, input {
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 13px;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #4b5563;
+            box-shadow: 0 0 0 2px rgba(75, 85, 99, 0.2);
+        }
         @media (max-width: 768px) {
             .main-content {
                 padding: 1rem;
@@ -304,6 +317,16 @@
             .batch-table th, .batch-table td {
                 font-size: 11px;
             }
+            .filter-group {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .filter-group div {
+                width: 100%;
+            }
+            .filter-group select, .filter-group input {
+                width: 100%;
+            }
         }
         @media (max-width: 480px) {
             .main-content {
@@ -324,17 +347,6 @@
             .action-btn, .expand-btn, .pause-btn {
                 padding: 4px 8px;
                 font-size: 11px;
-            }
-            .filter-group {
-                flex-direction: column;
-                gap: 8px;
-            }
-            .filter-group div {
-                width: 100%;
-            }
-            .filter-group input,
-            .filter-group select {
-                width: 100%;
             }
             .realtime-list-container h3, .network-log h3 {
                 font-size: 11px;
@@ -478,6 +490,14 @@
                         <label for="name-filter" class="text-sm text-gray-600 mr-2">Name:</label>
                         <input id="name-filter" type="text" class="border border-gray-300 rounded px-2 py-1 text-sm">
                     </div>
+                    <div>
+                        <label for="branch-filter" class="text-sm text-gray-600 mr-2">Branch:</label>
+                        <select id="branch-filter" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                            <option value="">All</option>
+                            <option value="ALL">ALL</option>
+                            <!-- Branches will be populated dynamically -->
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -513,6 +533,7 @@
                                 <th data-sort="jobtitle">Job Title <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="category">Event Category <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="stipend">Stipend (INR) <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="stipend_currency">Stipend Currency <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="duration">Duration <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="type">Type <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="graduation_cgpa">Graduation CGPA <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
@@ -522,6 +543,7 @@
                                 <th data-sort="cgpa_10th">CGPA 10th <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="cgpa_12th">CGPA 12th <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="stipend_info">Stipend Info <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
+                                <th data-sort="event_description">Event Description <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="campus">Campus <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="backlogs">Backlogs <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
                                 <th data-sort="branches_allowed">Branches Allowed <span class="sort-icon">↕</span><div class="resize-handle"></div></th>
@@ -551,7 +573,11 @@
         </div>
     </div>
 
+    <script src="session.js"></script>
     <script>
+        // Check session on page load
+        checkSession();
+
         // DOM Elements
         const fetchButton = document.getElementById('fetch-companies');
         const fetchLimit = document.getElementById('fetch-limit');
@@ -568,10 +594,10 @@
         const typeFilter = document.getElementById('type-filter');
         const cgpaFilter = document.getElementById('cgpa-filter');
         const nameFilter = document.getElementById('name-filter');
+        const branchFilter = document.getElementById('branch-filter');
         const realtimeListBody = document.getElementById('realtime-list-body');
         const circularProgress = document.getElementById('circular-progress');
         const progressText = document.getElementById('progress-text');
-        const batchTableBody = document.getElementById('batch-table-body');
 
         // State
         let companyData = [];
@@ -582,7 +608,8 @@
         let isPaused = false;
         let fetchController = null;
         let storedCompanyIds = new Set();
-        let csvCompanyIds = new Set(); // Track IDs from JSON to manage "New" sticker
+        let csvCompanyIds = new Set();
+        let allBranches = [];
 
         // Bearer Token
         const bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Zjk1NTUxYzNkNWIzNzMwNzY5YWRiYSIsImlhdCI6MTc1MDg3NTg3NywiZXhwIjoxNzUzNDY3ODc3fQ.RRvoUFo76Q65vECK3P8cIHy7MSgGTd8zkmYYaqE89Dw";
@@ -623,6 +650,28 @@
         const typeColors = {
             'Placement': '#d1fae5',
             'Internship': '#ffedd5',
+            'default': '#e5e7eb'
+        };
+
+        const branchColors = {
+            'CSAI': '#bfdbfe',
+            'CSE': '#93c5fd',
+            'CSDS': '#60a5fa',
+            'CIOT': '#93c5fd',
+            'IT': '#bfdbfe',
+            'ITNS': '#dbeafe',
+            'MAC': '#fef9c3',
+            'ECIOT': '#fef9c3',
+            'ECE': '#fef3c7',
+            'ECAM': '#fde68a',
+            'EE': '#fce7a3',
+            'ICE': '#fef9c3',
+            'ME': '#fef3c7',
+            'MEEV': '#fef9c3',
+            'WEST': '#fef2f2',
+            'CE': '#fee2e2',
+            'BT': '#ffedd5',
+            'GI': '#fed7aa',
             'default': '#e5e7eb'
         };
 
@@ -679,6 +728,25 @@
             }
         }
 
+        // Populate branch filter
+        function populateBranchFilter() {
+            const branches = new Set();
+            companyData.forEach(company => {
+                const event = company.details?.events && company.details.events.length > 0 ? company.details.events[0] : {};
+                (event.branchesAllowed || []).forEach(b => {
+                    if (b.branch) branches.add(b.branch);
+                });
+            });
+            allBranches = Array.from(branches).sort();
+            branchFilter.innerHTML = '<option value="">All</option><option value="ALL">ALL</option>';
+            allBranches.forEach(branch => {
+                const option = document.createElement('option');
+                option.value = branch;
+                option.textContent = branch;
+                branchFilter.appendChild(option);
+            });
+        }
+
         // Validate MongoDB ObjectID
         function isValidObjectId(id) {
             return /^[0-9a-fA-F]{24}$/.test(id);
@@ -713,6 +781,7 @@
                                     jobtitle: company.events[0].jobtitle || undefined,
                                     category: company.events[0].category || undefined,
                                     stipend: company.events[0].stipend !== undefined ? parseFloat(company.events[0].stipend) : undefined,
+                                    stipend_currency: company.events[0].stipend_currency || undefined,
                                     duration: company.events[0].duration || undefined,
                                     type: company.events[0].type || undefined,
                                     graduation_cgpa: company.events[0].graduation_cgpa !== undefined ? parseFloat(company.events[0].graduation_cgpa) : undefined,
@@ -722,6 +791,7 @@
                                     cgpa_10th: company.events[0].cgpa_10th !== undefined ? parseFloat(company.events[0].cgpa_10th) : undefined,
                                     cgpa_12th: company.events[0].cgpa_12th !== undefined ? parseFloat(company.events[0].cgpa_12th) : undefined,
                                     stipend_info: company.events[0].stipend_info || undefined,
+                                    event_description: company.events[0].event_description || undefined,
                                     campus: company.events[0].campus || [],
                                     backlogs: company.events[0].backlogs !== undefined ? parseInt(company.events[0].backlogs) : undefined,
                                     branchesAllowed: company.events[0].branchesAllowed || [],
@@ -763,6 +833,7 @@
                     storedCompanyIds = new Set(companyData.map(c => c.id));
                     filteredData = [...companyData];
                     saveCompaniesToStorage();
+                    populateBranchFilter();
                     applyFilters();
                     updateBatchCounts();
                 } else {
@@ -784,6 +855,7 @@
                 csvCompanyIds = new Set(companyData.map(c => c.id));
                 storedCompanyIds = new Set(companyData.map(c => c.id));
                 filteredData = [...companyData];
+                populateBranchFilter();
                 applyFilters();
                 updateBatchCounts();
             }
@@ -915,6 +987,7 @@
                             companyData.push(newCompany);
                             filteredData.push(newCompany);
                             saveCompaniesToStorage();
+                            populateBranchFilter();
                             applyFilters();
                             updateBatchCounts();
                         }
@@ -947,15 +1020,20 @@
             const type = typeFilter.value.toLowerCase();
             const cgpa = parseFloat(cgpaFilter.value) || null;
             const name = nameFilter.value.toLowerCase();
+            const branch = branchFilter.value;
 
             filteredData = companyData.filter(company => {
                 const details = company.details || {};
                 const event = details.events && details.events.length > 0 ? details.events[0] : {};
+                const branches = (event.branchesAllowed || []).map(b => b.branch);
                 const matchesYear = year ? details.year === year : true;
                 const matchesType = type ? (event.type || '').toLowerCase().includes(type) : true;
                 const matchesCgpa = cgpa !== null ? (event.graduation_cgpa || 0) >= cgpa : true;
                 const matchesName = name ? (details.Name || company.name || '').toLowerCase().includes(name) : true;
-                return matchesYear && matchesType && matchesCgpa && matchesName;
+                const matchesBranch = branch ? 
+                    (branch === 'ALL' ? branches.length === 0 || branches.length === allBranches.length : branches.includes(branch)) : 
+                    true;
+                return matchesYear && matchesType && matchesCgpa && matchesName && matchesBranch;
             });
 
             sortData();
@@ -990,8 +1068,8 @@
                     valueA = (eventA._id || '').toLowerCase();
                     valueB = (eventB._id || '').toLowerCase();
                 } else if (sortColumn === 'degrees_allowed' || sortColumn === 'campus' || sortColumn === 'branches_allowed') {
-                    valueA = (eventA[sortColumn] || []).join(', ').toLowerCase();
-                    valueB = (eventB[sortColumn] || []).join(', ').toLowerCase();
+                    valueA = (eventA[sortColumn] || []).map(b => b.branch || b).join(', ').toLowerCase();
+                    valueB = (eventB[sortColumn] || []).map(b => b.branch || b).join(', ').toLowerCase();
                 } else {
                     valueA = (eventA[sortColumn] || detailsA[sortColumn] || '').toString().toLowerCase();
                     valueB = (eventB[sortColumn] || detailsB[sortColumn] || '').toString().toLowerCase();
@@ -1009,7 +1087,9 @@
             filteredData.forEach((company, index) => {
                 const details = company.details || {};
                 const event = details.events && details.events.length > 0 ? details.events[0] : {};
-                const branchesAllowed = (event.branchesAllowed || []).map(b => b.branch).join(', ');
+                const branchesAllowed = (event.branchesAllowed || []).map(b => 
+                    `<span class="tag" style="background-color: ${branchColors[b.branch] || branchColors.default}">${b.branch}</span>`
+                ).join('');
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${index + 1}</td>
@@ -1021,6 +1101,7 @@
                     <td>${event.jobtitle || '-'}</td>
                     <td><span class="tag" style="background-color: ${eventCategoryColors[event.category] || eventCategoryColors.default}">${event.category || '-'}</span></td>
                     <td><span class="tag" style="background-color: ${getStipendColor(event.stipend)}">${event.stipend !== undefined ? event.stipend : '-'}</span></td>
+                    <td>${event.stipend_currency || '-'}</td>
                     <td>${event.duration || '-'}</td>
                     <td><span class="tag" style="background-color: ${typeColors[event.type] || typeColors.default}">${event.type || '-'}</span></td>
                     <td><span class="tag" style="background-color: ${getCgpaColor(event.graduation_cgpa)}">${event.graduation_cgpa !== undefined ? event.graduation_cgpa : '-'}</span></td>
@@ -1030,6 +1111,7 @@
                     <td>${event.cgpa_10th !== undefined ? event.cgpa_10th : '-'}</td>
                     <td>${event.cgpa_12th !== undefined ? event.cgpa_12th : '-'}</td>
                     <td>${event.stipend_info || '-'}</td>
+                    <td>${event.event_description || '-'}</td>
                     <td>${(event.campus || []).join(', ') || '-'}</td>
                     <td>${event.backlogs !== undefined ? event.backlogs : '-'}</td>
                     <td>${branchesAllowed || '-'}</td>
@@ -1053,10 +1135,11 @@
         function exportToCsv() {
             const headers = [
                 'Serial No', 'ID', 'Name', 'View', 'Category', 'Year', 'Job Title', 'Event Category', 
-                'Stipend (INR)', 'Duration', 'Type', 'Graduation CGPA', 'Degree', 'Status', 'Optional Criteria', 
-                'CGPA 10th', 'CGPA 12th', 'Stipend Info', 'Campus', 'Backlogs', 'Branches Allowed', 'Deadline', 
-                'Location', 'Degrees', 'POC', 'Placement Interviews', 'Internship Shortlists', 'Published At', 
-                'Created At', 'Updated At', 'Event ID', 'Info'
+                'Stipend (INR)', 'Stipend Currency', 'Duration', 'Type', 'Graduation CGPA', 'Degree', 
+                'Status', 'Optional Criteria', 'CGPA 10th', 'CGPA 12th', 'Stipend Info', 'Event Description',
+                'Campus', 'Backlogs', 'Branches Allowed', 'Deadline', 'Location', 'Degrees', 'POC', 
+                'Placement Interviews', 'Internship Shortlists', 'Published At', 'Created At', 'Updated At', 
+                'Event ID', 'Info'
             ];
             const rows = companyData.map((company, index) => {
                 const details = company.details || {};
@@ -1072,6 +1155,7 @@
                     `"${(event.jobtitle || '-').replace(/"/g, '""')}"`,
                     event.category || '-',
                     event.stipend !== undefined ? event.stipend : '-',
+                    event.stipend_currency || '-',
                     `"${(event.duration || '-').replace(/"/g, '""')}"`,
                     event.type || '-',
                     event.graduation_cgpa !== undefined ? event.graduation_cgpa : '-',
@@ -1081,6 +1165,7 @@
                     event.cgpa_10th !== undefined ? event.cgpa_10th : '-',
                     event.cgpa_12th !== undefined ? event.cgpa_12th : '-',
                     `"${(event.stipend_info || '-').replace(/"/g, '""')}"`,
+                    `"${(event.event_description || '-').replace(/"/g, '""')}"`,
                     (event.campus || []).join(', ') || '-',
                     event.backlogs !== undefined ? event.backlogs : '-',
                     branchesAllowed || '-',
@@ -1221,6 +1306,7 @@
         typeFilter.addEventListener('input', applyFilters);
         cgpaFilter.addEventListener('input', applyFilters);
         nameFilter.addEventListener('input', applyFilters);
+        branchFilter.addEventListener('change', applyFilters);
 
         // Sort event listeners
         document.querySelectorAll('th[data-sort]').forEach(header => {
@@ -1245,7 +1331,7 @@
         // Load companies from JSON on page load
         document.addEventListener('DOMContentLoaded', () => {
             loadCompaniesFromJson();
-            sortData(); // Apply default sort by year (2027 on top)
+            sortData();
             renderTable();
         });
     </script>
