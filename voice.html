@@ -2,11 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Natural Male Text-to-Speech</title>
+  <title>Text-to-Speech: English & Hindi</title>
 </head>
 <body>
-  <h2>Google Cloud Text-to-Speech (Natural Male Voice)</h2>
-  <textarea id="text-input" rows="6" cols="60" placeholder="Enter text to speak..."></textarea><br><br>
+  <h2>Google Cloud Text-to-Speech (English & Hindi)</h2>
+
+  <label for="voice-select">Choose Voice:</label>
+  <select id="voice-select">
+    <option value="en-US|en-US-Wavenet-D|MALE">English (US, Male - Natural)</option>
+    <option value="hi-IN|hi-IN-Wavenet-A|MALE">Hindi (India, Male - Natural)</option>
+  </select>
+
+  <br><br>
+  <textarea id="text-input" rows="6" cols="60" placeholder="Enter text here... (Type in English or Hindi based on voice)"></textarea><br><br>
   <button onclick="synthesizeSpeech()">Speak</button>
 
   <br><br>
@@ -14,8 +22,11 @@
 
   <script>
     async function synthesizeSpeech() {
-      const apiKey = 'AIzaSyBCBpgFA3Ap4IIR_jkQqH3mNFKEBXCFqSA';  // <-- Replace with your actual API key
+      const apiKey = 'AIzaSyBCBpgFA3Ap4IIR_jkQqH3mNFKEBXCFqSA';  // Replace with your real key
       const text = document.getElementById('text-input').value;
+
+      const selectedOption = document.getElementById('voice-select').value;
+      const [languageCode, voiceName, ssmlGender] = selectedOption.split('|');
 
       const response = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`, {
         method: 'POST',
@@ -25,14 +36,12 @@
         body: JSON.stringify({
           input: { text: text },
           voice: {
-            languageCode: 'en-US',
-            name: 'en-US-Wavenet-D',   // <-- Natural male voice
-            ssmlGender: 'MALE'
+            languageCode: languageCode,
+            name: voiceName,
+            ssmlGender: ssmlGender
           },
           audioConfig: {
-            audioEncoding: 'MP3',
-            speakingRate: 1.0,
-            pitch: 0.0
+            audioEncoding: 'MP3'
           }
         })
       });
