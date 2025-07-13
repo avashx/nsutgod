@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Text to Speech Web App</title>
+  <title>Natural Male Text-to-Speech</title>
 </head>
 <body>
-  <h2>Google Cloud Text-to-Speech</h2>
+  <h2>Google Cloud Text-to-Speech (Natural Male Voice)</h2>
   <textarea id="text-input" rows="6" cols="60" placeholder="Enter text to speak..."></textarea><br><br>
   <button onclick="synthesizeSpeech()">Speak</button>
 
@@ -24,8 +24,16 @@
         },
         body: JSON.stringify({
           input: { text: text },
-          voice: { languageCode: 'en-US', ssmlGender: 'NEUTRAL' },
-          audioConfig: { audioEncoding: 'MP3' }
+          voice: {
+            languageCode: 'en-US',
+            name: 'en-US-Wavenet-D',   // <-- Natural male voice
+            ssmlGender: 'MALE'
+          },
+          audioConfig: {
+            audioEncoding: 'MP3',
+            speakingRate: 1.0,
+            pitch: 0.0
+          }
         })
       });
 
