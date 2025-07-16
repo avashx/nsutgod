@@ -184,7 +184,7 @@
                     return;
                 }
                 data = companyList;
-                filename = 'company_list.json';
+                filename = 'com_data.json';
                 log('Exported company list to JSON');
             } else {
                 if (companies.length === 0) {
@@ -218,7 +218,7 @@
                     };
                     return { ...allFields, ...flat };
                 });
-                filename = 'company_details.json';
+                filename = 'com_data.json';
                 log('Exported company details to JSON');
             }
 
